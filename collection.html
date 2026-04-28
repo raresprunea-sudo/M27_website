@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M27 — The Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&family=Josefin+Sans:wght@100;700&family=Orbitron:wght@700;900&family=Cormorant+Garamond:wght@300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0; font: inherit; vertical-align: baseline; }
+    ::selection { background: #202223; color: #fff; }
+    html, body { overflow-x: hidden; }
+    body {
+      font-family: Helvetica, "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #6d7175;
+      background: #f4f4f4;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; width: 100%; object-fit: cover; }
+
+    /* ── ANNOUNCEMENT BAR ── */
+    .announcement-bar {
+      background: #D6E8F2;
+      text-align: center;
+      padding: 8px 20px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #000;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── STICKY TOP ── */
+    .sticky-top {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    /* ── HEADER ── */
+    header { background: #fff; border-bottom: 1px solid #e8e8e8; }
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+    }
+    .header-left { display: flex; align-items: center; }
+    .logo img { height: 30px; width: auto; display: block; }
+    nav { display: flex; align-items: center; margin-left: 40px; }
+    nav a {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0 14px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+    nav a:hover { border-bottom-color: #1a1a1a; }
+    .header-icons { display: flex; align-items: center; gap: 18px; }
+    .header-icons button, .header-icons a {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .icon-svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .cart-count {
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: absolute;
+      top: -6px; right: -6px;
+    }
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #1a1a1a;
+      align-items: center;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .mobile-nav { display: none; background: #fff; border-top: 1px solid #e8e8e8; }
+    .mobile-nav a {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 18px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.12s;
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { background: #f8f8f8; }
+    .mobile-nav.open { display: block; }
+
+    /* ── COLLECTION HERO ── */
+    .collection-hero {
+      background: #fff;
+      text-align: center;
+      padding: 80px 24px 64px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .collection-eyebrow {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: #b0b0b0;
+      margin-bottom: 20px;
+    }
+    .collection-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 64px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      line-height: 1;
+      margin-bottom: 28px;
+    }
+    .collection-rule {
+      width: 36px;
+      height: 1px;
+      background: #c8c8c8;
+      margin: 0 auto 24px;
+    }
+    .collection-desc {
+      font-size: 8.8px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #b0b0b0;
+    }
+
+    /* ── PRODUCT GRID ── */
+    .product-grid {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2px 24px 64px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+
+    /* ── PRODUCT CARD ── */
+    .product-card {
+      background: #fff;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .product-card.hidden { display: none; }
+    .card-link-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+    .product-img-wrap {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+    }
+    .product-img-primary, .product-img-secondary {
+      position: absolute;
+      inset: 0;
+      transition: opacity 0.3s ease;
+    }
+    .product-img-secondary { opacity: 0; }
+    .product-img-wrap.img-hover .product-img-secondary { opacity: 1; }
+    .product-img-wrap.img-hover .product-img-primary { opacity: 0; }
+    .product-img-primary img, .product-img-secondary img { width: 100%; height: 100%; object-fit: contain; }
+    .product-wishlist {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 50%;
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .product-card:hover .product-wishlist { opacity: 1; }
+    .product-info { padding: 12px 14px 18px; }
+    .product-newin {
+      display: inline-block;
+      background: #ebebeb;
+      color: #9a9a9a;
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .product-newin.soon {
+      background: #f4f4f4;
+      color: #c0c0c0;
+    }
+    .product-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .product-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.2;
+      margin-bottom: 2px;
+    }
+    .product-color { font-size: 11px; color: #6d7175; }
+    .product-prices { text-align: right; flex-shrink: 0; }
+    .product-price-original {
+      font-size: 11px;
+      color: #a0a4a8;
+      text-decoration: line-through;
+      line-height: 1.4;
+    }
+    .product-price-disc {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FF5F15;
+      line-height: 1.4;
+    }
+    .product-price-soon {
+      font-size: 12px;
+      font-weight: 600;
+      color: #c0c0c0;
+      line-height: 1.4;
+    }
+
+    /* ── COLOR SWATCHES ── */
+    .color-swatches {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+    .swatch.active {
+      box-shadow: 0 0 0 1.5px #fff, 0 0 0 3px #1a1a1a;
+    }
+    .swatch:hover:not(.active) { transform: scale(1.2); }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      background: #fff;
+      border-top: 1px solid #e8e8e8;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .page-footer p {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: #b0b0b0;
+      text-transform: uppercase;
+    }
+
+    /* ── MOBILE (≤ 600px) ── */
+    @media (max-width: 600px) {
+      .announcement-bar { padding: 8px 12px; font-size: 10px; }
+      .header-inner { padding: 0 14px; position: relative; }
+      .hamburger { display: flex; }
+      .logo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .logo img { height: 22px; }
+      nav { display: none; }
+
+      .collection-hero { padding: 48px 20px 40px; }
+      .collection-title { font-size: 30px; letter-spacing: 0.14em; }
+
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 8px 14px 28px;
+      }
+      .product-grid .product-card.hidden { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sticky-top">
+    <div class="announcement-bar">
+      <span>FREE SHIPPING OVER 200 RON</span>
+    </div>
+    <header>
+      <div class="header-inner">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <line x1="2" y1="5" x2="18" y2="5"/>
+              <line x1="2" y1="10" x2="18" y2="10"/>
+              <line x1="2" y1="15" x2="18" y2="15"/>
+            </svg>
+          </button>
+          <a href="index.html" class="logo"><img src="brand_assets/logo-m27.png" alt="M27" /></a>
+          <nav>
+            <a href="collection.html">Men</a>
+            <a href="collection.html">Women</a>
+            <a href="collection.html">Collections</a>
+          </nav>
+        </div>
+        <div class="header-icons">
+          <a href="https://www.m27.ro/cos-de-cumparaturi" aria-label="Cart" style="position:relative">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="cart-count">2</span>
+          </a>
+        </div>
+      </div>
+      <div class="mobile-nav" id="mobile-nav">
+        <a href="collection.html">Men</a>
+        <a href="collection.html">Women</a>
+        <a href="collection.html">Collections</a>
+      </div>
+    </header>
+  </div>
+
+  <!-- COLLECTION HERO -->
+  <div class="collection-hero">
+    <div class="collection-eyebrow">M27 Eyewear</div>
+    <div class="collection-title">The Collection</div>
+    <div class="collection-rule"></div>
+    <div class="collection-desc">Full Catalogue &nbsp;·&nbsp; 7 Styles &nbsp;·&nbsp; 30 Frames</div>
+  </div>
+
+  <!-- PRODUCT GRID -->
+  <div class="product-grid" id="product-grid">
+
+    <!-- 1. Sulphur Skyblue -->
+    <div class="product-card" data-category="men">
+      <a href="https://www.m27.ro/produse/sulphur.html" class="card-link-overlay" aria-label="View Sulphur"></a>
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/miami/sulphur-blue-1.jpg" alt="Sulphur" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/miami/sulphur-blue-2.jpg" alt="Sulphur angle" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name">Sulphur</div>
+            <div class="product-color">Skyblue</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+        <div class="color-swatches">
+          <button class="swatch active" style="background:#87B5D5" data-primary="product%20photos/miami/sulphur-blue-1.jpg" data-secondary="product%20photos/miami/sulphur-blue-2.jpg" data-color="Skyblue" aria-label="Skyblue"></button>
+          <button class="swatch" style="background:#1a1a1a" data-primary="product%20photos/miami/miami-black1.jpg" data-secondary="product%20photos/miami/miami-black2.jpg" data-color="Full Black" aria-label="Full Black"></button>
+          <button class="swatch" style="background:#2E5A30" data-primary="product%20photos/miami/miami-green1.jpg" data-secondary="product%20photos/miami/miami-green2.jpg" data-color="Dark Green" aria-label="Dark Green"></button>
+          <button class="swatch" style="background:#A8C840" data-primary="product%20photos/miami/sulphur-lime-1.jpg" data-secondary="product%20photos/miami/sulphur-lime-2.jpg" data-color="Lime" aria-label="Lime"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Sellenium Purple -->
+    <div class="product-card" data-category="women">
+      <a href="https://www.m27.ro/produse/selenium.html" class="card-link-overlay" aria-label="View Sellenium"></a>
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/tenerife/tenerife-mov-1.jpg" alt="Sellenium" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/tenerife/tenerife-mov-2.jpg" alt="Sellenium angle" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name">Sellenium</div>
+            <div class="product-color">Purple</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+        <div class="color-swatches">
+          <button class="swatch active" style="background:#7A4E9C" data-primary="product%20photos/tenerife/tenerife-mov-1.jpg" data-secondary="product%20photos/tenerife/tenerife-mov-2.jpg" data-color="Purple" aria-label="Purple"></button>
+          <button class="swatch" style="background:#1a1a1a" data-primary="product%20photos/tenerife/tenerife-black-1.jpg" data-secondary="product%20photos/tenerife/tenerife-black-2.jpg" data-color="Full Black" aria-label="Full Black"></button>
+          <button class="swatch" style="background:#7B3F44" data-primary="product%20photos/tenerife/tenerife-fig1.jpg" data-secondary="product%20photos/tenerife/tenerife-fig2.jpg" data-color="Fig" aria-label="Fig"></button>
+          <button class="swatch" style="background:#C47830" data-primary="product%20photos/tenerife/tenerife-tiger-1.jpg" data-secondary="product%20photos/tenerife/tenerife-tiger-2.jpg" data-color="Tiger" aria-label="Tiger"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Zirconium Full Black -->
+    <div class="product-card" data-category="men">
+      <a href="https://www.m27.ro/produse/zirconium.html" class="card-link-overlay" aria-label="View Zirconium"></a>
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/roma/roma-black-1.jpg" alt="Zirconium" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/roma/roma-black-2.jpg" alt="Zirconium angle" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name">Zirconium</div>
+            <div class="product-color">Full Black</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+        <div class="color-swatches">
+          <button class="swatch active" style="background:#1a1a1a" data-primary="product%20photos/roma/roma-black-1.jpg" data-secondary="product%20photos/roma/roma-black-2.jpg" data-color="Full Black" aria-label="Full Black"></button>
+          <button class="swatch" style="background:#3A6EA8" data-primary="product%20photos/roma/roma-blue-1.jpg" data-secondary="product%20photos/roma/roma-blue-2.jpg" data-color="Skyblue" aria-label="Skyblue"></button>
+          <button class="swatch" style="background:#7B4A2A" data-primary="product%20photos/roma/roma-cacao-1.jpg" data-secondary="product%20photos/roma/roma-cacao2.jpg" data-color="Caramel" aria-label="Caramel"></button>
+          <button class="swatch" style="background:#D4601A" data-primary="product%20photos/roma/roma-orange-1.jpg" data-secondary="product%20photos/roma/roma-orange-2.jpg" data-color="Tangerine" aria-label="Tangerine"></button>
+          <button class="swatch" style="background:#E080A0" data-primary="product%20photos/roma/roma-pink-1.jpg" data-secondary="product%20photos/roma/roma-rose-2.jpg" data-color="Rose" aria-label="Rose"></button>
+          <button class="swatch" style="background:#C47830" data-primary="product%20photos/roma/roma-tiger-1.jpg" data-secondary="product%20photos/roma/roma-tiger-2.jpg" data-color="Tiger" aria-label="Tiger"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Mercury Navy -->
+    <div class="product-card" data-category="men">
+      <a href="https://www.m27.ro/produse/xenon.html" class="card-link-overlay" aria-label="View Mercury"></a>
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/tokyo/tokyo-blue-1.jpg" alt="Mercury" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/tokyo/tokyo-blue-2.jpg" alt="Mercury angle" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name">Mercury</div>
+            <div class="product-color">Navy</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+        <div class="color-swatches">
+          <button class="swatch active" style="background:#1E3D6B" data-primary="product%20photos/tokyo/tokyo-blue-1.jpg" data-secondary="product%20photos/tokyo/tokyo-blue-2.jpg" data-color="Navy" aria-label="Navy"></button>
+          <button class="swatch" style="background:#3E2462" data-primary="product%20photos/tokyo/tokyo-grey-1.jpg" data-secondary="product%20photos/tokyo/tokyo-grey-2.jpg" data-color="Dark Purple" aria-label="Dark Purple"></button>
+          <button class="swatch" style="background:#C8A870" data-primary="product%20photos/tokyo/tokyo-yellow-1.jpg" data-secondary="product%20photos/tokyo/tokyo-yellow-2.jpg" data-color="Champagne" aria-label="Champagne"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Chlorine Tangerine -->
+    <div class="product-card" data-category="women">
+      <a href="https://www.m27.ro/produse/zinc.html" class="card-link-overlay" aria-label="View Chlorine"></a>
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/venice/venice-orange-1.jpg" alt="Chlorine" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/venice/venice-orange-2.jpg" alt="Chlorine angle" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name">Chlorine</div>
+            <div class="product-color">Tangerine</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+        <div class="color-swatches">
+          <button class="swatch active" style="background:#D4601A" data-primary="product%20photos/venice/venice-orange-1.jpg" data-secondary="product%20photos/venice/venice-orange-2.jpg" data-color="Tangerine" aria-label="Tangerine"></button>
+          <button class="swatch" style="background:#87B5D5" data-primary="product%20photos/venice/venice-blue1.jpg" data-secondary="product%20photos/venice/venice-blue2.jpg" data-color="Skyblue" aria-label="Skyblue"></button>
+          <button class="swatch" style="background:#8AC428" data-primary="product%20photos/venice/venice-kiwi-1.jpg" data-secondary="product%20photos/venice/venice-kiwi-2.jpg" data-color="Kiwi" aria-label="Kiwi"></button>
+          <button class="swatch" style="background:#B0E040" data-primary="product%20photos/venice/venice-lime-1.jpg" data-secondary="product%20photos/venice/venice-lime-2.jpg" data-color="Lime" aria-label="Lime"></button>
+          <button class="swatch" style="background:#E880A0" data-primary="product%20photos/venice/venice-pink-1.jpg" data-secondary="product%20photos/venice/venice-rose-2.jpg" data-color="Rose" aria-label="Rose"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Palladium Volcano -->
+    <div class="product-card" data-category="men">
+      <a href="https://www.m27.ro/potassium.html" class="card-link-overlay" aria-label="View Palladium"></a>
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/praga/praga-volc-1.jpg" alt="Palladium" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/praga/praga-volc-2.jpg" alt="Palladium angle" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name">Palladium</div>
+            <div class="product-color">Volcano</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+        <div class="color-swatches">
+          <button class="swatch active" style="background:#CC3B1A" data-primary="product%20photos/praga/praga-volc-1.jpg" data-secondary="product%20photos/praga/praga-volc-2.jpg" data-color="Volcano" aria-label="Volcano"></button>
+          <button class="swatch" style="background:#1a1a1a" data-primary="product%20photos/praga/praga-black1.jpg" data-secondary="product%20photos/praga/praga-black2.jpg" data-color="Full Black" aria-label="Full Black"></button>
+          <button class="swatch" style="background:#C8A870" data-primary="product%20photos/praga/praga-by-1.jpg" data-secondary="product%20photos/praga/praga-by-2.jpg" data-color="Champagne" aria-label="Champagne"></button>
+          <button class="swatch" style="background:#3A6E3A" data-primary="product%20photos/praga/praga-green-1.jpg" data-secondary="product%20photos/praga/praga-green-2.jpg" data-color="Dark Green" aria-label="Dark Green"></button>
+          <button class="swatch" style="background:#C4943A" data-primary="product%20photos/praga/praga-mostard1.jpg" data-secondary="product%20photos/praga/praga-mostard1.jpg" data-color="Mostard" aria-label="Mostard"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Titanium Full Black -->
+    <div class="product-card" data-category="women">
+      <a href="https://www.m27.ro/produse/titanium.html" class="card-link-overlay" aria-label="View Titanium"></a>
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/cape%20town/tit-black-1.jpg" alt="Titanium" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/cape%20town/tit-black-2.jpg" alt="Titanium angle" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name">Titanium</div>
+            <div class="product-color">Full Black</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+        <div class="color-swatches">
+          <button class="swatch active" style="background:#1a1a1a" data-primary="product%20photos/cape%20town/tit-black-1.jpg" data-secondary="product%20photos/cape%20town/tit-black-2.jpg" data-color="Full Black" aria-label="Full Black"></button>
+          <button class="swatch" style="background:linear-gradient(135deg,#1a1a1a 50%,#f0f0f0 50%)" data-primary="product%20photos/cape%20town/tit-panda-1.jpg" data-secondary="product%20photos/cape%20town/tit-panda-2.jpg" data-color="Panda" aria-label="Panda"></button>
+          <button class="swatch" style="background:#C47830" data-primary="product%20photos/cape%20town/tit-tiger-1.jpg" data-secondary="product%20photos/cape%20town/tit-tiger-2.jpg" data-color="Tiger" aria-label="Tiger"></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer">
+    <p>© 2025 M27 Eyewear &nbsp;·&nbsp; Bucharest, Romania</p>
+  </div>
+
+  <script>
+    // Fixed header offset
+    (function () {
+      function updateHeaderOffset() {
+        const h = document.querySelector('.sticky-top');
+        if (h) {
+          const hh = h.offsetHeight;
+          document.body.style.paddingTop = hh + 'px';
+          document.documentElement.style.setProperty('--header-h', hh + 'px');
+        }
+      }
+      updateHeaderOffset();
+      window.addEventListener('resize', updateHeaderOffset);
+    })();
+
+    // Hamburger toggle
+    (function () {
+      const btn = document.getElementById('hamburger-btn');
+      const nav = document.getElementById('mobile-nav');
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const open = nav.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
+      });
+      document.addEventListener('click', function (e) {
+        if (nav.classList.contains('open') && !nav.contains(e.target)) {
+          nav.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+
+    // Image-area hover swap (overlay blocks CSS :hover, so we use mousemove + getBoundingClientRect)
+    document.querySelectorAll('.product-card').forEach(function(card) {
+      var imgWrap = card.querySelector('.product-img-wrap');
+      card.addEventListener('mousemove', function(e) {
+        var r = imgWrap.getBoundingClientRect();
+        var inside = e.clientX >= r.left && e.clientX <= r.right &&
+                     e.clientY >= r.top  && e.clientY <= r.bottom;
+        imgWrap.classList.toggle('img-hover', inside);
+      });
+      card.addEventListener('mouseleave', function() {
+        imgWrap.classList.remove('img-hover');
+      });
+    });
+
+    // Color swatch switching
+    document.querySelectorAll('.swatch').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var card = btn.closest('.product-card');
+        var primary = card.querySelector('.product-img-primary img');
+        var secondary = card.querySelector('.product-img-secondary img');
+        var colorLabel = card.querySelector('.product-color');
+        primary.src = btn.dataset.primary;
+        if (btn.dataset.secondary) secondary.src = btn.dataset.secondary;
+        colorLabel.textContent = btn.dataset.color;
+        card.querySelectorAll('.swatch').forEach(function(s) { s.classList.remove('active'); });
+        btn.classList.add('active');
+      });
+    });
+
+  </script>
+
+</body>
+</html>

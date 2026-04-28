@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M27 — Life Is A Movie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&family=Josefin+Sans:wght@100;700&family=Orbitron:wght@700;900&family=Cormorant+Garamond:wght@300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0; font: inherit; vertical-align: baseline; }
+    ::selection { background: #202223; color: #fff; }
+
+    html, body { overflow-x: hidden; }
+
+    body {
+      font-family: Helvetica, "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #6d7175;
+      background: #f4f4f4;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { display: block; width: 100%; object-fit: cover; }
+    ul { list-style: none; }
+
+    /* ── ANNOUNCEMENT BAR ── */
+    .announcement-bar {
+      background: #D6E8F2;
+      text-align: center;
+      padding: 8px 20px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #000;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .announcement-bar span { margin: 0 12px; }
+
+    /* ── HEADER ── */
+    .sticky-top {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      height: 30px;
+      width: auto;
+      display: block;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      margin-left: 40px;
+    }
+    nav a {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0 14px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+    nav a:hover { border-bottom-color: #1a1a1a; }
+    nav a.sale { color: #e63946; }
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .header-icons button, .header-icons a {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .icon-svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .cart-count {
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: absolute;
+      top: -6px; right: -6px;
+    }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #1a1a1a;
+      align-items: center;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    /* ── MOBILE NAV DROPDOWN ── */
+    .mobile-nav { display: none; background: #fff; border-top: 1px solid #e8e8e8; }
+    .mobile-nav a {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 18px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.12s;
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { background: #f8f8f8; }
+    .mobile-nav.open { display: block; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 560px;
+      overflow: hidden;
+    }
+    .hero img { width: 100%; height: 100%; object-fit: cover; object-position: left bottom; }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.35) 100%);
+    }
+    /* hero-content spans the full hero so headline and button can be positioned independently */
+    .hero-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+    }
+    .hero-headline {
+      pointer-events: auto;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 48px;
+      letter-spacing: 0.55em;
+      text-transform: uppercase;
+      color: #DBF3FC;
+      line-height: 1;
+      opacity: 1;
+      position: absolute;
+      top: 38%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 900px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .hero-cta {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.80);
+      color: #1a1a1a;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 14px 44px;
+      transition: opacity 0.15s, transform 0.15s;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      position: absolute;
+      top: calc(38% + 140px);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .hero-cta:hover { opacity: 0.85; transform: translateX(-50%) translateY(-1px); }
+
+    /* ── MARQUEE BAR ── */
+    .marquee-bar {
+      background: #f4f2ef;
+      border-top: 1px solid #e4e0da;
+      border-bottom: 1px solid #e4e0da;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100vw;
+      padding: 11px 0;
+      white-space: nowrap;
+      position: relative;
+    }
+    .marquee-track {
+      display: inline-flex;
+      will-change: transform;
+      animation: marquee-scroll 28s linear infinite;
+    }
+    .marquee-track span {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #7A1F01;
+      padding: 0 32px;
+    }
+    .marquee-sep {
+      font-size: 9px;
+      color: #999;
+      padding: 0 4px;
+      letter-spacing: 0;
+    }
+    @keyframes marquee-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 36px 24px 16px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+    }
+    .section-sub { color: #6d7175; font-weight: 400; }
+    .view-all {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+    }
+    .view-all:hover { text-decoration: underline; }
+
+    /* ── PRODUCT GRID 4-col ── */
+    .product-grid {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+    /* ── PRODUCT GRID 5-col ── */
+    .product-grid-5 {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+    }
+
+    /* ── PRODUCT CARD ── */
+    .product-card {
+      background: #fff;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-link-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+    .product-img-wrap {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+    }
+    .product-img-primary, .product-img-secondary {
+      position: absolute;
+      inset: 0;
+      transition: opacity 0.3s ease;
+    }
+    .product-img-secondary { opacity: 0; }
+    .product-card:hover .product-img-secondary { opacity: 1; }
+    .product-card:hover .product-img-primary { opacity: 0; }
+    .product-img-primary img, .product-img-secondary img { width: 100%; height: 100%; object-fit: cover; }
+    .product-badge {
+      position: absolute;
+      top: 10px; left: 10px;
+      background: #c6f135;
+      color: #1a1a1a;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      z-index: 2;
+    }
+    .product-badge.sale-badge { background: #e63946; color: #fff; }
+    .product-wishlist {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 50%;
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .product-card:hover .product-wishlist { opacity: 1; }
+    .product-info { padding: 12px 14px 16px; }
+    .product-name { font-size: 13px; font-weight: 600; color: #1a1a1a; letter-spacing: 0.02em; margin-bottom: 2px; }
+    .product-color { font-size: 11px; color: #6d7175; margin-bottom: 8px; }
+    .product-swatches { display: flex; gap: 4px; margin-bottom: 8px; }
+    .product-swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12); }
+    .product-price { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+    .product-price .original { color: #6d7175; text-decoration: line-through; margin-right: 6px; font-weight: 400; }
+    .product-price .sale { color: #e63946; }
+
+    /* ── MELLER-STYLE CARD INFO ── */
+    .product-newin {
+      display: inline-block;
+      background: #ebebeb;
+      color: #9a9a9a;
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .product-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .product-prices {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .product-price-original {
+      font-size: 11px;
+      color: #a0a4a8;
+      text-decoration: line-through;
+      line-height: 1.4;
+    }
+    .product-price-disc {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FF5F15;
+      line-height: 1.4;
+    }
+
+    /* ── FEATURED BANNERS ── */
+    .featured-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      margin-bottom: 2px;
+    }
+    .featured-panel {
+      position: relative;
+      overflow: hidden;
+      height: 420px;
+      cursor: pointer;
+    }
+    .featured-panel picture { display: block; width: 100%; height: 100%; }
+    .featured-panel img { height: 100%; transition: transform 0.4s ease; }
+    .featured-panel:hover img { transform: scale(1.03); }
+    .featured-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.08) 55%, transparent 100%);
+    }
+    .featured-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 24px;
+      color: #fff;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .featured-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.65; margin-bottom: 4px; }
+    .featured-name { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .featured-cta {
+      display: inline-block;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.55);
+      padding-bottom: 2px;
+      transition: border-color 0.15s;
+    }
+    .featured-panel:hover .featured-cta { border-color: #fff; }
+
+    /* ── FULL WIDTH PROMO ── */
+    .promo-full {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      overflow: hidden;
+      margin-bottom: 2px;
+    }
+    .promo-full img { height: 100%; object-fit: cover; object-position: center 30%; }
+    .promo-full-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.32);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+    }
+    .promo-full-title { font-size: 48px; font-weight: 900; letter-spacing: -0.03em; color: #fff; text-transform: uppercase; }
+    .promo-full-sub { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
+    .promo-full-btn {
+      display: inline-block;
+      background: #c6f135; color: #1a1a1a;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 12px 28px; margin-top: 4px;
+      transition: background 0.15s;
+    }
+    .promo-full-btn:hover { background: #b8e020; }
+
+    /* ── BRAND SECTION ── */
+    .brand-section { background: #1a1a1a; padding: 64px 24px; }
+    .brand-inner {
+      max-width: 1440px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .brand-text { color: #fff; }
+    .brand-wordmark { font-size: 64px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 12px; }
+    .brand-tagline { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 20px; }
+    .brand-description { font-size: 13px; line-height: 1.75; color: rgba(255,255,255,0.6); margin-bottom: 28px; }
+    .brand-btn {
+      display: inline-block;
+      background: #c6f135; color: #1a1a1a;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 12px 24px;
+      transition: background 0.15s;
+    }
+    .brand-btn:hover { background: #b8e020; }
+    .brand-images { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .brand-img-item { aspect-ratio: 3/4; overflow: hidden; }
+    .brand-img-item img { height: 100%; transition: transform 0.4s; }
+    .brand-img-item:hover img { transform: scale(1.04); }
+    .brand-img-wide { grid-column: 1 / -1; aspect-ratio: 2/1; overflow: hidden; }
+    .brand-img-wide img { height: 100%; transition: transform 0.4s; }
+    .brand-stats { display: flex; flex-direction: column; gap: 32px; }
+    .stat-number { font-size: 36px; font-weight: 700; color: #fff; letter-spacing: -0.03em; line-height: 1; }
+    .stat-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+    /* ── TRUST BAR ── */
+    .trust-bar { background: #fff; border-top: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; }
+    .trust-inner {
+      max-width: 1440px; margin: 0 auto; padding: 20px 24px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 24px;
+      border-right: 1px solid #e8e8e8;
+    }
+    .trust-item:first-child { padding-left: 0; }
+    .trust-item:last-child { border-right: none; }
+    .trust-icon { width: 32px; height: 32px; flex-shrink: 0; color: #1a1a1a; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .trust-title { font-size: 12px; font-weight: 700; color: #1a1a1a; letter-spacing: 0.04em; text-transform: uppercase; }
+    .trust-sub { font-size: 11px; color: #6d7175; margin-top: 1px; }
+
+    /* ── FOOTER ── */
+    footer { background: #f4f4f4; border-top: 1px solid #e0e0e0; padding: 48px 24px 32px; }
+    .footer-inner { max-width: 1440px; margin: 0 auto; }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1.4fr;
+      gap: 32px;
+      margin-bottom: 48px;
+    }
+    .footer-logo { font-size: 20px; font-weight: 900; letter-spacing: -0.03em; color: #1a1a1a; text-transform: uppercase; margin-bottom: 10px; }
+    .footer-tagline { font-size: 11px; color: #6d7175; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+    .footer-social { display: flex; gap: 10px; }
+    .footer-social a {
+      width: 32px; height: 32px;
+      border: 1px solid #d0d0d0;
+      display: flex; align-items: center; justify-content: center;
+      color: #6d7175;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .footer-social a:hover { border-color: #1a1a1a; color: #1a1a1a; }
+    .footer-col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1a1a; margin-bottom: 14px; }
+    .footer-col ul { display: flex; flex-direction: column; gap: 8px; }
+    .footer-col ul li a { font-size: 12px; color: #6d7175; transition: color 0.15s; }
+    .footer-col ul li a:hover { color: #1a1a1a; }
+    .newsletter-form { display: flex; margin-top: 10px; }
+    .newsletter-input {
+      flex: 1; background: #fff; border: 1px solid #d0d0d0; border-right: none;
+      padding: 10px 14px; font-family: inherit; font-size: 12px; color: #1a1a1a; outline: none;
+    }
+    .newsletter-input::placeholder { color: #a0a4a8; }
+    .newsletter-btn {
+      background: #1a1a1a; color: #fff; border: none;
+      padding: 10px 16px; font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .newsletter-btn:hover { background: #333; }
+    .footer-bottom {
+      border-top: 1px solid #e0e0e0; padding-top: 24px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .footer-copy { font-size: 11px; color: #a0a4a8; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 11px; color: #a0a4a8; transition: color 0.15s; }
+    .footer-links a:hover { color: #6d7175; }
+    .payment-icons { display: flex; gap: 6px; align-items: center; }
+    .payment-icon {
+      background: #fff; border: 1px solid #e0e0e0; border-radius: 3px;
+      width: 38px; height: 24px; display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: 700; color: #6d7175;
+    }
+
+    /* ── MOBILE (≤ 600px) ── */
+    @media (max-width: 600px) {
+
+      /* Announcement bar */
+      .announcement-bar { padding: 8px 12px; font-size: 10px; }
+
+      /* Header: 3-zone layout — hamburger | logo (centered) | icons */
+      .header-inner { padding: 0 14px; position: relative; }
+
+      /* Hamburger visible on mobile */
+      .hamburger { display: flex; }
+
+      /* Center logo absolutely within header-inner */
+      .logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 50%;
+        margin-top: 0;
+        transform: translate(-50%, -50%);
+      }
+      .logo img { height: 22px; }
+
+      /* Hide desktop nav links */
+      nav { display: none; }
+
+      /* Hero */
+      .hero { height: 400px; }
+      .hero img { object-position: center bottom; }
+      .hero-headline {
+        font-size: 18px;
+        letter-spacing: 0.45em;
+        white-space: nowrap;
+        width: 88%;
+        top: 36%;
+      }
+      .hero-cta {
+        padding: 11px 28px;
+        font-size: 12px;
+        top: calc(36% + 80px);
+      }
+
+      /* Section headers */
+      .section-header { padding: 24px 14px 10px; }
+      .section-title { font-size: 18px !important; letter-spacing: 0.05em !important; }
+
+      /* Product grids → horizontal scroll row */
+      .product-grid,
+      .product-grid-5 {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        gap: 8px;
+        padding: 0 14px 24px;
+        scrollbar-width: none;
+      }
+      .product-grid::-webkit-scrollbar,
+      .product-grid-5::-webkit-scrollbar { display: none; }
+      .product-grid .product-card,
+      .product-grid-5 .product-card {
+        flex: 0 0 44vw;
+        max-width: 44vw;
+        scroll-snap-align: start;
+      }
+
+      /* Product card text */
+      .product-name { font-size: 12px; }
+      .product-info { padding: 10px 10px 14px; }
+
+      /* Featured banners → single column */
+      .featured-banner { grid-template-columns: 1fr; }
+      .featured-panel { height: 260px; }
+
+      /* Promo full */
+      .promo-full { height: 220px; }
+      .promo-full-title { font-size: 28px; }
+      .promo-full-sub { font-size: 10px; }
+
+      /* Trust badges → stack vertically */
+      .trust-badges-inner {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 18px !important;
+        padding: 0 4px;
+      }
+
+      /* Trust bar (class-based section) */
+      .trust-inner {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .trust-item {
+        border-right: none;
+        border-bottom: 1px solid #e8e8e8;
+        padding: 14px 0;
+      }
+      .trust-item:last-child { border-bottom: none; }
+      .trust-item:first-child { padding-left: 0; }
+
+      /* Brand section */
+      .brand-section { padding: 40px 14px; }
+      .brand-inner { grid-template-columns: 1fr; gap: 28px; }
+      .brand-wordmark { font-size: 42px; }
+      .brand-stats { flex-direction: row; flex-wrap: wrap; gap: 20px; }
+
+      /* Newsletter */
+      .newsletter-links-row {
+        gap: 24px !important;
+        padding: 0 !important;
+        justify-content: center !important;
+        margin-bottom: 52px !important;
+      }
+      .newsletter-email-outer { padding: 0 !important; }
+      .newsletter-email-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+      .newsletter-wordmark {
+        font-size: 22px !important;
+        letter-spacing: 0.04em !important;
+        word-break: break-word;
+        display: block;
+      }
+
+      /* Footer */
+      footer { padding: 36px 14px 24px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 20px; }
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+      }
+      .newsletter-form { flex-direction: column; gap: 8px; }
+      .newsletter-input { border-right: 1px solid #d0d0d0; border-bottom: none; }
+      .newsletter-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sticky-top">
+  <!-- ANNOUNCEMENT BAR -->
+  <div class="announcement-bar">
+    <span>FREE SHIPPING OVER 200 RON</span>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="header-left">
+        <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <line x1="2" y1="5" x2="18" y2="5"/>
+            <line x1="2" y1="10" x2="18" y2="10"/>
+            <line x1="2" y1="15" x2="18" y2="15"/>
+          </svg>
+        </button>
+        <a href="/" class="logo"><img src="brand_assets/logo-m27.png" alt="M27" /></a>
+        <nav>
+          <a href="collection.html">Men</a>
+          <a href="collection.html">Women</a>
+          <a href="collection.html">Collections</a>
+        </nav>
+      </div>
+      <div class="header-icons">
+        <a href="https://www.m27.ro/cos-de-cumparaturi" aria-label="Cart" style="position:relative">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-count">2</span>
+        </a>
+      </div>
+    </div>
+    <!-- Mobile nav dropdown (inside header so it sticks with the bar) -->
+    <div class="mobile-nav" id="mobile-nav">
+      <a href="collection.html">Men</a>
+      <a href="collection.html">Women</a>
+      <a href="collection.html">Collections</a>
+    </div>
+  </header>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <img src="website%20items/banner02.png" alt="Hero" />
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-headline">Life Is A Movie</div>
+      <a href="collection.html" class="hero-cta">Shop Now</a>
+    </div>
+  </section>
+
+
+  <!-- MARQUEE BAR -->
+  <div class="marquee-bar">
+    <div class="marquee-track">
+      <span>Free Shipping Over 200 RON</span><span class="marquee-sep">✦</span>
+      <span>2nd Pair 50% Off</span><span class="marquee-sep">✦</span>
+      <span>Free Shipping Over 200 RON</span><span class="marquee-sep">✦</span>
+      <span>2nd Pair 50% Off</span><span class="marquee-sep">✦</span>
+      <span>Free Shipping Over 200 RON</span><span class="marquee-sep">✦</span>
+      <span>2nd Pair 50% Off</span><span class="marquee-sep">✦</span>
+      <span>Free Shipping Over 200 RON</span><span class="marquee-sep">✦</span>
+      <span>2nd Pair 50% Off</span><span class="marquee-sep">✦</span>
+    </div>
+  </div>
+
+  <!-- FULL BLACK FRAMES -->
+  <div class="section-header" style="padding-top:64px; padding-bottom:24px;">
+    <div class="section-title" style="font-size:29px; letter-spacing:0.08em;">FULL BLACK FRAMES</div>
+    <a href="collection.html" class="view-all">View all →</a>
+  </div>
+
+  <div class="product-grid">
+
+    <div class="product-card">
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <a href="https://www.m27.ro/potassium.html" class="card-link-overlay" aria-label="View Palladium"></a>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/praga/praga-black1.jpg" alt="Palladium" style="object-fit:contain;" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/praga/praga-black2.jpg" alt="Palladium angle" style="object-fit:contain;" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name" style="font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">Palladium</div>
+            <div class="product-color">Full Black</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <a href="https://www.m27.ro/produse/zirconium.html" class="card-link-overlay" aria-label="View Zirconium"></a>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/roma/roma-black-1.jpg" alt="Zirconium" style="object-fit:contain;" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/roma/roma-black-2.jpg" alt="Zirconium angle" style="object-fit:contain;" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name" style="font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">Zirconium</div>
+            <div class="product-color">Full Black</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <a href="https://www.m27.ro/produse/sulphur.html" class="card-link-overlay" aria-label="View Sulphur"></a>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/miami/miami-black1.jpg" alt="Sulphur" style="object-fit:contain;" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/miami/miami-black2.jpg" alt="Sulphur angle" style="object-fit:contain;" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name" style="font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">Sulphur</div>
+            <div class="product-color">Full Black</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <a href="https://www.m27.ro/produse/titanium.html" class="card-link-overlay" aria-label="View Titanium"></a>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/cape%20town/tit-black-1.jpg" alt="Titanium" style="object-fit:contain;" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/cape%20town/tit-black-2.jpg" alt="Titanium angle" style="object-fit:contain;" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name" style="font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">Titanium</div>
+            <div class="product-color">Full Black</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SELLENIUM BANNER -->
+  <div class="featured-panel">
+    <a href="collection.html" class="card-link-overlay" aria-label="View Full Collection"></a>
+    <picture>
+      <source media="(max-width: 600px)" srcset="brand_assets/banner-50-m.png" />
+      <img src="brand_assets/banner-50-d.png" alt="Full Collection" />
+    </picture>
+    <div class="featured-overlay"></div>
+    <div class="featured-label">
+      <div class="featured-tag">Catalogue</div>
+      <div class="featured-name">Full Collection</div>
+      <span class="featured-cta">Shop Now</span>
+    </div>
+  </div>
+
+  <!-- MOVE DIFFERENT -->
+  <div class="section-header" style="padding-top:64px; padding-bottom:24px;">
+    <div class="section-title" style="font-size:29px; letter-spacing:0.08em;">MOVE DIFFERENT</div>
+    <a href="collection.html" class="view-all">View all →</a>
+  </div>
+
+  <div class="product-grid">
+
+    <div class="product-card">
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <a href="https://www.m27.ro/produse/selenium.html" class="card-link-overlay" aria-label="View Sellenium Fig"></a>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/tenerife/tenerife-fig1.jpg" alt="Sellenium Fig" style="object-fit:contain;" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/tenerife/tenerife-fig2.jpg" alt="Sellenium Fig angle" style="object-fit:contain;" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name" style="font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">Sellenium</div>
+            <div class="product-color">Fig</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <a href="https://www.m27.ro/produse/sulphur.html" class="card-link-overlay" aria-label="View Sulphur Dark Green"></a>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/miami/miami-green1.jpg" alt="Sulphur Dark Green" style="object-fit:contain;" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/miami/miami-green2.jpg" alt="Sulphur Dark Green angle" style="object-fit:contain;" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name" style="font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">Sulphur</div>
+            <div class="product-color">Dark Green</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <a href="https://www.m27.ro/produse/zinc.html" class="card-link-overlay" aria-label="View Chlorine Skyblue"></a>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/venice/venice-blue1.jpg" alt="Chlorine Skyblue" style="object-fit:contain;" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/venice/venice-blue2.jpg" alt="Chlorine Skyblue angle" style="object-fit:contain;" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name" style="font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">Chlorine</div>
+            <div class="product-color">Skyblue</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <button class="product-wishlist" aria-label="Wishlist">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <a href="https://www.m27.ro/potassium.html" class="card-link-overlay" aria-label="View Palladium Mostard"></a>
+      <div class="product-img-wrap" style="background:#f5f5f5;">
+        <div class="product-img-primary"><img src="product%20photos/praga/praga-mostard1.jpg" alt="Palladium Mostard" style="object-fit:contain;" /></div>
+        <div class="product-img-secondary"><img src="product%20photos/praga/praga-mostard1.jpg" alt="Palladium Mostard angle" style="object-fit:contain;" /></div>
+      </div>
+      <div class="product-info">
+        <span class="product-newin">New In</span>
+        <div class="product-meta-row">
+          <div>
+            <div class="product-name" style="font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">Palladium</div>
+            <div class="product-color">Mostard</div>
+          </div>
+          <div class="product-prices">
+            <div class="product-price-original">200 RON</div>
+            <div class="product-price-disc">127 RON</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TRUST BADGES -->
+  <div style="background:#fff; padding: 52px 24px 0;">
+    <div class="trust-badges-inner" style="max-width:1440px; margin:0 auto; display:flex; align-items:center; justify-content:space-around; gap:32px; padding-bottom:52px;">
+
+      <div style="display:flex; align-items:center; gap:16px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span style="font-size:11px; font-weight:400; letter-spacing:0.12em; text-transform:uppercase; color:#1a1a1a;">Express Shipping Option</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:16px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><line x1="10.5" y1="1" x2="10.5" y2="23"/><line x1="13.5" y1="1" x2="13.5" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span style="font-size:11px; font-weight:400; letter-spacing:0.12em; text-transform:uppercase; color:#1a1a1a;">Free Shipping Over <strong style="font-weight:700;">200</strong> Lei</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:16px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span style="font-size:11px; font-weight:400; letter-spacing:0.12em; text-transform:uppercase; color:#1a1a1a;">100% Secure Payment</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:16px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span style="font-size:11px; font-weight:400; letter-spacing:0.12em; text-transform:uppercase; color:#1a1a1a;">Lifetime Warranty</span>
+      </div>
+
+    </div>
+    <div style="max-width:1440px; margin:0 auto; border-top:1px solid #e8e8e8;"></div>
+  </div>
+
+  <!-- SULPHUR BANNER -->
+  <div class="featured-panel">
+    <a href="https://www.m27.ro/produse/sulphur.html" class="card-link-overlay" aria-label="View Sulphur Collection"></a>
+    <picture>
+      <source media="(max-width: 600px)" srcset="brand_assets/banner-sul-m.png" />
+      <img src="brand_assets/banner-sul-d.png" alt="Sulphur Collection" />
+    </picture>
+    <div class="featured-overlay"></div>
+    <div class="featured-label">
+      <div class="featured-tag">Collection</div>
+      <div class="featured-name">Sulphur</div>
+      <span class="featured-cta">Shop Now</span>
+    </div>
+  </div>
+
+  <!-- NEWSLETTER SECTION -->
+  <div style="background:#fff; padding: 0 24px;">
+    <div style="max-width:1440px; margin:0 auto; padding:48px 0 0;">
+
+      <!-- Nav links row -->
+      <div class="newsletter-links-row" style="display:flex; align-items:center; justify-content:center; gap:40px; flex-wrap:wrap; margin-bottom:32px;">
+        <a href="#" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">FAQ</a>
+        <a href="#" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">About</a>
+        <a href="#" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Stories</a>
+        <a href="#" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Shipping &amp; Returns</a>
+        <a href="#" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Terms of Service</a>
+        <a href="#" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Warranty</a>
+      </div>
+
+      <!-- Email input — starts from ~ABOUT position -->
+      <div class="newsletter-email-outer" id="newsletter-outer" style="display:flex; align-items:center; justify-content:center; margin-bottom:48px; padding:0 16px;">
+        <div class="newsletter-email-wrap" id="newsletter-form-wrap" style="display:flex; align-items:center; border-bottom:1px solid #1a1a1a; width:560px; gap:8px; padding-bottom:6px;">
+          <input type="email" id="newsletter-input" placeholder="EMAIL ADDRESS" style="flex:1; background:none; border:none; outline:none; font-size:11px; font-weight:400; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; font-family:inherit;" />
+          <button id="newsletter-btn" style="background:none; border:none; cursor:pointer; padding:0; display:flex; align-items:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+        <div id="newsletter-success" style="display:none; font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:#1a1a1a;">Thanks for subscribing!</div>
+      </div>
+
+      <!-- M27 EYEWEAR wordmark — Orbitron text, centered -->
+      <div style="text-align:center; padding-bottom:48px;">
+        <span class="newsletter-wordmark" style="font-family:'Orbitron', sans-serif; font-weight:700; font-size:56px; letter-spacing:0.12em; color:#1a1a1a; text-transform:uppercase;">M27 Eyewear</span>
+      </div>
+
+    </div>
+  </div>
+
+
+
+  <script>
+    (function () {
+      // Keep body from sliding under the fixed header
+      function updateHeaderOffset() {
+        const h = document.querySelector('.sticky-top');
+        if (h) document.body.style.paddingTop = h.offsetHeight + 'px';
+      }
+      updateHeaderOffset();
+      window.addEventListener('resize', updateHeaderOffset);
+    })();
+
+    (function () {
+      const input = document.getElementById('newsletter-input');
+      const btn = document.getElementById('newsletter-btn');
+      const formWrap = document.getElementById('newsletter-form-wrap');
+      const success = document.getElementById('newsletter-success');
+
+      function subscribe() {
+        const email = input.value.trim();
+        if (!email || !email.includes('@')) return;
+        const stored = JSON.parse(localStorage.getItem('m27_subscribers') || '[]');
+        if (!stored.includes(email)) stored.push(email);
+        localStorage.setItem('m27_subscribers', JSON.stringify(stored));
+        formWrap.style.display = 'none';
+        success.style.display = 'block';
+      }
+
+      btn.addEventListener('click', subscribe);
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') subscribe();
+      });
+    })();
+
+    (function () {
+      const btn = document.getElementById('hamburger-btn');
+      const nav = document.getElementById('mobile-nav');
+
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const open = nav.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
+      });
+
+      document.addEventListener('click', function (e) {
+        if (nav.classList.contains('open') && !nav.contains(e.target)) {
+          nav.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
