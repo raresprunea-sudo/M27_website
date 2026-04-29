@@ -1,10 +1,11 @@
 {
-  "routes": [
-    { "src": "^/$", "dest": "/index.html" },
-    { "src": "^/collection$", "dest": "/collection.html" },
-    { "src": "^/collection\\.html$", "dest": "/collection.html" },
-    { "src": "^/index\\.html$", "dest": "/index.html" },
-    { "src": "^/(.+\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webp))$", "dest": "/$1" },
-    { "src": "^/(.*)", "dest": "https://m27.gomag.ro/$1" }
+  "rewrites": [
+    { "source": "/collection", "destination": "/collection.html" },
+    { "source": "/produse/:path*", "destination": "https://m27.gomag.ro/produse/:path*" },
+    { "source": "/cos-de-cumparaturi", "destination": "https://m27.gomag.ro/cos-de-cumparaturi" },
+    { "source": "/inregistrare", "destination": "https://m27.gomag.ro/inregistrare" },
+    { "source": "/wishlist", "destination": "https://m27.gomag.ro/wishlist" },
+    { "source": "/cauta", "destination": "https://m27.gomag.ro/cauta" },
+    { "source": "/gomag/:path*", "destination": "https://m27.gomag.ro/gomag/:path*" }
   ]
 }
