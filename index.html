@@ -429,6 +429,10 @@
       transition: border-color 0.15s;
     }
     .featured-panel:hover .featured-cta { border-color: #fff; }
+    .banner-promo-img { object-fit: cover; }
+    @media (max-width: 600px) {
+      .banner-promo-img { object-fit: contain; transform: scale(1.4); }
+    }
 
     /* ── FULL WIDTH PROMO ── */
     .promo-full {
@@ -874,7 +878,7 @@
   <div class="featured-panel" style="background:#f0ece4;">
     <a href="collection.html" class="card-link-overlay" aria-label="View Full Collection"></a>
     <picture>
-      <img src="website%20items/banner500000.png" alt="2nd Pair at Half Price" style="object-fit:contain;" />
+      <img src="website%20items/banner500000.png" alt="2nd Pair at Half Price" class="banner-promo-img" />
     </picture>
     <div class="featured-overlay"></div>
     <div class="featured-label">
