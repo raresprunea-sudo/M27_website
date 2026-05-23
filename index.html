@@ -559,8 +559,7 @@
     }
 
     /* ── MOBILE (≤ 600px) ── */
-    .sulphur-banner-img { object-position: top center; }
-    @media (max-width: 600px) { .sulphur-banner-img { object-position: center; } }
+    .sulphur-banner-img { object-position: center; }
 
     @media (max-width: 600px) {
 
@@ -998,7 +997,7 @@
   </div>
 
   <!-- MARQUEE BAR (between Move Different & Trust Badges) -->
-  <div class="marquee-bar">
+  <div class="marquee-bar" style="margin-top:40px;">
     <div class="marquee-track">
       <span>Free Shipping Over 200 RON</span><span class="marquee-sep">✦</span>
       <span>2nd Pair 50% Off</span><span class="marquee-sep">✦</span>
@@ -1042,7 +1041,8 @@
   <div class="featured-panel">
     <a href="https://www.m27shop.ro/produse/sulphur.html" class="card-link-overlay" aria-label="View Sulphur Collection"></a>
     <picture>
-      <img src="website%20items/banner%20sulphur%20final.png" alt="Sulphur Collection" class="sulphur-banner-img" />
+      <source media="(max-width: 600px)" srcset="website%20items/banner%20sulphur%20final.png" />
+      <img src="website%20items/sulfff2.png" alt="Sulphur Collection" class="sulphur-banner-img" />
     </picture>
     <div class="featured-overlay"></div>
     <div class="featured-label">
