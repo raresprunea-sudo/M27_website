@@ -10,6 +10,8 @@ module.exports = async function handler(req, res) {
 
   // Auth check — must come before any Supabase access
   const provided = req.headers['x-admin-secret'] || '';
+  // TEMP DIAGNOSTIC — remove after confirming env var is set correctly in Vercel
+  console.log('[admin-orders] ADMIN_SECRET defined:', !!ADMIN_SECRET, '| secret length:', (ADMIN_SECRET || '').length, '| header length:', (req.headers['x-admin-secret'] || '').length, '| match:', provided === ADMIN_SECRET);
   if (!ADMIN_SECRET || provided !== ADMIN_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
   }

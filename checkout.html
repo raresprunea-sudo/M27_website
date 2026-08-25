@@ -221,6 +221,37 @@
       border: 1px solid #fca5a5; border-radius: 6px; display: none;
     }
 
+    /* ── COUPON ── */
+    .coupon-wrap { margin-bottom: 12px; }
+    .coupon-row { display: flex; gap: 8px; }
+    .coupon-input {
+      flex: 1; height: 42px; border: 1px solid #d5d5d5; border-radius: 6px;
+      padding: 0 12px; font-family: inherit; font-size: 13px; color: #1a1a1a;
+      outline: none; letter-spacing: 0.06em; text-transform: uppercase;
+      transition: border-color 0.15s;
+    }
+    .coupon-input:focus { border-color: #1a1a1a; }
+    .coupon-input.err-state { border-color: #dc2626; }
+    .coupon-btn {
+      height: 42px; padding: 0 16px; background: #1a1a1a; color: #fff;
+      border: none; border-radius: 6px; font-family: inherit; font-size: 13px;
+      font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .coupon-btn:hover { background: #333; }
+    .coupon-msg { font-size: 12px; margin-top: 6px; }
+    .coupon-err { color: #dc2626; }
+    .coupon-ok  { color: #2a7d44; }
+    .coupon-applied {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #f0faf4; border: 1px solid #b7e5c7; border-radius: 20px;
+      padding: 7px 12px; font-size: 13px; color: #2a7d44; font-weight: 600;
+    }
+    .coupon-rm {
+      background: none; border: none; cursor: pointer; color: #2a7d44;
+      font-size: 16px; line-height: 1; padding: 0; display: flex;
+    }
+
     /* ── SHARED SUMMARY STYLES ── */
     .sum-item { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
     .sum-thumb {
@@ -477,6 +508,15 @@
         <div class="pay-error" id="pay-error"></div>
       </div>
 
+      <!-- COUPON -->
+      <div class="coupon-wrap">
+        <div class="coupon-row" id="coupon-row">
+          <input class="coupon-input" id="coupon-input" type="text" placeholder="Cod promoțional" autocomplete="off" />
+          <button class="coupon-btn" type="button" onclick="applyPromo()">Aplică</button>
+        </div>
+        <div class="coupon-msg" id="coupon-msg"></div>
+      </div>
+
       <!-- SUBMIT -->
       <div>
         <button class="submit-btn" id="submit-btn">Plasează comanda</button>
@@ -545,6 +585,42 @@
     function totalAmt(c)   { return subtotalAmt(c)-discountAmt(c)+deliveryCost(c); }
     function fmt(n)        { return Number(n).toFixed(2); }
 
+    /* ── PROMO ── */
+    function promoDiscount(c){
+      if(!appliedPromo) return 0;
+      return (subtotalAmt(c)-discountAmt(c))*(appliedPromo.percent/100);
+    }
+    function effectiveTotal(c){
+      if(!appliedPromo) return totalAmt(c);
+      const net=subtotalAmt(c)-discountAmt(c);
+      const ship=appliedPromo.freeShipping?0:deliveryCost(c);
+      return Math.max(1,net*(1-appliedPromo.percent/100))+ship;
+    }
+    function applyPromo(){
+      const input=document.getElementById('coupon-input');
+      const msg=document.getElementById('coupon-msg');
+      const code=(input?.value||'').trim().toUpperCase();
+      if(!code){msg.textContent='Introdu un cod.';msg.className='coupon-msg coupon-err';return;}
+      const promo=PROMO_CODES[code];
+      if(!promo){input.classList.add('err-state');msg.textContent='Cod invalid sau expirat.';msg.className='coupon-msg coupon-err';return;}
+      input.classList.remove('err-state');
+      appliedPromo={code,...promo};
+      const row=document.getElementById('coupon-row');
+      row.innerHTML=`<div class="coupon-applied">✓ <strong>${code}</strong> — ${promo.percent}% OFF${promo.freeShipping?' + livrare gratuită':''}<button class="coupon-rm" type="button" onclick="removePromo()" aria-label="Elimină cod">✕</button></div>`;
+      msg.textContent='';msg.className='coupon-msg';
+      renderSummary();
+      const cart=getCart();
+      if(paymentMethod==='card') document.getElementById('submit-btn').textContent='Plătește '+fmt(effectiveTotal(cart))+' RON';
+    }
+    function removePromo(){
+      appliedPromo=null;
+      document.getElementById('coupon-row').innerHTML='<input class="coupon-input" id="coupon-input" type="text" placeholder="Cod promoțional" autocomplete="off" /><button class="coupon-btn" type="button" onclick="applyPromo()">Aplică</button>';
+      document.getElementById('coupon-msg').textContent='';
+      renderSummary();
+      const cart=getCart();
+      if(paymentMethod==='card') document.getElementById('submit-btn').textContent='Plătește '+fmt(totalAmt(cart))+' RON';
+    }
+
     /* ── CART BADGE ── */
     function updateBadge() {
       const n=totalQty(getCart()), el=document.getElementById('cart-badge');
@@ -554,7 +630,10 @@
 
     /* ── SUMMARY HTML ── */
     function buildSummaryHTML(cart) {
-      const sub=subtotalAmt(cart), disc=discountAmt(cart), del=deliveryCost(cart), tot=totalAmt(cart);
+      const sub=subtotalAmt(cart), disc=discountAmt(cart);
+      const promoDisc=promoDiscount(cart);
+      const del=appliedPromo&&appliedPromo.freeShipping?0:deliveryCost(cart);
+      const tot=effectiveTotal(cart);
       const items = cart.map(i=>{
         const img=getImage(i);
         return `<div class="sum-item">
@@ -564,11 +643,13 @@
           <div class="sum-price">${fmt(i.price*i.quantity)} RON</div>
         </div>`;
       }).join('');
-      const discRow = disc>0?`<div class="sum-row"><span class="sum-lbl">Bundle 50% OFF</span><span class="sum-disc">−${fmt(disc)} RON</span></div>`:'';
-      const delVal  = del===0?`<span class="sum-free">Gratuit</span>`:`<span class="sum-val">${fmt(del)} RON</span>`;
+      const discRow  = disc>0?`<div class="sum-row"><span class="sum-lbl">Bundle 50% OFF</span><span class="sum-disc">−${fmt(disc)} RON</span></div>`:'';
+      const promoRow = promoDisc>0?`<div class="sum-row"><span class="sum-lbl">Cod promoțional (${appliedPromo.percent}% OFF)</span><span class="sum-disc">−${fmt(promoDisc)} RON</span></div>`:'';
+      const delVal   = del===0?`<span class="sum-free">Gratuit</span>`:`<span class="sum-val">${fmt(del)} RON</span>`;
       return `${items}<div class="sum-divider"></div>
         <div class="sum-row"><span class="sum-lbl">Subtotal</span><span class="sum-val">${fmt(sub)} RON</span></div>
         ${discRow}
+        ${promoRow}
         <div class="sum-row"><span class="sum-lbl">Livrare</span>${delVal}</div>
         <div class="sum-total">
           <span class="sum-total-lbl">Total</span>
@@ -582,14 +663,17 @@
       if(mob)  mob.innerHTML=html;
       if(desk) desk.innerHTML=html;
       const mt=document.getElementById('mob-sum-total');
-      if(mt) mt.textContent=fmt(totalAmt(cart))+' RON';
-      const del=deliveryCost(cart), lbl=del===0?'Gratuit':fmt(del)+' RON';
+      if(mt) mt.textContent=fmt(effectiveTotal(cart))+' RON';
+      const del=appliedPromo&&appliedPromo.freeShipping?0:deliveryCost(cart);
+      const lbl=del===0?'Gratuit':fmt(del)+' RON';
       ['rp-home','rp-locker'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=lbl; });
     }
 
     /* ── STATE ── */
     let deliveryMethod='home', paymentMethod='card';
     let stripe=null, elements=null, stripeReady=false;
+    let appliedPromo=null;
+    const PROMO_CODES={'CODE':{percent:99,freeShipping:true}};
 
     /* ── DELIVERY ── */
     function setDelivery(val) {
@@ -621,7 +705,7 @@
         rambursOuter.classList.remove('ramburs-open');
         rambursNote.classList.remove('open');
         if(!stripeReady && STRIPE_PK) initStripe();
-        submitBtn.textContent = `Plătește ${fmt(totalAmt(cart))} RON`;
+        submitBtn.textContent = `Plătește ${fmt(effectiveTotal(cart))} RON`;
       } else {
         cardOuter.classList.add('collapsed');
         stripeWrap.classList.remove('open');
@@ -688,11 +772,13 @@
         delivery_type:   deliveryMethod,
         payment_method:  paymentMethod,
         address:         addr,
-        total_amount:    totalAmt(cart),
+        total_amount:    effectiveTotal(cart),
         items:           cart,
         subtotal:        subtotalAmt(cart),
         discount:        discountAmt(cart),
-        delivery:        deliveryCost(cart),
+        promo_discount:  promoDiscount(cart),
+        delivery:        appliedPromo&&appliedPromo.freeShipping?0:deliveryCost(cart),
+        code:            appliedPromo?.code||null,
       };
     }
 
@@ -737,12 +823,13 @@
         total_amount:   String(fd.total_amount),
         subtotal:       String(fd.subtotal),
         discount:       String(fd.discount),
+        promo_discount: String(fd.promo_discount||0),
         delivery:       String(fd.delivery),
         items:          itemsMeta,
       };
       const r=await fetch('/api/stripe-payment',{
         method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ amount:totalAmt(cart), metadata }),
+        body:JSON.stringify({ amount:totalAmt(cart), code:fd.code||null, metadata }),
       });
       const data=await r.json();
       if(!r.ok){

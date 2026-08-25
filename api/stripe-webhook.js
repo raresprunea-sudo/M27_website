@@ -74,7 +74,7 @@ async function findOrCreateOrder({ customer_name, customer_email, customer_phone
   return order;
 }
 
-async function sendConfirmationEmail({ order_id, customer_name, customer_email, delivery_type, address, items, subtotal, discount, delivery, total }) {
+async function sendConfirmationEmail({ order_id, customer_name, customer_email, delivery_type, address, items, subtotal, discount, promo_discount, delivery, total }) {
   const orderRef     = (order_id || '').slice(0, 8).toUpperCase();
   const firstName    = (customer_name || '').split(' ')[0];
   const deliveryLabel = delivery_type === 'locker' ? 'Locker Sameday' : 'Livrare acasă';
@@ -99,6 +99,11 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
     <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${discount} RON</td>
   </tr>` : '';
 
+  const promoRow = parseFloat(promo_discount || 0) > 0 ? `<tr>
+    <td style="padding:6px 0;font-size:13px;color:#2a7d44">Cod promoțional</td>
+    <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${Number(promo_discount).toFixed(2)} RON</td>
+  </tr>` : '';
+
   const html = `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -120,9 +125,10 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
         <td style="padding:10px 0;font-size:13px;color:#6d7175;text-align:right">${subtotal} RON</td>
       </tr>
       ${discountRow}
+      ${promoRow}
       <tr>
         <td style="padding:6px 0;font-size:13px;color:#6d7175">${deliveryLabel}</td>
-        <td style="padding:6px 0;font-size:13px;color:#6d7175;text-align:right">${delivery} RON</td>
+        <td style="padding:6px 0;font-size:13px;color:#6d7175;text-align:right">${parseFloat(delivery||0) > 0 ? delivery + ' RON' : 'Gratuit'}</td>
       </tr>
       <tr>
         <td style="padding:14px 0 0;font-size:15px;font-weight:700;color:#1a1a1a;border-top:1px solid #f0f0f0">Total</td>
@@ -215,10 +221,11 @@ module.exports = async function handler(req, res) {
       delivery_type:  meta.delivery_type  || 'home',
       address:        meta.address        || null,
       items,
-      subtotal: meta.subtotal     || '0',
-      discount: meta.discount     || '0',
-      delivery: meta.delivery     || '0',
-      total:    meta.total_amount || String(pi.amount / 100),
+      subtotal:       meta.subtotal       || '0',
+      discount:       meta.discount       || '0',
+      promo_discount: meta.promo_discount || '0',
+      delivery:       meta.delivery       || '0',
+      total:          meta.total_amount   || String(pi.amount / 100),
     }).catch(e => console.error('Email send failed (non-fatal):', e.message));
 
     return res.status(200).json({ received: true });

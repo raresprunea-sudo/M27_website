@@ -33,6 +33,7 @@ module.exports = async function handler(req, res) {
     items,           // [{ product_id, quantity, price }]
     subtotal,        // for confirmation email
     discount,        // for confirmation email
+    promo_discount,  // for confirmation email (promo code discount)
     delivery,        // for confirmation email
   } = req.body || {};
 
@@ -147,9 +148,10 @@ module.exports = async function handler(req, res) {
         delivery_type,
         address:        address || '',
         items:          items   || [],
-        subtotal:       subtotal  ?? total_amount,
-        discount:       discount  ?? 0,
-        delivery:       delivery  ?? 0,
+        subtotal:       subtotal       ?? total_amount,
+        discount:       discount       ?? 0,
+        promo_discount: promo_discount ?? 0,
+        delivery:       delivery       ?? 0,
         total:          total_amount,
       }),
     }).catch(e => console.error('COD email error (non-fatal):', e.message));
