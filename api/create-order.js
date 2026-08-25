@@ -2,6 +2,12 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
+// Pricing constants — must match checkout.html exactly
+const SHIPPING_THRESHOLD = 300;
+const SHIPPING_COST      = 19.99;
+const ITEM_PRICE         = 175;
+const PROMO_CODES        = { CODE: { percent: 99, freeShipping: true } };
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -28,16 +34,20 @@ module.exports = async function handler(req, res) {
     delivery_type,   // 'locker' | 'home'
     address,         // full address string
     locker_id,       // optional
-    total_amount,
     stripe_payment_id,
     items,           // [{ product_id, quantity, price }]
     subtotal,        // for confirmation email
     discount,        // for confirmation email
     promo_discount,  // for confirmation email (promo code discount)
     delivery,        // for confirmation email
+    code,            // promo code — validated server-side
   } = req.body || {};
 
-  if (!customer_name || !customer_email || !delivery_type || !total_amount) {
+  // total_amount: for card orders this comes from the webhook (Stripe's actual charge);
+  // for COD orders we recompute it below from Supabase prices — never trust the client.
+  let total_amount = req.body?.total_amount;
+
+  if (!customer_name || !customer_email || !delivery_type) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -62,8 +72,66 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // 1. For COD orders: decrement stock atomically before creating the order.
-  //    Card orders are handled by the Stripe webhook after payment confirms.
+  // 1a. For COD orders: recompute total_amount from Supabase prices.
+  //     The client-supplied total is ignored — never trust browser arithmetic.
+  if (!stripe_payment_id) {
+    const pids = (items || []).filter(i => i.product_id).map(i => i.product_id);
+
+    if (pids.length === 0) {
+      return res.status(400).json({ error: 'Coșul este gol.' });
+    }
+
+    let priceRes;
+    try {
+      priceRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/products?id=in.(${pids.join(',')})&select=id,price`,
+        { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
+      );
+    } catch (fetchErr) {
+      console.error('Supabase price fetch error (COD):', fetchErr.message);
+      return res.status(503).json({ error: 'Nu am putut verifica prețurile. Încearcă din nou.' });
+    }
+
+    if (!priceRes.ok) {
+      return res.status(503).json({ error: 'Nu am putut verifica prețurile. Încearcă din nou.' });
+    }
+
+    const priceData = await priceRes.json();
+    const priceMap  = {};
+    priceData.forEach(p => { priceMap[p.id] = p.price; });
+
+    let sub = 0;
+    let qty = 0;
+    for (const item of (items || []).filter(i => i.product_id)) {
+      const unitPrice = priceMap[item.product_id];
+      if (unitPrice == null) {
+        return res.status(409).json({ error: 'Produs negăsit. Te rugăm să actualizezi coșul.' });
+      }
+      sub += unitPrice * item.quantity;
+      qty += item.quantity;
+    }
+
+    const bundleDiscount = Math.floor(qty / 2) * ITEM_PRICE * 0.5;
+    const net            = sub - bundleDiscount;
+    const ship           = net >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+    const promo          = code ? PROMO_CODES[(code || '').trim().toUpperCase()] : null;
+
+    if (promo) {
+      const discountedNet = net * (1 - promo.percent / 100);
+      const effectiveShip = promo.freeShipping ? 0 : ship;
+      total_amount = Math.max(1, discountedNet) + effectiveShip;
+    } else {
+      total_amount = net + ship;
+    }
+  }
+
+  // Sanity check — total_amount must be positive after any recomputation.
+  if (!total_amount || total_amount <= 0) {
+    return res.status(400).json({ error: 'Invalid total amount' });
+  }
+
+  // 1b. For COD orders: decrement stock atomically before creating the order.
+  //     Card orders are handled by the Stripe webhook after payment confirms.
   if (!stripe_payment_id) {
     const stockItems = (items || [])
       .filter(i => i.product_id)

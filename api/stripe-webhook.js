@@ -198,7 +198,7 @@ module.exports = async function handler(req, res) {
       customer_phone:    meta.customer_phone   || null,
       delivery_type:     meta.delivery_type    || 'home',
       address:           meta.address          || null,
-      total_amount:      meta.total_amount     || (pi.amount / 100),
+      total_amount:      pi.amount / 100,      // actual Stripe charge, not client-claimed metadata
       stripe_payment_id: pi.id,
       items,
     });

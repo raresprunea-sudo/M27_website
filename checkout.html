@@ -620,6 +620,8 @@
       const cart=getCart();
       if(paymentMethod==='card') document.getElementById('submit-btn').textContent='Plătește '+fmt(totalAmt(cart))+' RON';
     }
+    window.applyPromo  = applyPromo;
+    window.removePromo = removePromo;
 
     /* ── CART BADGE ── */
     function updateBadge() {
