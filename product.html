@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M27 Eyewear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&family=Josefin+Sans:wght@100;700&family=Orbitron:wght@700;900&family=Cormorant+Garamond:wght@300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0; font: inherit; vertical-align: baseline; }
+    ::selection { background: #202223; color: #fff; }
+    html, body { overflow-x: hidden; }
+    body {
+      font-family: Helvetica, "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+      font-size: 14px; font-weight: 400; line-height: 1.6;
+      color: #6d7175; background: #f5f4f2;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; width: 100%; object-fit: contain; }
+
+    /* ── ANNOUNCEMENT BAR ── */
+    .announcement-bar { background: #D6E8F2; text-align: center; padding: 8px 20px; font-size: 12px; font-weight: 800; color: #000; letter-spacing: 0.04em; text-transform: uppercase; }
+
+    /* ── STICKY TOP ── */
+    .sticky-top { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+
+    /* ── HEADER ── */
+    header { background: #fff; border-bottom: 1px solid #e8e8e8; }
+    .header-inner { max-width: 1440px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 58px; }
+    .header-left { display: flex; align-items: center; }
+    .logo img { height: 30px; width: auto; display: block; }
+    nav { display: flex; align-items: center; margin-left: 40px; }
+    nav a { font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #1a1a1a; padding: 0 14px; height: 58px; display: flex; align-items: center; border-bottom: 2px solid transparent; transition: border-color 0.15s; }
+    nav a:hover { border-bottom-color: #1a1a1a; }
+    .header-icons { display: flex; align-items: center; gap: 18px; }
+    .header-icons button, .header-icons a { background: none; border: none; cursor: pointer; color: #1a1a1a; display: flex; align-items: center; position: relative; }
+    .icon-svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .cart-count { background: #1a1a1a; color: #fff; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; position: absolute; top: -6px; right: -6px; }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; color: #1a1a1a; align-items: center; padding: 0; flex-shrink: 0; }
+    .mobile-nav { display: none; background: #fff; border-top: 1px solid #e8e8e8; }
+    .mobile-nav a { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1a1a; padding: 18px 20px; border-bottom: 1px solid #f0f0f0; transition: background 0.12s; }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { background: #f8f8f8; }
+    .mobile-nav.open { display: block; }
+
+    /* ═══════════════════════════════════════════
+       PRODUCT LAYOUT — MOBILE FIRST
+    ═══════════════════════════════════════════ */
+    .product-layout { display: block; }
+
+    /* ── IMAGE COLUMN ── */
+    .image-col { background: #fff; }
+
+    /* Mobile swipeable gallery */
+    .mob-gallery { display: block; overflow: hidden; position: relative; background: #fff; }
+    .mob-gallery-track { display: flex; transition: transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94); will-change: transform; }
+    .gallery-slide { min-width: 100%; width: 100%; flex-shrink: 0; }
+    .gallery-slide img { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; padding: 28px; }
+    .gallery-dots { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 0 14px; background: #fff; }
+    .gdot { width: 6px; height: 6px; border-radius: 50%; border: 1.5px solid #1a1a1a; background: transparent; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+    .gdot.active { width: 9px; height: 9px; background: #1a1a1a; border-color: #1a1a1a; }
+
+    /* Desktop gallery — hidden on mobile */
+    .desk-gallery { display: none; }
+
+    /* ── INFO COLUMN ── */
+    .info-col { background: #fff; margin-top: 8px; display: flex; flex-direction: column; }
+
+    /* Mobile section ordering */
+    .mob-top { order: 1; }
+    .product-desc-block { order: 2; }
+    .desk-info { display: none; order: 3; }
+
+    /* Mobile colorway swatches */
+    .mob-swatch-row { display: flex; gap: 12px; padding: 16px 20px 14px; flex-wrap: wrap; border-bottom: 1px solid #f0f0f0; }
+    .mob-swatch { width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; flex-shrink: 0; transition: transform 0.15s ease; }
+    .mob-swatch.active { box-shadow: 0 0 0 2.5px #fff, 0 0 0 4px #1a1a1a; }
+    .mob-swatch:hover:not(.active) { transform: scale(1.15); }
+
+    /* Mobile info row: name + price */
+    .mob-info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 14px 20px 16px; }
+    .mob-model-name { font-size: 17px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: #1a1a1a; line-height: 1.1; }
+    .mob-cw-name { font-size: 13px; color: #3a3a3a; margin-top: 5px; letter-spacing: 0.02em; font-weight: 500; }
+    .mob-price { font-size: 22px; font-weight: 800; color: #1a1a1a; letter-spacing: -0.02em; white-space: nowrap; padding-top: 2px; }
+
+    /* Description block */
+    .product-desc-block { padding: 20px 20px 130px; background: #fff; margin-top: 8px; }
+    .desc-section-title { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #1a1a1a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e0dcd7; }
+    .desc-copy { font-size: 13px; line-height: 1.75; color: #6d7175; margin-bottom: 22px; }
+    .spec-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid #e0dcd7; gap: 16px; }
+    .spec-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; flex-shrink: 0; }
+    .desc-intro { font-size: 14px; line-height: 1.7; color: #6d7175; margin-bottom: 20px; }
+    .desc-features { display: flex; flex-direction: column; gap: 16px; }
+    .desc-feature-title { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: #1a1a1a; margin-bottom: 4px; }
+    .desc-feature-body { font-size: 13px; line-height: 1.65; color: #6d7175; }
+    .spec-val { font-size: 12px; color: #1a1a1a; text-align: right; }
+
+    /* ── FLOATING ATC (mobile only) ── */
+    .mob-atc-wrap { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 24px calc(14px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, #fff 75%, rgba(255,255,255,0)); z-index: 50; pointer-events: none; }
+    .mob-atc-btn { width: 100%; height: 52px; background: #7A1F01; color: #fff; border: none; font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; border-radius: 3px; transition: background 0.15s, transform 0.1s; pointer-events: auto; }
+    .mob-atc-btn:active { transform: scale(0.99); }
+    .mob-atc-btn.added { background: #2a5e38; }
+
+    /* ── NOT FOUND ── */
+    .not-found { padding: 80px 24px; text-align: center; max-width: 600px; margin: 0 auto; }
+    .not-found h2 { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1a1a; margin-bottom: 12px; }
+
+    /* ═══════════════════════════════════════════
+       BEST SELLERS SECTION
+    ═══════════════════════════════════════════ */
+    .section-header { max-width: 1440px; margin: 0 auto; padding: 32px 20px 14px; display: flex; align-items: baseline; justify-content: space-between; }
+    .section-title { font-size: 18px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #1a1a1a; }
+    .view-all { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #1a1a1a; }
+    .view-all:hover { text-decoration: underline; }
+
+    /* Mobile: horizontal scroll */
+    .product-grid {
+      display: flex; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
+      gap: 8px; padding: 0 0 28px 20px; scrollbar-width: none;
+    }
+    .product-grid::-webkit-scrollbar { display: none; }
+    .product-card { flex: 0 0 43.5vw; max-width: 43.5vw; scroll-snap-align: start; background: #fff; cursor: pointer; position: relative; overflow: hidden; flex-shrink: 0; }
+    .card-link-overlay { position: absolute; inset: 0; z-index: 1; }
+    .product-img-wrap { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: #f5f5f5; }
+    .product-img-primary, .product-img-secondary { position: absolute; inset: 0; transition: opacity 0.3s ease; }
+    .product-img-secondary { opacity: 0; }
+    .product-card:hover .product-img-secondary { opacity: 1; }
+    .product-card:hover .product-img-primary { opacity: 0; }
+    .product-img-primary img, .product-img-secondary img { width: 100%; height: 100%; object-fit: contain; }
+    .product-newin { display: inline-block; background: #ebebeb; color: #9a9a9a; font-size: 7px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; margin-bottom: 8px; }
+    .product-meta-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .product-prices { text-align: right; flex-shrink: 0; }
+    .product-price-original { font-size: 11px; color: #a0a4a8; text-decoration: line-through; line-height: 1.4; }
+    .product-price-disc { font-size: 13px; font-weight: 700; color: #FF5F15; line-height: 1.4; }
+    .product-name-label { font-size: 12px; font-weight: 700; color: #1a1a1a; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
+    .product-color-label { font-size: 11px; color: #6d7175; }
+    .product-info { padding: 10px 12px 14px; }
+
+    /* ═══════════════════════════════════════════
+       TRUST BADGES
+    ═══════════════════════════════════════════ */
+    .trust-badges-wrap { background: #fff; border-top: 1px solid #f0f0f0; }
+    .trust-badges-inner { max-width: 1440px; margin: 0 auto; padding: 28px 20px; display: flex; flex-direction: column; gap: 22px; }
+    .trust-item { display: flex; align-items: center; gap: 16px; }
+    .trust-title { font-size: 11px; font-weight: 700; color: #1a1a1a; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* ═══════════════════════════════════════════
+       TABLET  768–1023px
+    ═══════════════════════════════════════════ */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .gallery-slide img { aspect-ratio: auto; height: 500px; object-fit: contain; padding: 40px; }
+      .mob-swatch-row { justify-content: center; padding: 20px 32px 18px; gap: 16px; }
+      .mob-swatch { width: 30px; height: 30px; }
+      .mob-info-row { padding: 18px 40px 18px; }
+      .mob-model-name { font-size: 22px; }
+      .mob-price { font-size: 26px; }
+      .product-desc-block { padding: 24px 40px 150px; }
+      .product-card { flex: 0 0 27vw; max-width: 27vw; }
+      .trust-badges-inner { flex-direction: row; justify-content: space-around; padding: 32px 40px; }
+    }
+
+    /* ═══════════════════════════════════════════
+       DESKTOP  ≥ 1024px
+    ═══════════════════════════════════════════ */
+    @media (min-width: 1024px) {
+      body { background: #fff; }
+      .product-layout { display: grid; grid-template-columns: 55fr 45fr; gap: 0; min-height: calc(100vh - 90px); }
+
+      .image-col { background: #fff; display: flex; flex-direction: column; position: sticky; top: 90px; align-self: stretch; }
+      .mob-gallery { display: none; }
+      .desk-gallery { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+      .main-img-wrap { flex: 1; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+      .main-img-wrap img { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.25s ease; }
+      .main-img-wrap img.switching { opacity: 0; }
+      .thumb-strip { display: flex; gap: 2px; padding: 2px; background: #fff; border-top: 1px solid #f0f0f0; }
+      .thumb { flex: 1; height: 150px; background: #fff; cursor: pointer; overflow: hidden; opacity: 0.5; transition: opacity 0.15s; outline: 2px solid transparent; outline-offset: -2px; }
+      .thumb.active { opacity: 1; outline-color: #1a1a1a; }
+      .thumb:hover:not(.active) { opacity: 0.8; }
+      .thumb img { width: 100%; height: 100%; object-fit: contain; }
+
+      .info-col { background: #f5f4f2; padding: 48px 52px 150px; display: flex; flex-direction: column; margin-top: 0; }
+      .mob-top { display: none; }
+      .mob-atc-wrap { display: none; }
+
+      .desk-info { display: flex; flex-direction: column; order: 1; }
+      .product-desc-block { order: 2; padding: 0; background: transparent; margin-top: 0; flex: 1; }
+      .product-desc-block .desc-section-title { margin-top: 28px; }
+      .product-desc-block .spec-row { padding: 12px 0; }
+
+      .breadcrumb-row { display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #a0a4a8; margin-bottom: 36px; }
+      .breadcrumb-row a { color: #a0a4a8; transition: color 0.15s; }
+      .breadcrumb-row a:hover { color: #1a1a1a; }
+      .newin-badge { display: inline-block; background: #ebebeb; color: #9a9a9a; font-size: 7px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; margin-bottom: 24px; align-self: flex-start; }
+      .name-price-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid #dedad6; }
+      .model-name { font-family: Montserrat, Helvetica, sans-serif; font-weight: 700; font-size: 44px; letter-spacing: 0.04em; text-transform: uppercase; color: #1a1a1a; line-height: 1; }
+      .desk-price-wrap { text-align: right; flex-shrink: 0; padding-top: 4px; }
+      .price-original { font-size: 13px; color: #a0a4a8; text-decoration: line-through; line-height: 1.6; }
+      .price-disc { font-size: 30px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; line-height: 1.1; }
+      .color-label-row { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+      .swatches-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1a1a1a; }
+      .cw-label-text { font-size: 10px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: #6d7175; }
+      .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0; }
+      .swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: none; padding: 0; transition: transform 0.15s ease; flex-shrink: 0; }
+      .swatch.active { box-shadow: 0 0 0 2px #f5f4f2, 0 0 0 3.5px #1a1a1a; }
+      .swatch:hover:not(.active) { transform: scale(1.18); }
+      .add-to-cart { background: #7A1F01; color: #fff; border: none; font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; height: 56px; width: 100%; cursor: pointer; transition: background 0.15s; margin-top: 40px; }
+      .add-to-cart:hover { background: #921F01; }
+      .add-to-cart.added { background: #2a5e38; }
+      .add-to-cart:disabled { background: #b0b0b0; cursor: default; }
+      .mob-atc-btn:disabled { background: #b0b0b0; cursor: default; }
+      .swatch.oos, .mob-swatch.oos { opacity: 0.32; cursor: not-allowed; }
+
+      /* Product grid: 4-col on desktop */
+      .section-header { padding: 40px 24px 16px; }
+      .product-grid { flex-wrap: wrap; overflow-x: visible; gap: 2px; padding: 0 24px 40px; }
+      .product-card { flex: 1 1 calc(25% - 2px); max-width: calc(25% - 2px); }
+
+      /* Trust badges: row on desktop */
+      .trust-badges-inner { flex-direction: row; justify-content: space-around; padding: 40px; }
+    }
+
+    /* ── MOBILE HEADER ── */
+    @media (max-width: 767px) {
+      .announcement-bar { padding: 8px 12px; font-size: 10px; }
+      .header-inner { padding: 0 14px; position: relative; }
+      .hamburger { display: flex; }
+      .logo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+      .logo img { height: 22px; }
+      nav { display: none; }
+    }
+  </style>
+
+
+
+  <script src="/cookie-consent.js"></script>
+</head>
+<body>
+
+  <div class="sticky-top">
+    <div class="announcement-bar">TRANSPORT GRATUIT PESTE 300 RON</div>
+    <header>
+      <div class="header-inner">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <line x1="2" y1="5" x2="18" y2="5"/>
+              <line x1="2" y1="10" x2="18" y2="10"/>
+              <line x1="2" y1="15" x2="18" y2="15"/>
+            </svg>
+          </button>
+          <a href="index.html" class="logo"><img src="brand_assets/logo-m27.png" alt="M27" /></a>
+          <nav>
+            <a href="collection.html">Men</a>
+            <a href="collection.html">Women</a>
+            <a href="collection.html">Collections</a>
+          </nav>
+        </div>
+        <div class="header-icons">
+          <a href="cart.html" aria-label="Cart" style="position:relative" id="cart-link">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="cart-count" id="cart-count"></span>
+          </a>
+        </div>
+      </div>
+      <div class="mobile-nav" id="mobile-nav">
+        <a href="index.html">Home</a>
+        <a href="collection.html">Men</a>
+        <a href="collection.html">Women</a>
+        <a href="collection.html">Collections</a>
+      </div>
+    </header>
+  </div>
+
+  <div id="page-root"></div>
+
+  <!-- BEST SELLERS -->
+  <div style="background:#f5f4f2; padding-top:8px;">
+    <div class="section-header">
+      <div class="section-title">BEST SELLERS</div>
+      <a href="collection.html" class="view-all">View all →</a>
+    </div>
+    <div class="product-grid">
+
+      <div class="product-card">
+        <a href="product.html?model=chlorine" class="card-link-overlay" aria-label="Chlorine Tangerine"></a>
+        <div class="product-img-wrap">
+          <div class="product-img-primary"><img src="product%20photos/venice/venice-orange-1.jpg" alt="Chlorine Tangerine" /></div>
+          <div class="product-img-secondary"><img src="product%20photos/venice/venice-orange-2.jpg" alt="Chlorine Tangerine angle" /></div>
+        </div>
+        <div class="product-info">
+          <span class="product-newin">New In</span>
+          <div class="product-meta-row">
+            <div>
+              <div class="product-name-label">Chlorine</div>
+              <div class="product-color-label">Tangerine</div>
+            </div>
+            <div class="product-prices">
+              <div class="product-price-original">200 RON</div>
+              <div class="product-price-disc">175 RON</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <a href="product.html?model=sulphur" class="card-link-overlay" aria-label="Sulphur Dark Green"></a>
+        <div class="product-img-wrap">
+          <div class="product-img-primary"><img src="product%20photos/miami/miami-green1.jpg" alt="Sulphur Dark Green" /></div>
+          <div class="product-img-secondary"><img src="product%20photos/miami/miami-green2.jpg" alt="Sulphur Dark Green angle" /></div>
+        </div>
+        <div class="product-info">
+          <span class="product-newin">New In</span>
+          <div class="product-meta-row">
+            <div>
+              <div class="product-name-label">Sulphur</div>
+              <div class="product-color-label">Dark Green</div>
+            </div>
+            <div class="product-prices">
+              <div class="product-price-original">200 RON</div>
+              <div class="product-price-disc">175 RON</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <a href="product.html?model=zirconium" class="card-link-overlay" aria-label="Zirconium Full Black"></a>
+        <div class="product-img-wrap">
+          <div class="product-img-primary"><img src="product%20photos/roma/roma-black-1.jpg" alt="Zirconium Full Black" /></div>
+          <div class="product-img-secondary"><img src="product%20photos/roma/roma-black-2.jpg" alt="Zirconium Full Black angle" /></div>
+        </div>
+        <div class="product-info">
+          <span class="product-newin">New In</span>
+          <div class="product-meta-row">
+            <div>
+              <div class="product-name-label">Zirconium</div>
+              <div class="product-color-label">Full Black</div>
+            </div>
+            <div class="product-prices">
+              <div class="product-price-original">200 RON</div>
+              <div class="product-price-disc">175 RON</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <a href="product.html?model=mercury" class="card-link-overlay" aria-label="Mercury Champagne"></a>
+        <div class="product-img-wrap">
+          <div class="product-img-primary"><img src="product%20photos/tokyo/tokyo-yellow-1.jpg" alt="Mercury Champagne" /></div>
+          <div class="product-img-secondary"><img src="product%20photos/tokyo/tokyo-yellow-2.jpg" alt="Mercury Champagne angle" /></div>
+        </div>
+        <div class="product-info">
+          <span class="product-newin">New In</span>
+          <div class="product-meta-row">
+            <div>
+              <div class="product-name-label">Mercury</div>
+              <div class="product-color-label">Champagne</div>
+            </div>
+            <div class="product-prices">
+              <div class="product-price-original">200 RON</div>
+              <div class="product-price-disc">175 RON</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div aria-hidden="true" style="min-width:20px; flex-shrink:0;"></div>
+
+    </div>
+  </div>
+
+<!-- FOOTER -->
+<div style="background:#fff; padding: 0 24px;">
+  <div style="max-width:1440px; margin:0 auto; padding:48px 0 0;">
+    <div style="display:flex; align-items:center; justify-content:center; gap:28px; flex-wrap:wrap; margin-bottom:32px;">
+      <a href="terms.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Termeni</a>
+      <a href="privacy.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Confidențialitate</a>
+      <a href="returns.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Retur</a>
+      <a href="shipping.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Livrare</a>
+      <a href="payment-methods.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Metode de Plată</a>
+      <a href="faq.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">FAQ</a>
+      <a href="ajutor.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Ajutor</a>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:center; margin-bottom:48px; padding:0 16px;">
+      <div id="newsletter-form-wrap" style="display:flex; align-items:center; border-bottom:1px solid #1a1a1a; width:560px; gap:8px; padding-bottom:6px;">
+        <input type="email" id="newsletter-input" placeholder="EMAIL ADDRESS" style="flex:1; background:none; border:none; outline:none; font-size:11px; font-weight:400; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; font-family:inherit;" />
+        <button id="newsletter-btn" style="background:none; border:none; cursor:pointer; padding:0; display:flex; align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+      <div id="newsletter-success" style="display:none; font-size:13px; font-weight:600; letter-spacing:0.06em; color:#1a1a1a;">Thanks for the sub! &lt;3</div>
+    </div>
+    <div style="text-align:center; padding-bottom:48px;">
+      <span style="font-family:'Orbitron', sans-serif; font-weight:700; font-size:clamp(28px,4vw,56px); letter-spacing:0.12em; color:#1a1a1a; text-transform:uppercase;">M27 Eyewear</span>
+    </div>
+    <div style="border-top:1px solid #e8e8e8; padding:28px 0 24px; text-align:center;">
+      <div style="display:inline-flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 14px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);"><img src="https://unpkg.com/payment-icons/min/flat/visa.svg" height="18" alt="Visa" style="display:block;" /></div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);"><img src="https://unpkg.com/payment-icons/min/flat/mastercard.svg" height="22" alt="Mastercard" style="display:block;" /></div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);"><img src="https://unpkg.com/payment-icons/min/flat/maestro.svg" height="22" alt="Maestro" style="display:block;" /></div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);"><img src="https://cdn.simpleicons.org/applepay/000000" height="28" alt="Apple Pay" style="display:block; width:auto;" /></div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff;"><img src="https://cdn.simpleicons.org/googlepay/4285F4" height="28" alt="Google Pay" style="display:block; width:auto;" /></div>
+      </div>
+    </div>
+    <div style="padding:12px 0 40px; text-align:center;">
+      <p style="font-size:11px; letter-spacing:0.04em; color:#1a1a1a; text-transform:uppercase; margin-bottom:14px; opacity:0.45;">© 2026 FLANTERSHIPPING SRL &nbsp;·&nbsp; CUI 43538047</p>
+      <p style="margin-bottom:10px"><button onclick="window.m27OpenCookieSettings&&m27OpenCookieSettings()" style="background:none;border:none;color:#1a1a1a;font-family:inherit;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.35;cursor:pointer;padding:0;text-decoration:underline;">Setări cookies</button></p>
+      <div style="display:flex; align-items:center; justify-content:center; gap:14px; opacity:0.5;">
+        <a href="https://anpc.ro" target="_blank" rel="noopener" style="display:flex; align-items:center; border:1px solid #d0d0d0; border-radius:4px; padding:4px 8px; background:#fff;"><img src="website%20items/anpc-sal1-1.png.avif" height="28" alt="ANPC" style="display:block;" /></a>
+        <a href="https://consumer-redress.ec.europa.eu/site-relocation_en" target="_blank" rel="noopener" style="display:flex; align-items:center; border:1px solid #d0d0d0; border-radius:4px; padding:4px 8px; background:#fff;"><img src="website%20items/SOL-Original-_4x-300x75.jpg.avif" height="28" alt="SOL" style="display:block;" /></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script>
+  (function () {
+    const SUPABASE_URL = 'https://mwmhdlgmifddesrpmaef.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_yChSFEz6_0PbUOYYpdNENQ_lyAnhxmw';
+    const PRICE = 175;
+    const PRICE_ORIG = 200;
+
+    const CATALOG = {
+      sulphur: {
+        label: 'Sulphur', shape: 'Octagonal frame',
+        description: '', specs: [],
+        colorways: [
+          { label: 'Skyblue',    swatch: '#4FA3E0',                                          img1: 'product%20photos/miami/sulphur-blue-1.jpg',      img2: 'product%20photos/miami/sulphur-blue-2.jpg'    },
+          { label: 'Full Black', swatch: '#1C1C1C',                                          img1: 'product%20photos/miami/miami-black1.jpg',         img2: 'product%20photos/miami/miami-black2.jpg'      },
+          { label: 'Dark Green', swatch: '#3A6B42',                                          img1: 'product%20photos/miami/miami-green1.jpg',         img2: 'product%20photos/miami/miami-green2.jpg'      },
+          { label: 'Lime',       swatch: 'linear-gradient(135deg,#A8D43A 50%,#ffffff 50%)', img1: 'product%20photos/miami/sulphur-lime-1.jpg',       img2: 'product%20photos/miami/sulphur-lime-2.jpg'    },
+        ]
+      },
+      selenium: {
+        label: 'Selenium', shape: 'Oval frame', description: '', specs: [],
+        colorways: [
+          { label: 'Purple',     swatch: '#7B5EA7',                                          img1: 'product%20photos/tenerife/tenerife-mov-1.jpg',    img2: 'product%20photos/tenerife/tenerife-mov-2.jpg' },
+          { label: 'Full Black', swatch: '#1C1C1C',                                          img1: 'product%20photos/tenerife/tenerife-black-1.jpg',  img2: 'product%20photos/tenerife/tenerife-black-2.jpg'},
+          { label: 'Fig',        swatch: 'linear-gradient(135deg,#8B9B5A 50%,#E8A0B4 50%)', img1: 'product%20photos/tenerife/tenerife-fig1.jpg',     img2: 'product%20photos/tenerife/tenerife-fig2.jpg'  },
+          { label: 'Tiger',      swatch: 'linear-gradient(135deg,#E8820A 50%,#1C1C1C 50%)', img1: 'product%20photos/tenerife/tenerife-tiger-1.jpg',  img2: 'product%20photos/tenerife/tenerife-tiger-2.jpg'},
+        ]
+      },
+      zirconium: {
+        label: 'Zirconium', shape: 'Rectangular frame', description: '', specs: [],
+        colorways: [
+          { label: 'Full Black', swatch: '#1C1C1C',                                          img1: 'product%20photos/roma/roma-black-1.jpg',          img2: 'product%20photos/roma/roma-black-2.jpg'       },
+          { label: 'Skyblue',    swatch: '#4FA3E0',                                          img1: 'product%20photos/roma/roma-blue-1.jpg',           img2: 'product%20photos/roma/roma-blue-2.jpg'        },
+          { label: 'Caramel',    swatch: '#C4843A',                                          img1: 'product%20photos/roma/roma-cacao-1.jpg',          img2: 'product%20photos/roma/roma-cacao2.jpg'        },
+          { label: 'Tangerine',  swatch: '#E8820A',                                          img1: 'product%20photos/roma/roma-orange-1.jpg',         img2: 'product%20photos/roma/roma-orange-2.jpg'      },
+          { label: 'Rose',       swatch: '#E8A0B4',                                          img1: 'product%20photos/roma/roma-pink-1.jpg',           img2: 'product%20photos/roma/roma-rose-2.jpg'        },
+          { label: 'Tiger',      swatch: 'linear-gradient(135deg,#E8820A 50%,#1C1C1C 50%)', img1: 'product%20photos/roma/roma-tiger-1.jpg',          img2: 'product%20photos/roma/roma-tiger-2.jpg'       },
+        ]
+      },
+      mercury: {
+        label: 'Mercury', shape: 'Round frame', description: '', specs: [],
+        colorways: [
+          { label: 'Navy',        swatch: '#1E3D6B',                                         img1: 'product%20photos/tokyo/tokyo-blue-1.jpg',         img2: 'product%20photos/tokyo/tokyo-blue-2.jpg'      },
+          { label: 'Dark Purple', swatch: '#9870B0',                                         img1: 'product%20photos/tokyo/tokyo-grey-1.jpg',         img2: 'product%20photos/tokyo/tokyo-grey-2.jpg'      },
+          { label: 'Champagne',   swatch: 'linear-gradient(135deg,#7A5535 50%,#1C1C1C 50%)',img1: 'product%20photos/tokyo/tokyo-yellow-1.jpg',       img2: 'product%20photos/tokyo/tokyo-yellow-2.jpg'    },
+        ]
+      },
+      chlorine: {
+        label: 'Chlorine', shape: 'Narrow rectangular frame', description: '', specs: [],
+        colorways: [
+          { label: 'Tangerine', swatch: '#C06808', img1: 'product%20photos/venice/venice-orange-1.jpg', img2: 'product%20photos/venice/venice-orange-2.jpg' },
+          { label: 'Skyblue',   swatch: '#2A6FA8', img1: 'product%20photos/venice/venice-blue1.jpg',    img2: 'product%20photos/venice/venice-blue2.jpg'    },
+          { label: 'Kiwi',      swatch: '#4E5E2E', img1: 'product%20photos/venice/venice-kiwi-1.jpg',   img2: 'product%20photos/venice/venice-kiwi-2.jpg'   },
+          { label: 'Lime',      swatch: '#4A8050', img1: 'product%20photos/venice/venice-lime-1.jpg',   img2: 'product%20photos/venice/venice-lime-2.jpg'   },
+          { label: 'Rose',      swatch: '#A84868', img1: 'product%20photos/venice/venice-pink-1.jpg',   img2: 'product%20photos/venice/venice-rose-2.jpg'   },
+        ]
+      },
+      palladium: {
+        label: 'Palladium', shape: 'Hexagonal frame', description: '', specs: [],
+        colorways: [
+          { label: 'Volcano',    swatch: 'linear-gradient(135deg,#CC3B1A 50%,#1C1C1C 50%)', img1: 'product%20photos/praga/praga-volc-1.jpg',    img2: 'product%20photos/praga/praga-volc-2.jpg'   },
+          { label: 'Full Black', swatch: '#1C1C1C',                                          img1: 'product%20photos/praga/praga-black1.jpg',    img2: 'product%20photos/praga/praga-black2.jpg'   },
+          { label: 'Champagne',  swatch: 'linear-gradient(135deg,#7A5535 50%,#1C1C1C 50%)', img1: 'product%20photos/praga/praga-by-1.jpg',      img2: 'product%20photos/praga/praga-by-2.jpg'     },
+          { label: 'Dark Green', swatch: '#5A8A5A',                                          img1: 'product%20photos/praga/praga-green-1.jpg',   img2: 'product%20photos/praga/praga-green-2.jpg'  },
+          { label: 'Mostard',    swatch: '#C8940A',                                          img1: 'product%20photos/praga/praga-mostard1.jpg',  img2: 'product%20photos/praga/praga-mostard2.jpg' },
+        ]
+      },
+      titanium: {
+        label: 'Titanium', shape: 'Large square frame', description: '', specs: [],
+        colorways: [
+          { label: 'Full Black', swatch: '#2A2A2A',                                          img1: 'product%20photos/cape%20town/tit-black-1.jpg', img2: 'product%20photos/cape%20town/tit-black-2.jpg' },
+          { label: 'Panda',      swatch: 'linear-gradient(135deg,#1a1a1a 50%,#f0f0f0 50%)', img1: 'product%20photos/cape%20town/tit-panda-1.jpg', img2: 'product%20photos/cape%20town/tit-panda-2.jpg' },
+          { label: 'Tiger',      swatch: 'linear-gradient(135deg,#E8820A 50%,#1C1C1C 50%)', img1: 'product%20photos/cape%20town/tit-tiger-1.jpg', img2: 'product%20photos/cape%20town/tit-tiger-2.jpg' },
+        ]
+      },
+    };
+
+    const params    = new URLSearchParams(location.search);
+    const modelSlug = (params.get('model') || '').toLowerCase().trim();
+    const mData     = CATALOG[modelSlug];
+
+    let currentSlide = 0;
+
+    function goToSlide(n) {
+      currentSlide = n;
+      var track = document.getElementById('gallery-track');
+      if (track) track.style.transform = 'translateX(-' + (n * 100) + '%)';
+      document.querySelectorAll('.gdot').forEach(function(d, i) { d.classList.toggle('active', i === n); });
+    }
+
+    function updateHeaderOffset() {
+      var h = document.querySelector('.sticky-top');
+      if (!h) return;
+      var hh = h.offsetHeight;
+      document.body.style.paddingTop = hh + 'px';
+      var imageCol = document.querySelector('.image-col');
+      if (imageCol) { imageCol.style.top = hh + 'px'; }
+      var layout = document.querySelector('.product-layout');
+      if (layout) layout.style.minHeight = 'calc(100vh - ' + hh + 'px)';
+    }
+    window.addEventListener('resize', updateHeaderOffset);
+
+    document.getElementById('hamburger-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      var nav = document.getElementById('mobile-nav');
+      var open = nav.classList.toggle('open');
+      this.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', function(e) {
+      var nav = document.getElementById('mobile-nav');
+      if (nav.classList.contains('open') && !nav.contains(e.target)) {
+        nav.classList.remove('open');
+        document.getElementById('hamburger-btn').setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    if (!mData) {
+      document.getElementById('page-root').innerHTML = '<div class="not-found"><h2>Product not found</h2><p style="margin-top:10px;font-size:12px;color:#6d7175"><a href="collection.html" style="color:#1a1a1a;text-decoration:underline">← Back to collection</a></p></div>';
+      updateHeaderOffset();
+      return;
+    }
+
+    var activeCw    = mData.colorways[0];
+    var activeCwIdx = 0;
+    var mainIsFirst = true;
+
+    var productIds = {};
+    var stockMap   = {};
+    (async function() {
+      try {
+        var r = await fetch(
+          SUPABASE_URL + '/rest/v1/products?name=ilike.' + encodeURIComponent(modelSlug) + '&active=eq.true&select=id,colorway,stock_quantity',
+          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+        );
+        if (r.ok) {
+          var rows = await r.json();
+          rows.forEach(function(row) {
+            var k = row.colorway.toLowerCase().replace(/\s+/g, '');
+            productIds[k] = row.id;
+            stockMap[k]   = row.stock_quantity;
+          });
+          updateATCState();
+        }
+      } catch(_) {}
+    })();
+
+    function lookupId(cwLabel) { return productIds[cwLabel.toLowerCase().replace(/\s+/g, '')] || null; }
+    function cwKey(lbl) { return (lbl || '').toLowerCase().replace(/\s+/g, ''); }
+    function updateATCState() {
+      var k   = cwKey(activeCw.label);
+      var oos = stockMap.hasOwnProperty(k) && stockMap[k] <= 0;
+      var deskBtn = document.getElementById('atc-btn-desk');
+      var mobBtn  = document.getElementById('atc-btn-mob');
+      if (deskBtn) { deskBtn.disabled = oos; deskBtn.textContent = oos ? 'Stoc epuizat' : 'Adaugă în coș'; }
+      if (mobBtn)  { mobBtn.disabled  = oos; mobBtn.textContent  = oos ? 'STOC EPUIZAT' : 'ADAUGĂ ÎN COȘ'; }
+      document.querySelectorAll('.swatch, .mob-swatch').forEach(function(btn) {
+        var idx = parseInt(btn.dataset.idx, 10);
+        var cw  = mData.colorways[idx];
+        if (!cw) return;
+        var oosThis = stockMap.hasOwnProperty(cwKey(cw.label)) && stockMap[cwKey(cw.label)] <= 0;
+        btn.classList.toggle('oos', !!oosThis);
+        btn.setAttribute('aria-label', cw.label + (oosThis ? ' — Stoc epuizat' : ''));
+      });
+    }
+    function getCart() { try { return JSON.parse(localStorage.getItem('m27_cart')) || []; } catch(_) { return []; } }
+    function saveCart(c) { localStorage.setItem('m27_cart', JSON.stringify(c)); }
+    function updateCartBadge() {
+      var n = getCart().reduce(function(s, i) { return s + i.quantity; }, 0);
+      var el = document.getElementById('cart-count');
+      if (!el) return;
+      el.textContent = n || '';
+      el.style.display = n > 0 ? 'flex' : 'none';
+    }
+    function addToCart() {
+      if (stockMap.hasOwnProperty(cwKey(activeCw.label)) && stockMap[cwKey(activeCw.label)] <= 0) return;
+      var cart = getCart();
+      var key  = modelSlug + '::' + activeCw.label;
+      var idx  = cart.findIndex(function(i) { return i._key === key; });
+      if (idx >= 0) { cart[idx].quantity += 1; }
+      else { cart.push({ _key: key, product_id: lookupId(activeCw.label), model: mData.label, model_slug: modelSlug, colorway: activeCw.label, price: PRICE, quantity: 1 }); }
+      saveCart(cart);
+      updateCartBadge();
+    }
+
+    function setMainImage(img, thumbActiveIdx) {
+      var mainImg = document.getElementById('main-img');
+      if (!mainImg) return;
+      mainImg.classList.add('switching');
+      setTimeout(function() { mainImg.src = img; mainImg.classList.remove('switching'); }, 120);
+      document.querySelectorAll('.thumb').forEach(function(t, i) { t.classList.toggle('active', i === thumbActiveIdx); });
+    }
+
+    function switchColorway(idx) {
+      activeCwIdx = idx; activeCw = mData.colorways[idx]; mainIsFirst = true;
+      var gi0 = document.getElementById('gallery-img-0'), gi1 = document.getElementById('gallery-img-1');
+      if (gi0) gi0.src = activeCw.img1;
+      if (gi1) gi1.src = activeCw.img2;
+      goToSlide(0);
+      var mobCw = document.getElementById('mob-cw-name');
+      if (mobCw) mobCw.textContent = activeCw.label;
+      document.querySelectorAll('.mob-swatch').forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+      var mainImg = document.getElementById('main-img');
+      if (mainImg) {
+        var t0 = document.getElementById('thumb-0'), t1 = document.getElementById('thumb-1');
+        if (t0) { t0.querySelector('img').src = activeCw.img1; t0.dataset.img = activeCw.img1; }
+        if (t1) { t1.querySelector('img').src = activeCw.img2; t1.dataset.img = activeCw.img2; }
+        setMainImage(activeCw.img1, 0);
+      }
+      var cwName = document.getElementById('cw-name');
+      if (cwName) cwName.textContent = activeCw.label;
+      document.querySelectorAll('.swatch').forEach(function(s, i) { s.classList.toggle('active', i === idx); });
+      updateATCState();
+    }
+
+    function buildDescHTML() {
+      return '<div class="product-desc-block">' +
+        '<p class="desc-intro">Fiecare pereche vine gata pentru viața de zi cu zi.</p>' +
+        '<div class="desc-features">' +
+          '<div class="desc-feature">' +
+            '<div class="desc-feature-title">Protecție UV400</div>' +
+            '<p class="desc-feature-body">Protecție completă împotriva razelor UV dăunătoare, ca să îi porți toată ziua, în fiecare zi.</p>' +
+          '</div>' +
+          '<div class="desc-feature">' +
+            '<div class="desc-feature-title">Lentile TAC polarizate</div>' +
+            '<p class="desc-feature-body">Tratament anti-zgârieturi și hidrofob pentru o claritate perfectă, oriunde te duce ziua.</p>' +
+          '</div>' +
+          '<div class="desc-feature">' +
+            '<div class="desc-feature-title">Construcție premium</div>' +
+            '<p class="desc-feature-body">Rame din TR90 și Cellulose Propionate: ușoare, rezistente și făcute să nu le simți când le porți.</p>' +
+          '</div>' +
+          '<div class="desc-feature">' +
+            '<div class="desc-feature-title">Fit</div>' +
+            '<p class="desc-feature-body">143mm lungime braț | 47mm lățime lentile</p>' +
+          '</div>' +
+          '<div class="desc-feature">' +
+            '<div class="desc-feature-title">În pachet primești:</div>' +
+            '<p class="desc-feature-body">✓ Ochelarii tăi<br>✓ Husă de protecție<br>✓ Cârpă din microfibră pentru curățare</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function render() {
+      document.title = mData.label + ' — M27 Eyewear';
+
+      var deskSwatches = mData.colorways.map(function(cw, i) {
+        return '<button class="swatch' + (i === activeCwIdx ? ' active' : '') + '" style="background:' + cw.swatch + '" data-idx="' + i + '" title="' + cw.label + '" aria-label="' + cw.label + '"></button>';
+      }).join('');
+      var mobSwatches = mData.colorways.map(function(cw, i) {
+        return '<button class="mob-swatch' + (i === activeCwIdx ? ' active' : '') + '" style="background:' + cw.swatch + '" data-idx="' + i + '" title="' + cw.label + '" aria-label="' + cw.label + '"></button>';
+      }).join('');
+
+      document.getElementById('page-root').innerHTML = '\
+<div class="product-layout">\
+  <div class="image-col">\
+    <div class="mob-gallery" id="mob-gallery">\
+      <div class="mob-gallery-track" id="gallery-track">\
+        <div class="gallery-slide"><img id="gallery-img-0" src="' + activeCw.img1 + '" alt="' + mData.label + ' ' + activeCw.label + '" /></div>\
+        <div class="gallery-slide"><img id="gallery-img-1" src="' + activeCw.img2 + '" alt="' + mData.label + ' ' + activeCw.label + ' angle" /></div>\
+      </div>\
+      <div class="gallery-dots">\
+        <span class="gdot active" data-slide="0"></span>\
+        <span class="gdot" data-slide="1"></span>\
+      </div>\
+    </div>\
+    <div class="desk-gallery">\
+      <div class="main-img-wrap"><img id="main-img" src="' + activeCw.img1 + '" alt="' + mData.label + ' ' + activeCw.label + '" /></div>\
+      <div class="thumb-strip">\
+        <div class="thumb active" id="thumb-0" data-img="' + activeCw.img1 + '" title="Front view"><img src="' + activeCw.img1 + '" alt="' + mData.label + ' front" /></div>\
+        <div class="thumb" id="thumb-1" data-img="' + activeCw.img2 + '" title="Side view"><img src="' + activeCw.img2 + '" alt="' + mData.label + ' angle" /></div>\
+      </div>\
+    </div>\
+  </div>\
+  <div class="info-col">\
+    <div class="mob-top">\
+      <div class="mob-swatch-row" id="mob-swatch-row">' + mobSwatches + '</div>\
+      <div class="mob-info-row">\
+        <div>\
+          <div class="mob-model-name">' + mData.label + '</div>\
+          <div class="mob-cw-name" id="mob-cw-name">' + activeCw.label + '</div>\
+        </div>\
+        <div class="mob-price">' + PRICE + ' RON</div>\
+      </div>\
+    </div>\
+' + buildDescHTML() + '\
+    <div class="desk-info">\
+      <div class="breadcrumb-row"><a href="index.html">Home</a><span>›</span><a href="collection.html">Collection</a><span>›</span><span id="bc-label">' + mData.label + '</span></div>\
+      <span class="newin-badge">New In</span>\
+      <div class="name-price-row">\
+        <h1 class="model-name">' + mData.label + '</h1>\
+        <div class="desk-price-wrap">\
+          <div class="price-original">' + PRICE_ORIG + ' RON</div>\
+          <div class="price-disc">' + PRICE + ' RON</div>\
+        </div>\
+      </div>\
+      <div class="color-label-row">\
+        <span class="swatches-label">Culoare:</span>\
+        <span class="cw-label-text" id="cw-name">' + activeCw.label + '</span>\
+      </div>\
+      <div class="swatch-row" id="swatch-row">' + deskSwatches + '</div>\
+      <button class="add-to-cart" id="atc-btn-desk">Adaugă în coș</button>\
+    </div>\
+  </div>\
+</div>\
+<div class="mob-atc-wrap"><button class="mob-atc-btn" id="atc-btn-mob">ADAUGĂ ÎN COȘ</button></div>';
+
+      currentSlide = 0;
+      bindEvents();
+      updateHeaderOffset();
+      updateCartBadge();
+    }
+
+    function bindEvents() {
+      var track = document.getElementById('gallery-track');
+      var touchStartX = 0, touchStartY = 0;
+      if (track) {
+        track.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
+        track.addEventListener('touchend', function(e) {
+          var dx = e.changedTouches[0].clientX - touchStartX;
+          var dy = e.changedTouches[0].clientY - touchStartY;
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+            if (dx < 0 && currentSlide < 1) goToSlide(1);
+            else if (dx > 0 && currentSlide > 0) goToSlide(0);
+          }
+        }, { passive: true });
+      }
+      document.querySelectorAll('.gdot').forEach(function(dot) { dot.addEventListener('click', function() { goToSlide(parseInt(dot.dataset.slide, 10)); }); });
+
+      var mobRow = document.getElementById('mob-swatch-row');
+      if (mobRow) { mobRow.addEventListener('click', function(e) { var btn = e.target.closest('.mob-swatch'); if (!btn) return; var idx = parseInt(btn.dataset.idx, 10); if (idx !== activeCwIdx) switchColorway(idx); }); }
+
+      var mobBtn = document.getElementById('atc-btn-mob');
+      if (mobBtn) { mobBtn.addEventListener('click', function() { addToCart(); window.location.href = 'cart.html'; }); }
+
+      var deskRow = document.getElementById('swatch-row');
+      if (deskRow) { deskRow.addEventListener('click', function(e) { var btn = e.target.closest('.swatch'); if (!btn) return; var idx = parseInt(btn.dataset.idx, 10); if (idx !== activeCwIdx) switchColorway(idx); }); }
+
+      document.querySelectorAll('.thumb').forEach(function(thumb, i) { thumb.addEventListener('click', function() { setMainImage(this.dataset.img, i); mainIsFirst = (i === 0); }); });
+
+      var deskBtn = document.getElementById('atc-btn-desk');
+      if (deskBtn) { deskBtn.addEventListener('click', function() { addToCart(); window.location.href = 'cart.html'; }); }
+    }
+
+    render();
+  })();
+
+  (function () {
+    var input = document.getElementById('newsletter-input');
+    var btn = document.getElementById('newsletter-btn');
+    var formWrap = document.getElementById('newsletter-form-wrap');
+    var success = document.getElementById('newsletter-success');
+    if (!input || !btn) return;
+    async function subscribe() {
+      var email = input.value.trim();
+      if (!email || !email.includes('@')) return;
+      try { await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }); } catch(e) {}
+      formWrap.style.display = 'none';
+      success.style.display = 'block';
+    }
+    btn.addEventListener('click', subscribe);
+    input.addEventListener('keydown', function(e) { if (e.key === 'Enter') subscribe(); });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Despre Noi — M27 Eyewear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&family=Josefin+Sans:wght@100;700&family=Orbitron:wght@700;900&family=Cormorant+Garamond:wght@300;400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0; font: inherit; vertical-align: baseline; }
+    ::selection { background: #202223; color: #fff; }
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 1.6; color: #2a2520; background: #F5F4F0; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; width: 100%; object-fit: cover; }
+    ul { list-style: none; }
+
+    /* ANNOUNCEMENT BAR */
+    .announcement-bar { background: #D6E8F2; text-align: center; padding: 8px 20px; font-size: 12px; font-weight: 800; color: #000; letter-spacing: 0.04em; text-transform: uppercase; }
+    .announcement-bar span { margin: 0 12px; }
+
+    /* HEADER */
+    .sticky-top { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+    header { background: #fff; border-bottom: 1px solid #e8e8e8; }
+    .header-inner { max-width: 1440px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 58px; }
+    .header-left { display: flex; align-items: center; }
+    .logo img { height: 30px; width: auto; display: block; }
+    nav { display: flex; align-items: center; margin-left: 40px; }
+    nav a { font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #1a1a1a; padding: 0 14px; height: 58px; display: flex; align-items: center; border-bottom: 2px solid transparent; transition: border-color 0.15s; }
+    nav a:hover { border-bottom-color: #1a1a1a; }
+    .header-icons { display: flex; align-items: center; gap: 18px; }
+    .header-icons a { background: none; cursor: pointer; color: #1a1a1a; display: flex; align-items: center; position: relative; }
+    .icon-svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .cart-count { background: #1a1a1a; color: #fff; font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; top: -6px; right: -6px; }
+    .hamburger { display: none; background: none; cursor: pointer; color: #1a1a1a; align-items: center; padding: 0; flex-shrink: 0; }
+    .mobile-nav { display: none; background: #fff; border-top: 1px solid #e8e8e8; }
+    .mobile-nav a { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1a1a; padding: 18px 20px; border-bottom: 1px solid #f0f0f0; transition: background 0.12s; }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { background: #f8f8f8; }
+    .mobile-nav.open { display: block; }
+
+    /* PAGE CONTENT */
+    .page-wrap { max-width: 780px; margin: 0 auto; padding: 100px 24px 80px; }
+    .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #7A1F01; margin-bottom: 20px; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(36px, 6vw, 64px); letter-spacing: 0.08em; text-transform: uppercase; color: #1a1a1a; line-height: 1.1; margin-bottom: 48px; }
+    .page-section { margin-bottom: 40px; }
+    .page-section h2 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 26px; letter-spacing: 0.06em; text-transform: uppercase; color: #1a1a1a; margin-bottom: 14px; }
+    .page-section p { font-size: 14px; line-height: 1.8; color: #4a4540; margin-bottom: 14px; }
+    .page-section p:last-child { margin-bottom: 0; }
+    .page-divider { border: none; border-top: 1px solid #e0ddd8; margin: 40px 0; }
+
+    /* FOOTER */
+    .site-footer { background: #fff; padding: 48px 24px 0; }
+    .footer-links-row { display: flex; align-items: center; justify-content: center; gap: 28px; flex-wrap: wrap; margin-bottom: 32px; }
+    .footer-links-row a { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1a1a; transition: opacity 0.15s; }
+    .footer-links-row a:hover { opacity: 0.5; }
+    .footer-wordmark { text-align: center; padding-bottom: 48px; }
+    .footer-wordmark span { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(32px, 5vw, 56px); letter-spacing: 0.12em; color: #1a1a1a; text-transform: uppercase; }
+    .footer-pay { border-top: 1px solid #e8e8e8; padding: 28px 0 24px; text-align: center; }
+    .footer-pay-inner { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .pay-badge { border: 1px solid #e0e0e0; border-radius: 6px; padding: 5px 14px; height: 36px; display: flex; align-items: center; background: #fff; filter: saturate(0.7) opacity(0.8); }
+    .footer-legal { padding: 12px 0 40px; text-align: center; }
+    .footer-legal p { font-size: 11px; letter-spacing: 0.04em; color: #1a1a1a; text-transform: uppercase; margin-bottom: 14px; opacity: 0.45; }
+    .footer-anpc { display: flex; align-items: center; justify-content: center; gap: 14px; opacity: 0.5; }
+    .footer-anpc a { display: flex; align-items: center; border: 1px solid #d0d0d0; border-radius: 4px; padding: 4px 8px; background: #fff; }
+
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .hamburger { display: flex; margin-right: 12px; }
+      .page-wrap { padding: 80px 20px 60px; }
+    }
+
+    /* ── INFO SIDEBAR LAYOUT ── */
+    .info-layout { display: grid; grid-template-columns: 210px 1fr; max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+    .info-sidebar { padding-top: 122px; padding-bottom: 60px; position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; }
+    .sidebar-toggle { display: none; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding-right: 24px; border-right: 1px solid #e0ddd8; }
+    .sidebar-nav a { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: #8a8580; padding: 9px 10px; border-radius: 3px; transition: color 0.12s, background 0.1s; display: block; border: none; }
+    .sidebar-nav a:hover { color: #2a2520; background: #eceae6; border: none; }
+    .sidebar-nav a.active { color: #1a1a1a; font-weight: 700; }
+    .info-content { padding: 100px 0 80px 32px; }
+    @media (max-width: 900px) { .info-layout { grid-template-columns: 170px 1fr; } .info-content { padding-left: 20px; } }
+    @media (max-width: 640px) {
+      .info-layout { grid-template-columns: 1fr; padding: 0 20px; }
+      .info-sidebar { position: static; max-height: none; padding: 80px 0 0; overflow: visible; }
+      .sidebar-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 14px; background: #fff; border: 1px solid #e0ddd8; cursor: pointer; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1a1a; border-radius: 3px; margin-top: 24px; margin-bottom: 4px; }
+      .sidebar-toggle svg { transition: transform 0.2s; }
+      .sidebar-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+      .sidebar-nav { display: none; border-right: none; padding-right: 0; background: #fff; border: 1px solid #e0ddd8; border-top: none; border-radius: 0 0 3px 3px; padding-top: 4px; padding-bottom: 4px; }
+      .sidebar-nav.open { display: flex; }
+      .sidebar-nav a { border-radius: 0; padding: 10px 14px; }
+      .info-content { padding: 24px 0 60px; }
+    }
+  </style>
+
+  <script src="/cookie-consent.js"></script>
+</head>
+<body>
+
+<div class="sticky-top">
+  <div class="announcement-bar"><span>TRANSPORT GRATUIT PESTE 300 RON</span></div>
+  <header>
+    <div class="header-inner">
+      <div class="header-left">
+        <button class="hamburger" id="hamburger-btn" aria-label="Deschide meniu" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="5" x2="18" y2="5"/><line x1="2" y1="10" x2="18" y2="10"/><line x1="2" y1="15" x2="18" y2="15"/></svg>
+        </button>
+        <a href="/" class="logo"><img src="brand_assets/logo-m27.png" alt="M27" /></a>
+        <nav>
+          <a href="collection.html">Men</a>
+          <a href="collection.html">Women</a>
+          <a href="collection.html">Collections</a>
+        </nav>
+      </div>
+      <div class="header-icons">
+        <a href="cart.html" aria-label="Coș" style="position:relative">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-count" id="cart-count"></span>
+        </a>
+      </div>
+    </div>
+    <div class="mobile-nav" id="mobile-nav">
+      <a href="/">Home</a>
+      <a href="collection.html">Men</a>
+      <a href="collection.html">Women</a>
+      <a href="collection.html">Products</a>
+    </div>
+  </header>
+</div>
+
+<div class="info-layout">
+<aside class="info-sidebar">
+  <button class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false">
+    <span id="sidebar-trigger-text">Navighează</span>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+  <div class="sidebar-nav" id="sidebar-nav">
+    <a href="about.html">Despre Noi</a>
+    <a href="faq.html">FAQ</a>
+    <a href="cum-cumpar.html">Cum Cumpăr?</a>
+    <a href="shipping.html">Informații Livrare</a>
+    <a href="terms.html">Termeni și Condiții</a>
+    <a href="returns.html">Politica de Retur</a>
+    <a href="warranty.html">Garanția Produselor</a>
+    <a href="payment-methods.html">Metode de Plată</a>
+    <a href="privacy.html">Confidențialitate</a>
+    <a href="ajutor.html">Ajutor</a>
+  </div>
+</aside>
+<div class="info-content">
+  <h1 class="page-title">Despre Noi</h1>
+
+  <div class="page-section">
+    <p>La M27 nu prezentăm doar ochelari de soare. Prezentăm accesorii care schimbă vibe-ul unei ținute instant.</p>
+    <p>Brandul nostru a apărut din dorința de a combina stilul modern cu atitudinea aia clean și effortless pe care o vezi la oamenii care ies natural în evidență. Fără prea mult „extra", fără complicații, doar modele care arată bine, se simt bine și merg oriunde.</p>
+  </div>
+
+  <hr class="page-divider" />
+
+  <div class="page-section">
+    <h2>Ce e M27?</h2>
+    <p>M27 este despre energie, libertate și încrederea pe care o ai când știi că arăți bine. Ochelari creați pentru zilele în care ești pe fugă prin oraș, pentru vacanțe, festivaluri, citybreak-uri, sau pur și simplu pentru outfit-ul care avea nevoie de detaliul perfect.</p>
+  </div>
+
+  <hr class="page-divider" />
+
+  <div class="page-section">
+    <h2>Ce ne diferențiază</h2>
+    <ul style="display:flex; flex-direction:column; gap:10px; padding-left:0; list-style:none;">
+      <li style="display:flex; align-items:flex-start; gap:12px; color:#4a4540; font-size:14px; line-height:1.7;"><span style="color:#7A1F01; font-size:10px; margin-top:6px;">✦</span> Lentile colorate care ies în evidență și dau personalitate fiecărui look</li>
+      <li style="display:flex; align-items:flex-start; gap:12px; color:#4a4540; font-size:14px; line-height:1.7;"><span style="color:#7A1F01; font-size:10px; margin-top:6px;">✦</span> Rame atent alese, confortabile și ușor de purtat</li>
+      <li style="display:flex; align-items:flex-start; gap:12px; color:#4a4540; font-size:14px; line-height:1.7;"><span style="color:#7A1F01; font-size:10px; margin-top:6px;">✦</span> Design modern, clean și versatil</li>
+      <li style="display:flex; align-items:flex-start; gap:12px; color:#4a4540; font-size:14px; line-height:1.7;"><span style="color:#7A1F01; font-size:10px; margin-top:6px;">✦</span> Protecție UV</li>
+      <li style="display:flex; align-items:flex-start; gap:12px; color:#4a4540; font-size:14px; line-height:1.7;"><span style="color:#7A1F01; font-size:10px; margin-top:6px;">✦</span> Combinația perfectă între funcțional și cool</li>
+    </ul>
+    <p style="margin-top:20px;">La M27 credem că ochelarii trebuie să facă două lucruri: să îți protejeze ochii și să arate prea bine ca să treacă neobservați. De asta alegem modele care nu sunt doar comfy și practice, ci și genul de accesorii care completează instant orice fit.</p>
+  </div>
+
+  <hr class="page-divider" />
+
+  <div class="page-section">
+    <h2>Viziunea noastră</h2>
+    <p>Vrem ca M27 să fie genul de brand pe care îl porți pentru că te reprezintă, nu doar pentru că e „în trend".</p>
+    <p>Pentru noi, ochelarii de soare sunt mai mult decât un accesoriu. Sunt mood. Sunt atitudine. Sunt acel detaliu care face diferența.</p>
+    <p style="margin-top:28px; font-family:'Cormorant Garamond', serif; font-size:22px; font-weight:300; letter-spacing:0.1em; color:#1a1a1a; font-style:italic;">„Life Is A Movie"<br><span style="font-size:14px; letter-spacing:0.2em; font-style:normal; font-family:Helvetica,sans-serif; color:#5a5650;">— M27</span></p>
+  </div>
+</div>
+</div>
+
+
+<!-- FOOTER -->
+<div style="background:#fff; padding: 0 24px;">
+  <div style="max-width:1440px; margin:0 auto; padding:48px 0 0;">
+
+    <div class="newsletter-links-row" style="display:flex; align-items:center; justify-content:center; gap:28px; flex-wrap:wrap; margin-bottom:32px;">
+      <a href="terms.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Termeni</a>
+      <a href="privacy.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Confidențialitate</a>
+      <a href="returns.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Retur</a>
+      <a href="shipping.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Livrare</a>
+      <a href="payment-methods.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Metode de Plată</a>
+      <a href="faq.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">FAQ</a>
+      <a href="ajutor.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Ajutor</a>
+    </div>
+
+    <div class="newsletter-email-outer" id="newsletter-outer" style="display:flex; align-items:center; justify-content:center; margin-bottom:48px; padding:0 16px;">
+      <div class="newsletter-email-wrap" id="newsletter-form-wrap" style="display:flex; align-items:center; border-bottom:1px solid #1a1a1a; width:560px; gap:8px; padding-bottom:6px;">
+        <input type="email" id="newsletter-input" placeholder="EMAIL ADDRESS" style="flex:1; background:none; border:none; outline:none; font-size:11px; font-weight:400; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; font-family:inherit;" />
+        <button id="newsletter-btn" style="background:none; border:none; cursor:pointer; padding:0; display:flex; align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+      <div id="newsletter-success" style="display:none; font-size:13px; font-weight:600; letter-spacing:0.06em; color:#1a1a1a;">Thanks for the sub! &lt;3</div>
+    </div>
+
+    <div style="text-align:center; padding-bottom:48px;">
+      <span class="newsletter-wordmark" style="font-family:'Orbitron', sans-serif; font-weight:700; font-size:clamp(28px,4vw,56px); letter-spacing:0.12em; color:#1a1a1a; text-transform:uppercase;">M27 Eyewear</span>
+    </div>
+
+    <div style="border-top:1px solid #e8e8e8; padding:28px 0 24px; text-align:center;">
+      <div style="display:inline-flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 14px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <img src="https://unpkg.com/payment-icons/min/flat/visa.svg" height="18" alt="Visa" style="display:block;" />
+        </div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <img src="https://unpkg.com/payment-icons/min/flat/mastercard.svg" height="22" alt="Mastercard" style="display:block;" />
+        </div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <img src="https://unpkg.com/payment-icons/min/flat/maestro.svg" height="22" alt="Maestro" style="display:block;" />
+        </div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <img src="https://cdn.simpleicons.org/applepay/000000" height="28" alt="Apple Pay" style="display:block; width:auto;" />
+        </div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff;">
+          <img src="https://cdn.simpleicons.org/googlepay/4285F4" height="28" alt="Google Pay" style="display:block; width:auto;" />
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:12px 0 40px; text-align:center;">
+      <p style="font-size:11px; letter-spacing:0.04em; color:#1a1a1a; text-transform:uppercase; margin-bottom:14px; opacity:0.45;">© 2026 FLANTERSHIPPING SRL &nbsp;·&nbsp; CUI 43538047</p>
+      <p style="margin-bottom:10px"><button onclick="window.m27OpenCookieSettings&&m27OpenCookieSettings()" style="background:none;border:none;color:#1a1a1a;font-family:inherit;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.35;cursor:pointer;padding:0;text-decoration:underline;">Setări cookies</button></p>
+      <div style="display:flex; align-items:center; justify-content:center; gap:14px; opacity:0.5;">
+        <a href="https://anpc.ro" target="_blank" rel="noopener" style="display:flex; align-items:center; border:1px solid #d0d0d0; border-radius:4px; padding:4px 8px; background:#fff;">
+          <img src="website%20items/anpc-sal1-1.png.avif" height="28" alt="ANPC" style="display:block;" />
+        </a>
+        <a href="https://consumer-redress.ec.europa.eu/site-relocation_en" target="_blank" rel="noopener" style="display:flex; align-items:center; border:1px solid #d0d0d0; border-radius:4px; padding:4px 8px; background:#fff;">
+          <img src="website%20items/SOL-Original-_4x-300x75.jpg.avif" height="28" alt="Soluționarea Online a Litigiilor" style="display:block;" />
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+<script>
+  (function(){
+    const btn = document.getElementById('hamburger-btn');
+    const nav = document.getElementById('mobile-nav');
+    btn.addEventListener('click', function(e){ e.stopPropagation(); const open = nav.classList.toggle('open'); btn.setAttribute('aria-expanded', open); });
+    document.addEventListener('click', function(e){ if(nav.classList.contains('open') && !nav.contains(e.target)){ nav.classList.remove('open'); btn.setAttribute('aria-expanded','false'); } });
+  })();
+  (function(){
+    const cart = JSON.parse(localStorage.getItem('m27_cart') || '[]');
+    const count = cart.reduce((s,i) => s + (i.quantity||1), 0);
+    const el = document.getElementById('cart-count');
+    if(el && count > 0){ el.textContent = count; el.style.display = 'flex'; }
+  })();
+  (function(){
+    var path = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+      var href = a.getAttribute('href').split('/').pop();
+      if(href === path){ a.classList.add('active'); var t=document.getElementById('sidebar-trigger-text'); if(t) t.textContent=a.textContent; }
+    });
+    var toggle=document.getElementById('sidebar-toggle'), nav=document.getElementById('sidebar-nav');
+    if(toggle&&nav){ toggle.addEventListener('click',function(){ var o=nav.classList.toggle('open'); toggle.setAttribute('aria-expanded',o); }); }
+  })();
+  (function () {
+    var input = document.getElementById('newsletter-input');
+    var btn = document.getElementById('newsletter-btn');
+    var formWrap = document.getElementById('newsletter-form-wrap');
+    var success = document.getElementById('newsletter-success');
+    if (!input || !btn) return;
+    async function subscribe() {
+      var email = input.value.trim();
+      if (!email || !email.includes('@')) return;
+      try { await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }); } catch(e) {}
+      formWrap.style.display = 'none';
+      success.style.display = 'block';
+    }
+    btn.addEventListener('click', subscribe);
+    input.addEventListener('keydown', function(e) { if (e.key === 'Enter') subscribe(); });
+  })();
+</script>
+</body>
+</html>

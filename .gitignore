@@ -1,13 +1,4 @@
+.env.local
+.env
 node_modules/
 temporary screenshots/
-.claude/
-CLAUDE.md
-make-eyewear.mjs
-make-logo.mjs
-make-tagline.mjs
-screenshot.mjs
-serve.mjs
-strip-bg.mjs
-package.json
-package-lock.json
-mellerbrand.com*.png

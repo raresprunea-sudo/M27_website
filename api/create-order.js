@@ -1,0 +1,159 @@
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Origin check — stops bots that don't load the page first.
+  // Not a cryptographic guarantee (any client can forge the header), but filters
+  // automated abuse without adding friction to legitimate users.
+  const origin  = req.headers.origin  || '';
+  const referer = req.headers.referer || '';
+  const source  = origin || referer;
+  const allowed = source.startsWith('https://m27.ro') || source.startsWith('http://localhost');
+  if (!allowed) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  const {
+    customer_name,
+    customer_email,
+    customer_phone,
+    delivery_type,   // 'locker' | 'home'
+    address,         // full address string
+    locker_id,       // optional
+    total_amount,
+    stripe_payment_id,
+    items,           // [{ product_id, quantity, price }]
+    subtotal,        // for confirmation email
+    discount,        // for confirmation email
+    delivery,        // for confirmation email
+  } = req.body || {};
+
+  if (!customer_name || !customer_email || !delivery_type || !total_amount) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const headers = {
+    apikey:          SERVICE_KEY,
+    Authorization:   `Bearer ${SERVICE_KEY}`,
+    'Content-Type':  'application/json',
+    Prefer:          'return=representation',
+  };
+
+  // Idempotency: if stripe_payment_id provided, check for existing order first
+  if (stripe_payment_id) {
+    const checkRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/orders?stripe_payment_id=eq.${encodeURIComponent(stripe_payment_id)}&select=id,status`,
+      { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
+    );
+    if (checkRes.ok) {
+      const existing = await checkRes.json();
+      if (existing.length > 0) {
+        return res.status(200).json({ id: existing[0].id, status: existing[0].status });
+      }
+    }
+  }
+
+  // 1. For COD orders: decrement stock atomically before creating the order.
+  //    Card orders are handled by the Stripe webhook after payment confirms.
+  if (!stripe_payment_id) {
+    const stockItems = (items || [])
+      .filter(i => i.product_id)
+      .map(i => ({ pid: i.product_id, q: i.quantity }));
+
+    if (stockItems.length > 0) {
+      const stockRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/decrement_stock`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(stockItems),
+      });
+      if (!stockRes.ok) {
+        const detail = await stockRes.text();
+        console.error('Stock decrement failed (COD):', detail);
+        return res.status(409).json({ error: 'Unul sau mai multe produse nu mai sunt disponibile în stocul dorit.' });
+      }
+    }
+  }
+
+  // 2. Create order row
+  const orderRes = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      customer_name,
+      customer_email,
+      customer_phone:    customer_phone || null,
+      delivery_type,
+      address:           address || null,
+      locker_id:         locker_id || null,
+      total_amount,
+      stripe_payment_id: stripe_payment_id || null,
+      status:            stripe_payment_id ? 'paid' : 'pending',
+    }),
+  });
+
+  if (!orderRes.ok) {
+    const err = await orderRes.text();
+    console.error('Supabase order error:', err);
+    return res.status(500).json({ error: 'Failed to create order' });
+  }
+
+  const [order] = await orderRes.json();
+
+  // 3. Create order_items (only for items that have a product_id UUID)
+  const validItems = (items || []).filter(i => i.product_id);
+  if (validItems.length > 0) {
+    const itemsRes = await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
+      method: 'POST',
+      headers: { ...headers, Prefer: '' },
+      body: JSON.stringify(
+        validItems.map(i => ({
+          order_id:          order.id,
+          product_id:        i.product_id,
+          quantity:          i.quantity,
+          price_at_purchase: i.price,
+        }))
+      ),
+    });
+
+    if (!itemsRes.ok) {
+      console.error('Supabase order_items error:', await itemsRes.text());
+      // Non-fatal: order was created, items insertion failed — log but don't fail the request
+    }
+  }
+
+  // 4. For COD orders: send confirmation email server-side (never from the browser).
+  //    Card orders are emailed by stripe-webhook.js after payment_intent.succeeded.
+  if (!stripe_payment_id) {
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const baseUrl  = `${protocol}://${req.headers.host}`;
+    fetch(`${baseUrl}/api/send-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type':   'application/json',
+        'x-admin-secret': ADMIN_SECRET || '',
+      },
+      body: JSON.stringify({
+        order_id:       order.id,
+        customer_name,
+        customer_email,
+        delivery_type,
+        address:        address || '',
+        items:          items   || [],
+        subtotal:       subtotal  ?? total_amount,
+        discount:       discount  ?? 0,
+        delivery:       delivery  ?? 0,
+        total:          total_amount,
+      }),
+    }).catch(e => console.error('COD email error (non-fatal):', e.message));
+  }
+
+  return res.status(200).json({ id: order.id, status: order.status });
+};

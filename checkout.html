@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finalizare comandă — M27 Eyewear</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0; font: inherit; vertical-align: baseline; }
+    ::selection { background: #7A1F01; color: #fff; }
+    html, body { overflow-x: hidden; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 14px; font-weight: 400; line-height: 1.5;
+      color: #1a1a1a; background: #fff;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ── HEADER ── */
+    .co-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #fff; border-bottom: 1px solid #e8e8e8;
+    }
+    .co-header-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 58px;
+    }
+    .co-logo img { height: 26px; width: auto; display: block; }
+    .co-cart-link {
+      position: relative; color: #1a1a1a;
+      display: flex; align-items: center;
+    }
+    .co-cart-icon {
+      width: 22px; height: 22px; stroke: currentColor; fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .co-cart-badge {
+      position: absolute; top: -5px; right: -6px;
+      background: #1a1a1a; color: #fff; font-size: 9px; font-weight: 700;
+      width: 15px; height: 15px; border-radius: 50%;
+      display: none; align-items: center; justify-content: center;
+    }
+
+    /* ── MOBILE SUMMARY TOGGLE ── */
+    .mob-sum-bar {
+      background: #f4f4f0; border-bottom: 1px solid #e0e0e0;
+    }
+    .mob-sum-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 14px 20px; background: none; cursor: pointer;
+      font-family: inherit;
+    }
+    .mob-sum-left { display: flex; align-items: center; gap: 8px; }
+    .mob-sum-label { font-size: 13px; font-weight: 600; color: #7A1F01; }
+    .mob-sum-chevron {
+      width: 14px; height: 14px; stroke: #7A1F01; fill: none;
+      stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+      transition: transform 0.2s ease;
+    }
+    .mob-sum-bar.open .mob-sum-chevron { transform: rotate(180deg); }
+    .mob-sum-total { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+    .mob-sum-body { display: none; padding: 4px 20px 16px; }
+    .mob-sum-bar.open .mob-sum-body { display: block; }
+
+    /* ── LAYOUT ── */
+    .co-layout {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr;
+    }
+
+    /* ── FORM COLUMN ── */
+    .co-form { padding: 28px 20px 80px; }
+
+    /* ── SECTION ── */
+    .co-sec { margin-bottom: 32px; }
+    .co-sec-title {
+      font-size: 20px; font-weight: 700; color: #1a1a1a;
+      margin-bottom: 16px; letter-spacing: -0.01em;
+    }
+
+    /* ── EXPRESS CHECKOUT ── */
+    .express-block { margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid #e8e8e8; }
+    .express-label {
+      text-align: center; font-size: 11px; color: #a0a4a8;
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px;
+    }
+    #co-prb { min-height: 48px; }
+    .express-or {
+      display: flex; align-items: center; gap: 12px; margin-top: 16px;
+    }
+    .express-or::before, .express-or::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
+    .express-or span { font-size: 11px; color: #a0a4a8; letter-spacing: 0.1em; text-transform: uppercase; }
+    .express-err { font-size: 12px; color: #dc2626; margin-top: 8px; display: none; }
+
+    /* ── FIELDS ── */
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; color: #6d7175; font-weight: 500; }
+    .field-input, .field-select {
+      width: 100%; height: 48px; padding: 0 14px;
+      border: 1px solid #c8ccd0; border-radius: 8px;
+      background: #fff; font-family: inherit; font-size: 14px; color: #1a1a1a;
+      outline: none; transition: border-color 0.15s; -webkit-appearance: none;
+      appearance: none;
+    }
+    .field-input::placeholder { color: #b4b8bc; }
+    .field-input:focus, .field-select:focus { border-color: #1a1a1a; }
+    .field-input.err, .field-select.err { border-color: #dc2626; }
+    .field-select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 4.5L11 1' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+    }
+    .field-err { font-size: 12px; color: #dc2626; min-height: 16px; display: none; }
+    .field-err.show { display: block; }
+    .field-grid { display: grid; gap: 10px; }
+    .two-col { grid-template-columns: 1fr 1fr; }
+
+    /* ── RADIO CARDS ── */
+    .radio-cards { display: flex; flex-direction: column; gap: 0; }
+    .radio-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px; border: 1px solid #c8ccd0;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+      user-select: none; background: #fff;
+    }
+    .radio-cards .radio-card:first-of-type { border-radius: 8px 8px 0 0; }
+    .radio-cards .radio-card:last-of-type  { border-radius: 0 0 8px 8px; }
+    .radio-cards .radio-card:only-of-type  { border-radius: 8px; }
+    .radio-cards .radio-card + .radio-card { border-top: none; }
+    .radio-card.selected { border-color: #7A1F01; background: rgba(122,31,1,0.025); z-index: 1; position: relative; }
+    .radio-card.selected + .radio-card { border-top: 1px solid #c8ccd0; }
+    .radio-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid #c0c0c0; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.15s;
+    }
+    .radio-card.selected .radio-dot { border-color: #7A1F01; }
+    .radio-dot-inner { width: 10px; height: 10px; border-radius: 50%; background: #7A1F01; opacity: 0; transition: opacity 0.15s; }
+    .radio-card.selected .radio-dot-inner { opacity: 1; }
+    .radio-body { flex: 1; }
+    .radio-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+    .radio-sub { font-size: 12px; color: #6d7175; margin-top: 2px; }
+    .radio-right { flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+    .radio-price { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+
+    /* ── DELIVERY CARDS WRAPPER ── */
+    .delivery-cards-wrap .radio-card:first-child { border-radius: 8px 8px 0 0; }
+    .delivery-cards-wrap .radio-card:last-child  { border-radius: 0 0 8px 8px; }
+    .delivery-cards-wrap .radio-card + .radio-card { border-top: none; }
+    .delivery-cards-wrap .radio-card.selected + .radio-card { border-top: 1px solid #c8ccd0; }
+
+    /* ── PAYMENT CARDS ── */
+    .pay-card-wrap { margin-bottom: 0; }
+    .pay-card-wrap + .pay-card-wrap { margin-top: 0; }
+
+    /* card outer: seamless expand */
+    .card-payment-outer .radio-card {
+      border-radius: 8px 8px 0 0;
+    }
+    .card-payment-outer.collapsed .radio-card {
+      border-radius: 8px;
+    }
+    .card-payment-outer .radio-card.selected { border-bottom-color: transparent; }
+    .card-payment-outer.collapsed .radio-card.selected { border-bottom-color: #7A1F01; }
+
+    .stripe-wrap {
+      border: 1px solid #c8ccd0; border-top: none;
+      border-radius: 0 0 8px 8px; padding: 18px; background: #faf9f8;
+      display: none;
+    }
+    .stripe-wrap.open { display: block; border-color: #7A1F01; }
+
+    .ramburs-card-outer .radio-card { border-radius: 8px; border: 1px solid #c8ccd0; }
+    .ramburs-card-outer .radio-card.selected { border-color: #7A1F01; }
+    .ramburs-note {
+      display: none; margin-top: 0;
+      border: 1px solid #7A1F01; border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 12px 18px; background: rgba(122,31,1,0.025);
+      font-size: 13px; color: #1a1a1a;
+    }
+    .ramburs-note.open { display: block; }
+    .ramburs-card-outer.ramburs-open .radio-card { border-radius: 8px 8px 0 0; border-bottom-color: transparent; }
+
+    /* Payment section separator between card and ramburs */
+    .pay-sep { height: 8px; }
+
+    /* pay icons */
+    .pay-icons { display: flex; gap: 4px; align-items: center; }
+
+    /* ── SECURITY NOTE ── */
+    .security-note { font-size: 12px; color: #6d7175; margin-bottom: 14px; }
+
+    /* ── PAY ERROR ── */
+    .pay-error { font-size: 12px; color: #dc2626; margin-top: 10px; display: none; }
+
+    /* ── SUBMIT ── */
+    .submit-btn {
+      display: block; width: 100%; height: 52px;
+      background: #7A1F01; color: #fff; border: none; border-radius: 8px;
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      letter-spacing: 0.02em; cursor: pointer;
+      transition: background 0.15s; text-align: center;
+    }
+    .submit-btn:hover:not(:disabled) { background: #921F01; }
+    .submit-btn:disabled { background: #b89090; cursor: default; }
+    .submit-btn.loading { position: relative; color: transparent; }
+    .submit-btn.loading::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 18px; height: 18px; margin: -9px 0 0 -9px;
+      border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .submit-note { text-align: center; font-size: 12px; color: #a0a4a8; margin-top: 10px; }
+    .global-error {
+      font-size: 12px; color: #dc2626; margin-top: 10px;
+      padding: 10px 14px; background: #fff5f5;
+      border: 1px solid #fca5a5; border-radius: 6px; display: none;
+    }
+
+    /* ── SHARED SUMMARY STYLES ── */
+    .sum-item { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .sum-thumb {
+      width: 58px; height: 58px; flex-shrink: 0; border-radius: 6px;
+      background: #f2f2f0; overflow: hidden; position: relative;
+      border: 1px solid #e8e8e8;
+    }
+    .sum-thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .sum-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: #555; color: #fff; font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sum-info { flex: 1; }
+    .sum-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+    .sum-color { font-size: 12px; color: #6d7175; }
+    .sum-price { font-size: 13px; font-weight: 600; color: #1a1a1a; white-space: nowrap; }
+    .sum-divider { height: 1px; background: #e8e8e8; margin: 12px 0; }
+    .sum-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+    .sum-lbl { color: #6d7175; }
+    .sum-val { color: #1a1a1a; font-weight: 500; }
+    .sum-disc { color: #2a7d44; font-weight: 500; }
+    .sum-free { color: #2a7d44; font-weight: 600; }
+    .sum-total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; border-top: 1px solid #e8e8e8; margin-top: 4px; }
+    .sum-total-lbl { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+    .sum-total-rhs { display: flex; align-items: baseline; gap: 4px; }
+    .sum-total-cur { font-size: 12px; color: #6d7175; }
+    .sum-total-val { font-size: 22px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; }
+
+    /* ── DESKTOP SUMMARY COLUMN ── */
+    .co-summary { display: none; }
+    .co-summary-inner {
+      padding: 32px 28px;
+      background: #f9f8f7; border-left: 1px solid #e8e8e8;
+      min-height: calc(100vh - 58px);
+    }
+    .co-sum-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #6d7175; margin-bottom: 20px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (min-width: 1024px) {
+      .mob-sum-bar { display: none; }
+      .co-layout { grid-template-columns: 58% 42%; }
+      .co-form { padding: 48px 56px 96px 48px; }
+      .co-summary { display: block; }
+      .co-summary-inner { position: sticky; top: 58px; }
+    }
+    @media (min-width: 601px) and (max-width: 1023px) {
+      .co-form { padding: 28px 32px 80px; }
+    }
+    @media (max-width: 600px) {
+      .co-form { padding: 20px 16px 72px; }
+      .two-col { grid-template-columns: 1fr; }
+      .pay-icons { display: none; }
+    }
+  </style>
+  <script src="/cookie-consent.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="co-header">
+    <div class="co-header-inner">
+      <a href="index.html" class="co-logo">
+        <img src="brand_assets/logo-m27.png" alt="M27 Eyewear" />
+      </a>
+      <a href="cart.html" class="co-cart-link" aria-label="Coș">
+        <svg class="co-cart-icon" viewBox="0 0 24 24">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span class="co-cart-badge" id="cart-badge"></span>
+      </a>
+    </div>
+  </header>
+
+  <!-- MOBILE ORDER SUMMARY -->
+  <div class="mob-sum-bar" id="mob-sum-bar">
+    <button class="mob-sum-btn" id="mob-sum-btn" aria-expanded="false">
+      <div class="mob-sum-left">
+        <svg class="mob-sum-chevron" id="mob-sum-chevron" viewBox="0 0 14 8">
+          <polyline points="1,1 7,7 13,1"/>
+        </svg>
+        <span class="mob-sum-label">Sumar comandă</span>
+      </div>
+      <span class="mob-sum-total" id="mob-sum-total">— RON</span>
+    </button>
+    <div class="mob-sum-body" id="mob-sum-body">
+      <div id="mob-sum-content"></div>
+    </div>
+  </div>
+
+  <!-- PAGE LAYOUT -->
+  <div class="co-layout">
+
+    <!-- FORM COLUMN -->
+    <div class="co-form">
+
+      <!-- EXPRESS CHECKOUT -->
+      <div class="express-block" id="express-block" style="display:none">
+        <div class="express-label">Plată rapidă</div>
+        <div id="co-prb"></div>
+        <div class="express-err" id="express-err"></div>
+        <div class="express-or"><span>sau</span></div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="co-sec">
+        <div class="co-sec-title">Contact</div>
+        <div class="field-group">
+          <label class="field-label" for="email">Email</label>
+          <input class="field-input" type="email" id="email" autocomplete="email" inputmode="email" placeholder="exemplu@email.com" />
+          <span class="field-err" id="email-err"></span>
+        </div>
+      </div>
+
+      <!-- LIVRARE -->
+      <div class="co-sec">
+        <div class="co-sec-title">Livrare</div>
+        <div class="field-grid" style="gap:10px">
+          <div class="field-grid two-col">
+            <div class="field-group">
+              <label class="field-label" for="first-name">Prenume</label>
+              <input class="field-input" type="text" id="first-name" autocomplete="given-name" placeholder="Maria" />
+              <span class="field-err" id="first-name-err"></span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="last-name">Nume</label>
+              <input class="field-input" type="text" id="last-name" autocomplete="family-name" placeholder="Popescu" />
+              <span class="field-err" id="last-name-err"></span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="street">Adresă</label>
+            <input class="field-input" type="text" id="street" autocomplete="street-address" placeholder="Strada Victoriei nr. 1" />
+            <span class="field-err" id="street-err"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="apartment">Apartament (opțional)</label>
+            <input class="field-input" type="text" id="apartment" autocomplete="address-line2" placeholder="Ap. 3, sc. A" />
+          </div>
+          <div class="field-grid two-col">
+            <div class="field-group">
+              <label class="field-label" for="postal">Cod poștal (opțional)</label>
+              <input class="field-input" type="text" id="postal" autocomplete="postal-code" inputmode="numeric" maxlength="6" placeholder="010101" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="city">Oraș</label>
+              <input class="field-input" type="text" id="city" autocomplete="address-level2" placeholder="București" />
+              <span class="field-err" id="city-err"></span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="county">Județ</label>
+            <select class="field-select" id="county">
+              <option value="">Selectează județul</option>
+              <option>Alba</option><option>Arad</option><option>Argeș</option>
+              <option>Bacău</option><option>Bihor</option><option>Bistrița-Năsăud</option>
+              <option>Botoșani</option><option>Brașov</option><option>Brăila</option>
+              <option>București - Sector 1</option><option>București - Sector 2</option>
+              <option>București - Sector 3</option><option>București - Sector 4</option>
+              <option>București - Sector 5</option><option>București - Sector 6</option>
+              <option>Buzău</option><option>Caraș-Severin</option><option>Călărași</option>
+              <option>Cluj</option><option>Constanța</option><option>Covasna</option>
+              <option>Dâmbovița</option><option>Dolj</option><option>Galați</option>
+              <option>Giurgiu</option><option>Gorj</option><option>Harghita</option>
+              <option>Hunedoara</option><option>Ialomița</option><option>Iași</option>
+              <option>Ilfov</option><option>Maramureș</option><option>Mehedinți</option>
+              <option>Mureș</option><option>Neamț</option><option>Olt</option>
+              <option>Prahova</option><option>Satu Mare</option><option>Sălaj</option>
+              <option>Sibiu</option><option>Suceava</option><option>Teleorman</option>
+              <option>Timiș</option><option>Tulcea</option><option>Vaslui</option>
+              <option>Vâlcea</option><option>Vrancea</option>
+            </select>
+            <span class="field-err" id="county-err"></span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="phone">Telefon</label>
+            <input class="field-input" type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="07xx xxx xxx" />
+            <span class="field-err" id="phone-err"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- METODA DE LIVRARE -->
+      <div class="co-sec">
+        <div class="co-sec-title">Metodă de livrare</div>
+        <div class="delivery-cards-wrap">
+          <div class="radio-card" id="rc-home" data-value="home">
+            <div class="radio-dot"><div class="radio-dot-inner"></div></div>
+            <div class="radio-body">
+              <div class="radio-title">Livrare la domiciliu</div>
+              <div class="radio-sub">1-2 zile lucrătoare</div>
+            </div>
+            <div class="radio-price" id="rp-home">19.99 RON</div>
+          </div>
+          <div class="radio-card" id="rc-locker" data-value="locker">
+            <div class="radio-dot"><div class="radio-dot-inner"></div></div>
+            <div class="radio-body">
+              <div class="radio-title">Livrare la locker Sameday</div>
+              <div class="radio-sub">1-2 zile lucrătoare</div>
+              <div class="radio-sub">Introdu adresa ta — noi alocăm cel mai apropiat locker și ți-l comunicăm prin email</div>
+            </div>
+            <div class="radio-price" id="rp-locker">19.99 RON</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLATĂ -->
+      <div class="co-sec">
+        <div class="co-sec-title">Plată</div>
+        <div class="security-note">Toate tranzacțiile sunt securizate și criptate.</div>
+
+        <!-- Card option -->
+        <div class="card-payment-outer" id="card-outer">
+          <div class="radio-card selected" id="rc-card" data-value="card">
+            <div class="radio-dot"><div class="radio-dot-inner"></div></div>
+            <div class="radio-body">
+              <div class="radio-title">Card bancar</div>
+            </div>
+            <div class="pay-icons">
+              <svg width="34" height="22" viewBox="0 0 34 22" style="border:1px solid #e0e0e0;border-radius:4px"><rect width="34" height="22" fill="#1a1a5e" rx="3"/><text x="17" y="15" text-anchor="middle" font-size="8" fill="#fff" font-weight="bold" font-family="Helvetica,sans-serif">VISA</text></svg>
+              <svg width="34" height="22" viewBox="0 0 34 22" style="border:1px solid #e0e0e0;border-radius:4px"><rect width="34" height="22" fill="#fff" rx="3"/><circle cx="13" cy="11" r="6" fill="#eb001b"/><circle cx="21" cy="11" r="6" fill="#f79e1b" fill-opacity="0.85"/></svg>
+              <svg width="34" height="22" viewBox="0 0 34 22" style="border:1px solid #e0e0e0;border-radius:4px"><rect width="34" height="22" fill="#fff" rx="3"/><circle cx="13" cy="11" r="6" fill="#0099df"/><circle cx="21" cy="11" r="6" fill="#ef0000" fill-opacity="0.75"/></svg>
+            </div>
+          </div>
+          <div class="stripe-wrap open" id="stripe-wrap">
+            <div id="stripe-element">
+              <div style="font-size:12px;color:#a0a4a8;padding:8px 0">Se încarcă…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pay-sep"></div>
+
+        <!-- Ramburs option -->
+        <div class="ramburs-card-outer" id="ramburs-outer">
+          <div class="radio-card" id="rc-ramburs" data-value="ramburs">
+            <div class="radio-dot"><div class="radio-dot-inner"></div></div>
+            <div class="radio-body">
+              <div class="radio-title">Ramburs</div>
+              <div class="radio-sub">Plătești curierului la primire</div>
+            </div>
+          </div>
+          <div class="ramburs-note" id="ramburs-note">
+            Vei plăti cash la livrare. Curieru Sameday te va contacta înainte de livrare.
+          </div>
+        </div>
+
+        <div class="pay-error" id="pay-error"></div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div>
+        <button class="submit-btn" id="submit-btn">Plasează comanda</button>
+        <div class="global-error" id="global-error"></div>
+        <p class="submit-note">🔒 Plată securizată · Retur gratuit 14 zile</p>
+      </div>
+
+    </div><!-- /co-form -->
+
+    <!-- DESKTOP SUMMARY -->
+    <div class="co-summary">
+      <div class="co-summary-inner">
+        <div class="co-sum-title">Sumar comandă</div>
+        <div id="desk-sum-content"></div>
+      </div>
+    </div>
+
+  </div><!-- /co-layout -->
+
+  <footer style="border-top:1px solid #e8e8e8;padding:20px 24px;margin-top:0">
+    <div style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:12px">
+      <a href="terms.html" style="font-size:11px;color:#6d7175">Termeni</a>
+      <a href="privacy.html" style="font-size:11px;color:#6d7175">Confidențialitate</a>
+      <a href="returns.html" style="font-size:11px;color:#6d7175">Retur</a>
+      <a href="shipping.html" style="font-size:11px;color:#6d7175">Livrare</a>
+      <a href="faq.html" style="font-size:11px;color:#6d7175">FAQ</a>
+    </div>
+    <p style="font-size:11px;color:#b0b0b0;text-align:center">© 2025 M27 Eyewear · București, România</p>
+    <p style="text-align:center;margin-top:6px">
+      <button onclick="window.m27OpenCookieSettings&&m27OpenCookieSettings()" style="background:none;border:none;font-size:10px;color:#b0b0b0;cursor:pointer;text-decoration:underline;font-family:inherit;padding:0">Setări cookies</button>
+    </p>
+  </footer>
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
+  (function () {
+
+    /* ── CONFIG ── */
+    const STRIPE_PK          = 'pk_live_51TI3hXIlryxhPZhoGddeAVJthYgG0WUipl5xFcfG4EaQyOWZ2zCA6E2IXpOEdyR3c87phEakmkHV6i73jXNFAdZT00gKMmSU8d';
+    const SHIPPING_THRESHOLD = 300;
+    const SHIPPING_COST      = 19.99;
+    const ITEM_PRICE         = 175;
+
+    /* ── IMAGES ── */
+    const IMAGES = {
+      sulphur:   { skyblue:'product%20photos/miami/sulphur-blue-1.jpg','full black':'product%20photos/miami/miami-black1.jpg','dark green':'product%20photos/miami/miami-green1.jpg',lime:'product%20photos/miami/sulphur-lime-1.jpg' },
+      selenium:  { purple:'product%20photos/tenerife/tenerife-mov-1.jpg','full black':'product%20photos/tenerife/tenerife-black-1.jpg',fig:'product%20photos/tenerife/tenerife-fig1.jpg',tiger:'product%20photos/tenerife/tenerife-tiger-1.jpg' },
+      zirconium: { 'full black':'product%20photos/roma/roma-black-1.jpg',skyblue:'product%20photos/roma/roma-blue-1.jpg',caramel:'product%20photos/roma/roma-cacao-1.jpg',tangerine:'product%20photos/roma/roma-orange-1.jpg',rose:'product%20photos/roma/roma-pink-1.jpg',tiger:'product%20photos/roma/roma-tiger-1.jpg' },
+      mercury:   { navy:'product%20photos/tokyo/tokyo-blue-1.jpg','dark purple':'product%20photos/tokyo/tokyo-grey-1.jpg',champagne:'product%20photos/tokyo/tokyo-yellow-1.jpg' },
+      chlorine:  { tangerine:'product%20photos/venice/venice-orange-1.jpg',skyblue:'product%20photos/venice/venice-blue1.jpg',kiwi:'product%20photos/venice/venice-kiwi-1.jpg',lime:'product%20photos/venice/venice-lime-1.jpg',rose:'product%20photos/venice/venice-pink-1.jpg' },
+      palladium: { volcano:'product%20photos/praga/praga-volc-1.jpg','full black':'product%20photos/praga/praga-black1.jpg',champagne:'product%20photos/praga/praga-by-1.jpg','dark green':'product%20photos/praga/praga-green-1.jpg',mostard:'product%20photos/praga/praga-mostard1.jpg' },
+      titanium:  { 'full black':'product%20photos/cape%20town/tit-black-1.jpg',panda:'product%20photos/cape%20town/tit-panda-1.jpg',tiger:'product%20photos/cape%20town/tit-tiger-1.jpg' },
+    };
+    function getImage(item) {
+      const slug = (item.model_slug||item.model||'').toLowerCase().trim();
+      const cw   = (item.colorway||'').toLowerCase().trim();
+      return (IMAGES[slug]&&IMAGES[slug][cw])||'';
+    }
+
+    /* ── CART HELPERS ── */
+    function getCart()     { try { return JSON.parse(localStorage.getItem('m27_cart'))||[]; } catch(_){return[];} }
+    function totalQty(c)   { return c.reduce((s,i)=>s+i.quantity,0); }
+    function subtotalAmt(c){ return c.reduce((s,i)=>s+i.price*i.quantity,0); }
+    function discountAmt(c){ const p=Math.floor(totalQty(c)/2); return p>0?p*ITEM_PRICE*0.5:0; }
+    function deliveryCost(c){ return (subtotalAmt(c)-discountAmt(c))>=SHIPPING_THRESHOLD?0:SHIPPING_COST; }
+    function totalAmt(c)   { return subtotalAmt(c)-discountAmt(c)+deliveryCost(c); }
+    function fmt(n)        { return Number(n).toFixed(2); }
+
+    /* ── CART BADGE ── */
+    function updateBadge() {
+      const n=totalQty(getCart()), el=document.getElementById('cart-badge');
+      if(!el) return;
+      el.textContent=n||''; el.style.display=n>0?'flex':'none';
+    }
+
+    /* ── SUMMARY HTML ── */
+    function buildSummaryHTML(cart) {
+      const sub=subtotalAmt(cart), disc=discountAmt(cart), del=deliveryCost(cart), tot=totalAmt(cart);
+      const items = cart.map(i=>{
+        const img=getImage(i);
+        return `<div class="sum-item">
+          <div class="sum-thumb">${img?`<img src="${img}" alt="${i.model}"/>`:''}
+            <span class="sum-badge">${i.quantity}</span></div>
+          <div class="sum-info"><div class="sum-name">${i.model}</div><div class="sum-color">${i.colorway}</div></div>
+          <div class="sum-price">${fmt(i.price*i.quantity)} RON</div>
+        </div>`;
+      }).join('');
+      const discRow = disc>0?`<div class="sum-row"><span class="sum-lbl">Bundle 50% OFF</span><span class="sum-disc">−${fmt(disc)} RON</span></div>`:'';
+      const delVal  = del===0?`<span class="sum-free">Gratuit</span>`:`<span class="sum-val">${fmt(del)} RON</span>`;
+      return `${items}<div class="sum-divider"></div>
+        <div class="sum-row"><span class="sum-lbl">Subtotal</span><span class="sum-val">${fmt(sub)} RON</span></div>
+        ${discRow}
+        <div class="sum-row"><span class="sum-lbl">Livrare</span>${delVal}</div>
+        <div class="sum-total">
+          <span class="sum-total-lbl">Total</span>
+          <div class="sum-total-rhs"><span class="sum-total-cur">RON</span><span class="sum-total-val">${fmt(tot)}</span></div>
+        </div>`;
+    }
+
+    function renderSummary() {
+      const cart=getCart(), html=buildSummaryHTML(cart);
+      const mob=document.getElementById('mob-sum-content'), desk=document.getElementById('desk-sum-content');
+      if(mob)  mob.innerHTML=html;
+      if(desk) desk.innerHTML=html;
+      const mt=document.getElementById('mob-sum-total');
+      if(mt) mt.textContent=fmt(totalAmt(cart))+' RON';
+      const del=deliveryCost(cart), lbl=del===0?'Gratuit':fmt(del)+' RON';
+      ['rp-home','rp-locker'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=lbl; });
+    }
+
+    /* ── STATE ── */
+    let deliveryMethod='home', paymentMethod='card';
+    let stripe=null, elements=null, stripeReady=false;
+
+    /* ── DELIVERY ── */
+    function setDelivery(val) {
+      deliveryMethod=val;
+      ['rc-home','rc-locker'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.classList.toggle('selected', el.dataset.value===val);
+      });
+    }
+
+    /* ── PAYMENT ── */
+    function setPayment(val) {
+      paymentMethod=val;
+      const cardOuter    = document.getElementById('card-outer');
+      const stripeWrap   = document.getElementById('stripe-wrap');
+      const rambursOuter = document.getElementById('ramburs-outer');
+      const rambursNote  = document.getElementById('ramburs-note');
+      const submitBtn    = document.getElementById('submit-btn');
+      const cart         = getCart();
+
+      ['rc-card','rc-ramburs'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.classList.toggle('selected', el.dataset.value===val);
+      });
+
+      if(val==='card') {
+        cardOuter.classList.remove('collapsed');
+        stripeWrap.classList.add('open');
+        rambursOuter.classList.remove('ramburs-open');
+        rambursNote.classList.remove('open');
+        if(!stripeReady && STRIPE_PK) initStripe();
+        submitBtn.textContent = `Plătește ${fmt(totalAmt(cart))} RON`;
+      } else {
+        cardOuter.classList.add('collapsed');
+        stripeWrap.classList.remove('open');
+        rambursOuter.classList.add('ramburs-open');
+        rambursNote.classList.add('open');
+        submitBtn.textContent = 'Plasează comanda';
+      }
+    }
+
+    /* ── STRIPE INIT ── */
+    async function initStripe() {
+      if(!STRIPE_PK||!window.Stripe||stripeReady) return;
+      stripe=Stripe(STRIPE_PK);
+      try {
+        const cart=getCart();
+        elements=stripe.elements({ mode:'payment', amount:Math.round(totalAmt(cart)*100), currency:'ron', locale:'ro' });
+        const el=elements.create('payment',{ layout:'tabs' });
+        el.mount('#stripe-element');
+        stripeReady=true;
+      } catch(e) {
+        document.getElementById('stripe-element').innerHTML=
+          `<div style="font-size:12px;color:#dc2626;padding:8px 0">Eroare la încărcare. Încearcă Ramburs.</div>`;
+      }
+    }
+
+    /* ── VALIDATION ── */
+    const REQUIRED=[
+      {id:'email',type:'email'},{id:'first-name'},{id:'last-name'},
+      {id:'street'},{id:'city'},{id:'county'},{id:'phone'},
+    ];
+    function showErr(id, msg) {
+      const inp=document.getElementById(id), err=document.getElementById(id+'-err');
+      if(inp) inp.classList.toggle('err',!!msg);
+      if(err){ err.textContent=msg; err.classList.toggle('show',!!msg); }
+    }
+    function clearErr(id){ showErr(id,''); }
+    function validateForm() {
+      let ok=true;
+      REQUIRED.forEach(f=>{
+        const el=document.getElementById(f.id), val=(el?el.value:'').trim();
+        let msg='';
+        if(!val) msg='Câmp obligatoriu';
+        else if(f.type==='email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) msg='Email invalid';
+        showErr(f.id,msg);
+        if(msg) ok=false;
+      });
+      return ok;
+    }
+
+    /* ── FORM DATA ── */
+    function getFormData() {
+      const cart=getCart();
+      const apt  =(document.getElementById('apartment').value||'').trim();
+      const post =(document.getElementById('postal').value||'').trim();
+      const addr =[
+        document.getElementById('street').value.trim(), apt,
+        document.getElementById('city').value.trim(),
+        document.getElementById('county').value.trim(), post,
+      ].filter(Boolean).join(', ');
+      return {
+        customer_name:  `${document.getElementById('first-name').value.trim()} ${document.getElementById('last-name').value.trim()}`,
+        customer_email:  document.getElementById('email').value.trim(),
+        customer_phone:  document.getElementById('phone').value.trim(),
+        delivery_type:   deliveryMethod,
+        payment_method:  paymentMethod,
+        address:         addr,
+        total_amount:    totalAmt(cart),
+        items:           cart,
+        subtotal:        subtotalAmt(cart),
+        discount:        discountAmt(cart),
+        delivery:        deliveryCost(cart),
+      };
+    }
+
+    /* ── SUBMIT COD ── */
+    async function submitCOD() {
+      const data=getFormData();
+      const r=await fetch('/api/create-order',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+      if(!r.ok) {
+        const err=await r.json().catch(()=>({}));
+        throw new Error(err.error||'Nu s-a putut crea comanda. Încearcă din nou.');
+      }
+      const order=await r.json();
+      localStorage.removeItem('m27_cart');
+      window.location.href=`confirmation.html?order_id=${order.id}`;
+    }
+
+    /* ── SUBMIT STRIPE ── */
+    async function submitStripe() {
+      const payErr=document.getElementById('pay-error');
+      payErr.style.display='none';
+      if(!stripe||!elements||!stripeReady){
+        payErr.textContent='Formular neîncărcat. Reîncarcă pagina.';
+        payErr.style.display='block';
+        throw new Error('Stripe not ready');
+      }
+      const { error:subErr }=await elements.submit();
+      if(subErr){
+        payErr.textContent=subErr.message||'Eroare la plată.';
+        payErr.style.display='block';
+        throw new Error(subErr.message);
+      }
+      const fd=getFormData(), cart=getCart();
+      const itemsMeta=JSON.stringify(
+        cart.map(i=>({ pid:i.product_id||'', m:i.model, c:i.colorway, q:i.quantity, p:i.price }))
+      ).slice(0,500);
+      const metadata={
+        customer_name:  fd.customer_name,
+        customer_email: fd.customer_email,
+        customer_phone: fd.customer_phone||'',
+        delivery_type:  fd.delivery_type,
+        address:        fd.address||'',
+        total_amount:   String(fd.total_amount),
+        subtotal:       String(fd.subtotal),
+        discount:       String(fd.discount),
+        delivery:       String(fd.delivery),
+        items:          itemsMeta,
+      };
+      const r=await fetch('/api/stripe-payment',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ amount:totalAmt(cart), metadata }),
+      });
+      const data=await r.json();
+      if(!r.ok){
+        const msg=data.error||'A apărut o eroare. Încearcă din nou.';
+        payErr.textContent=msg; payErr.style.display='block';
+        throw new Error(msg);
+      }
+      if(!data.client_secret) throw new Error('No client_secret');
+      sessionStorage.setItem('m27_checkout_data',JSON.stringify(fd));
+      sessionStorage.setItem('m27_cart_snapshot',JSON.stringify(cart));
+      const { error }=await stripe.confirmPayment({
+        elements, clientSecret:data.client_secret,
+        confirmParams:{
+          return_url:`${window.location.origin}/confirmation.html`,
+          payment_method_data:{ billing_details:{ name:fd.customer_name, email:fd.customer_email, phone:fd.customer_phone } },
+        },
+      });
+      if(error){
+        payErr.textContent=error.message||'A apărut o eroare la plată.';
+        payErr.style.display='block';
+        throw new Error(error.message);
+      }
+    }
+
+    /* ── SUBMIT HANDLER ── */
+    document.getElementById('submit-btn').addEventListener('click', async function(){
+      document.getElementById('global-error').style.display='none';
+      if(!validateForm()){
+        const first=document.querySelector('.field-input.err,.field-select.err');
+        if(first) first.scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+      this.disabled=true; this.classList.add('loading');
+      const orig=this.textContent;
+      try {
+        if(paymentMethod==='card') await submitStripe();
+        else await submitCOD();
+      } catch(err){
+        this.disabled=false; this.classList.remove('loading'); this.textContent=orig;
+        const ge=document.getElementById('global-error'), pe=document.getElementById('pay-error');
+        if(pe.style.display==='none'||!pe.style.display){
+          ge.textContent=err.message||'A apărut o eroare. Încearcă din nou.';
+          ge.style.display='block';
+        }
+      }
+    });
+
+    /* ── DELIVERY RADIO EVENTS ── */
+    document.getElementById('rc-home').addEventListener('click',   ()=>setDelivery('home'));
+    document.getElementById('rc-locker').addEventListener('click', ()=>setDelivery('locker'));
+
+    /* ── PAYMENT RADIO EVENTS ── */
+    document.getElementById('rc-card').addEventListener('click',    ()=>setPayment('card'));
+    document.getElementById('rc-ramburs').addEventListener('click', ()=>setPayment('ramburs'));
+
+    /* ── CLEAR ERRORS ON INPUT ── */
+    REQUIRED.forEach(f=>{
+      const el=document.getElementById(f.id);
+      if(!el) return;
+      el.addEventListener(el.tagName==='SELECT'?'change':'input', ()=>clearErr(f.id));
+    });
+
+    /* ── MOBILE SUMMARY TOGGLE ── */
+    document.getElementById('mob-sum-btn').addEventListener('click', function(){
+      const bar=document.getElementById('mob-sum-bar');
+      const body=document.getElementById('mob-sum-body');
+      const open=bar.classList.toggle('open');
+      this.setAttribute('aria-expanded',open);
+      body.style.display=open?'block':'none';
+    });
+
+    /* ── EXPRESS CHECKOUT (Payment Request Button) ── */
+    (async function initExpress() {
+      if(!window.Stripe||!STRIPE_PK) return;
+      const cart=getCart();
+      if(!cart||cart.length===0) return;
+
+      const sub=subtotalAmt(cart), disc=discountAmt(cart);
+      const shipping=deliveryCost(cart), total=totalAmt(cart);
+
+      const stripeExp=Stripe(STRIPE_PK);
+      const pr=stripeExp.paymentRequest({
+        country:'RO', currency:'ron',
+        total:{ label:'M27 Eyewear', amount:Math.round(total*100) },
+        requestPayerName:true, requestPayerEmail:true, requestPayerPhone:true,
+        requestShipping:true,
+        shippingOptions:[{
+          id:'standard', label:'Livrare standard',
+          detail:'1-2 zile lucrătoare', amount:Math.round(SHIPPING_COST*100),
+        }],
+      });
+
+      const canPay=await pr.canMakePayment();
+      if(!canPay) return;
+
+      document.getElementById('express-block').style.display='';
+      const prEl=stripeExp.elements().create('paymentRequestButton',{
+        paymentRequest:pr,
+        style:{ paymentRequestButton:{ height:'48px', borderRadius:'8px' } },
+      });
+      prEl.mount('#co-prb');
+
+      pr.on('shippingaddresschange', ev=>{
+        ev.updateWith({ status:'success', shippingOptions:[{
+          id:'standard', label:'Livrare standard',
+          detail:'1-2 zile lucrătoare', amount:Math.round(SHIPPING_COST*100),
+        }]});
+      });
+
+      pr.on('paymentmethod', async ev=>{
+        const errEl=document.getElementById('express-err');
+        errEl.style.display='none';
+
+        const addr=ev.shippingAddress||{};
+        const addrStr=[
+          addr.addressLine&&addr.addressLine[0],
+          addr.city, addr.region, addr.postalCode,
+        ].filter(Boolean).join(', ');
+
+        const itemsMeta=JSON.stringify(
+          cart.map(i=>({ pid:i.product_id||'', m:i.model, c:i.colorway, q:i.quantity, p:i.price }))
+        ).slice(0,500);
+
+        const metadata={
+          customer_name:  ev.payerName||'',
+          customer_email: ev.payerEmail||'',
+          customer_phone: ev.payerPhone||'',
+          delivery_type:  'home',
+          address:        addrStr,
+          total_amount:   String(total),
+          subtotal:       String(sub),
+          discount:       String(disc),
+          delivery:       String(shipping),
+          items:          itemsMeta,
+        };
+
+        let clientSecret;
+        try {
+          const r=await fetch('/api/stripe-payment',{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({ amount:total, metadata }),
+          });
+          const d=await r.json();
+          if(!r.ok||!d.client_secret){ ev.complete('fail'); return; }
+          clientSecret=d.client_secret;
+        } catch(_){ ev.complete('fail'); return; }
+
+        const result=await stripeExp.confirmCardPayment(
+          clientSecret, { payment_method:ev.paymentMethod.id }, { handleActions:false }
+        );
+        if(result.error){
+          ev.complete('fail');
+          errEl.textContent=result.error.message||'Plata nu a putut fi procesată.';
+          errEl.style.display='block';
+          return;
+        }
+        if(result.paymentIntent.status==='requires_action'){
+          const final=await stripeExp.confirmCardPayment(clientSecret);
+          if(final.error){
+            ev.complete('fail');
+            errEl.textContent=final.error.message||'Plata nu a putut fi procesată.';
+            errEl.style.display='block';
+            return;
+          }
+          ev.complete('success');
+          localStorage.removeItem('m27_cart');
+          window.location.href='confirmation.html?payment_intent_client_secret='+clientSecret;
+        } else {
+          ev.complete('success');
+          localStorage.removeItem('m27_cart');
+          window.location.href='confirmation.html?payment_intent_client_secret='+clientSecret;
+        }
+      });
+    })();
+
+    /* ── INIT ── */
+    renderSummary();
+    updateBadge();
+    setPayment('card');
+    setDelivery('home');
+    initStripe(); // preload Stripe on page load
+
+  })();
+  </script>
+</body>
+</html>

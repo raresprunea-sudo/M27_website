@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comandă confirmată — M27 Eyewear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0; font: inherit; vertical-align: baseline; }
+    ::selection { background: #202223; color: #fff; }
+    html, body { overflow-x: hidden; }
+    body {
+      font-family: Helvetica, "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+      font-size: 14px; font-weight: 400; line-height: 1.6;
+      color: #6d7175; background: #f4f4f4;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ── ANNOUNCEMENT ── */
+    .announcement-bar {
+      background: #D6E8F2; text-align: center; padding: 8px 20px;
+      font-size: 12px; font-weight: 800; color: #000;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+
+    /* ── STICKY TOP ── */
+    .sticky-top { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+
+    /* ── HEADER ── */
+    header { background: #fff; border-bottom: 1px solid #e8e8e8; }
+    .header-inner {
+      max-width: 1440px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 58px;
+    }
+    .header-left { display: flex; align-items: center; }
+    .logo img { height: 30px; width: auto; display: block; }
+    nav { display: flex; align-items: center; margin-left: 40px; }
+    nav a {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #1a1a1a; padding: 0 14px; height: 58px; display: flex; align-items: center;
+      border-bottom: 2px solid transparent; transition: border-color 0.15s;
+    }
+    nav a:hover { border-bottom-color: #1a1a1a; }
+    .header-icons { display: flex; align-items: center; gap: 18px; }
+    .header-icons a {
+      background: none; cursor: pointer; color: #1a1a1a;
+      display: flex; align-items: center; position: relative;
+    }
+    .icon-svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .hamburger {
+      display: none; background: none; border: none; cursor: pointer;
+      color: #1a1a1a; align-items: center; padding: 0; flex-shrink: 0;
+    }
+    .mobile-nav { display: none; background: #fff; border-top: 1px solid #e8e8e8; }
+    .mobile-nav a {
+      display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #1a1a1a; padding: 18px 20px;
+      border-bottom: 1px solid #f0f0f0; transition: background 0.12s;
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { background: #f8f8f8; }
+    .mobile-nav.open { display: block; }
+
+    /* ── PAGE ── */
+    .confirmation-page {
+      max-width: 640px; margin: 0 auto;
+      padding: 80px 24px 120px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+
+    /* ── CHECK ICON ── */
+    .check-wrap {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: #1a1a1a; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 32px;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .check-icon {
+      width: 28px; height: 28px; stroke: #fff; fill: none;
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: drawCheck 0.4s 0.3s ease forwards;
+    }
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ── HEADING ── */
+    .confirm-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300; font-size: 42px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #1a1a1a;
+      margin-bottom: 14px; line-height: 1.1;
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+    .confirm-sub {
+      font-size: 14px; color: #6d7175; line-height: 1.7; max-width: 420px;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── ORDER REF ── */
+    .order-ref-wrap {
+      margin: 36px 0 0; width: 100%;
+      background: #fff; padding: 22px 28px;
+      display: flex; justify-content: space-between; align-items: center;
+      animation: fadeUp 0.5s 0.4s ease both;
+    }
+    .order-ref-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #a0a4a8;
+    }
+    .order-ref-value {
+      font-size: 13px; font-weight: 700; color: #1a1a1a; letter-spacing: 0.06em;
+    }
+
+    /* ── DETAILS CARD ── */
+    .details-card {
+      margin-top: 12px; width: 100%; background: #fff; padding: 24px 28px;
+      text-align: left;
+      animation: fadeUp 0.5s 0.5s ease both;
+    }
+    .details-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #1a1a1a;
+      margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #f0f0f0;
+    }
+    .details-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 10px; font-size: 13px;
+    }
+    .details-row .lbl { color: #6d7175; }
+    .details-row .val { font-weight: 600; color: #1a1a1a; text-align: right; }
+    .details-divider { height: 1px; background: #f0f0f0; margin: 14px 0; }
+    .details-total {
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .details-total .lbl {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: #1a1a1a;
+    }
+    .details-total .val {
+      font-size: 22px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em;
+    }
+
+    /* ── ITEMS IN CONFIRMATION ── */
+    .confirm-item {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+    }
+    .confirm-item-img {
+      width: 52px; height: 52px; background: #f5f5f5; flex-shrink: 0; overflow: hidden;
+    }
+    .confirm-item-img img { width: 100%; height: 100%; object-fit: contain; }
+    .confirm-item-info { flex: 1; font-size: 12px; color: #1a1a1a; font-weight: 600; line-height: 1.3; }
+    .confirm-item-color { font-size: 11px; color: #6d7175; font-weight: 400; }
+    .confirm-item-price { font-size: 13px; font-weight: 700; color: #1a1a1a; flex-shrink: 0; }
+
+    /* ── EMAIL NOTE ── */
+    .email-note {
+      margin-top: 32px; font-size: 13px; color: #6d7175; line-height: 1.6;
+      animation: fadeUp 0.5s 0.6s ease both;
+    }
+    .email-note strong { color: #1a1a1a; }
+
+    /* ── CTA ── */
+    .cta-wrap {
+      margin-top: 40px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.5s 0.7s ease both;
+    }
+    .btn-primary {
+      display: inline-block; padding: 17px 40px;
+      background: #1a1a1a; color: #fff; border: none;
+      font-family: inherit; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #333; }
+    .btn-secondary {
+      display: inline-block; padding: 17px 40px;
+      background: transparent; color: #1a1a1a; border: 1.5px solid #1a1a1a;
+      font-family: inherit; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-secondary:hover { background: #1a1a1a; color: #fff; }
+
+    /* ── LOADING STATE ── */
+    .loading-state {
+      width: 100%; text-align: center; padding: 60px 0;
+      font-size: 12px; color: #a0a4a8; letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── FOOTER ── */
+    .page-footer { background: #f4f4f4; border-top: 1px solid #e8e8e8; }
+    .footer-inner {
+      background: #fff; padding: 28px 24px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 24px; flex-wrap: wrap;
+    }
+    .footer-inner a {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #1a1a1a;
+    }
+    .footer-inner a:hover { text-decoration: underline; }
+    .footer-copy {
+      font-size: 11px; letter-spacing: 0.08em; color: #b0b0b0;
+      text-transform: uppercase; padding: 0 24px 28px; text-align: center;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      .announcement-bar { padding: 8px 12px; font-size: 10px; }
+      .header-inner { padding: 0 14px; position: relative; }
+      .hamburger { display: flex; }
+      .logo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+      .logo img { height: 22px; }
+      nav { display: none; }
+      .confirmation-page { padding: 48px 14px 80px; }
+      .confirm-heading { font-size: 30px; }
+      .order-ref-wrap { flex-direction: column; align-items: flex-start; gap: 4px; padding: 18px 20px; }
+      .details-card { padding: 20px 18px; }
+      .cta-wrap { flex-direction: column; }
+      .btn-primary, .btn-secondary { text-align: center; }
+      .footer-inner { gap: 14px; }
+    }
+  </style>
+
+  <script src="/cookie-consent.js"></script>
+</head>
+<body>
+
+  <div class="sticky-top">
+    <div class="announcement-bar">TRANSPORT GRATUIT PESTE 300 RON</div>
+    <header>
+      <div class="header-inner">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <line x1="2" y1="5" x2="18" y2="5"/>
+              <line x1="2" y1="10" x2="18" y2="10"/>
+              <line x1="2" y1="15" x2="18" y2="15"/>
+            </svg>
+          </button>
+          <a href="index.html" class="logo"><img src="brand_assets/logo-m27.png" alt="M27" /></a>
+          <nav>
+            <a href="collection.html">Men</a>
+            <a href="collection.html">Women</a>
+            <a href="collection.html">Collections</a>
+          </nav>
+        </div>
+        <div class="header-icons">
+          <a href="cart.html" aria-label="Cart" style="position:relative">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="mobile-nav" id="mobile-nav">
+        <a href="index.html">Home</a>
+        <a href="collection.html">Men</a>
+        <a href="collection.html">Women</a>
+        <a href="collection.html">Collections</a>
+      </div>
+    </header>
+  </div>
+
+  <div class="confirmation-page" id="page-root">
+    <div class="loading-state">Se verifică comanda…</div>
+  </div>
+
+  <footer class="page-footer">
+    <div class="footer-inner">
+      <a href="terms.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Termeni</a>
+      <a href="privacy.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Confidențialitate</a>
+      <a href="returns.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Retur</a>
+      <a href="shipping.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Livrare</a>
+      <a href="payment-methods.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Metode de Plată</a>
+      <a href="faq.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">FAQ</a>
+      <a href="ajutor.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Ajutor</a>
+    </div>
+    <p class="footer-copy">© 2025 M27 Eyewear &nbsp;·&nbsp; Bucharest, Romania</p>
+    <p class="footer-copy" style="margin-top:-8px"><button onclick="window.m27OpenCookieSettings&&m27OpenCookieSettings()" style="background:none;border:none;font-family:inherit;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#b0b0b0;cursor:pointer;padding:0;text-decoration:underline;">Setări cookies</button></p>
+  </footer>
+
+  <!-- Stripe.js (needed to check Stripe redirect result) -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <script>
+  (function () {
+
+    /* ── CONFIG ── */
+    const STRIPE_PK          = 'pk_live_51TI3hXIlryxhPZhoGddeAVJthYgG0WUipl5xFcfG4EaQyOWZ2zCA6E2IXpOEdyR3c87phEakmkHV6i73jXNFAdZT00gKMmSU8d';
+    const ITEM_PRICE         = 175;
+    const SHIPPING_THRESHOLD = 300;
+    const SHIPPING_COST      = 19.99;
+
+    /* ── IMAGES MAP ── */
+    const IMAGES = {
+      sulphur:   { skyblue: 'product%20photos/miami/sulphur-blue-1.jpg', 'full black': 'product%20photos/miami/miami-black1.jpg', 'dark green': 'product%20photos/miami/miami-green1.jpg', lime: 'product%20photos/miami/sulphur-lime-1.jpg' },
+      selenium:  { purple: 'product%20photos/tenerife/tenerife-mov-1.jpg', 'full black': 'product%20photos/tenerife/tenerife-black-1.jpg', fig: 'product%20photos/tenerife/tenerife-fig1.jpg', tiger: 'product%20photos/tenerife/tenerife-tiger-1.jpg' },
+      zirconium: { 'full black': 'product%20photos/roma/roma-black-1.jpg', skyblue: 'product%20photos/roma/roma-blue-1.jpg', caramel: 'product%20photos/roma/roma-cacao-1.jpg', tangerine: 'product%20photos/roma/roma-orange-1.jpg', rose: 'product%20photos/roma/roma-pink-1.jpg', tiger: 'product%20photos/roma/roma-tiger-1.jpg' },
+      mercury:   { navy: 'product%20photos/tokyo/tokyo-blue-1.jpg', 'dark purple': 'product%20photos/tokyo/tokyo-grey-1.jpg', champagne: 'product%20photos/tokyo/tokyo-yellow-1.jpg' },
+      chlorine:  { tangerine: 'product%20photos/venice/venice-orange-1.jpg', skyblue: 'product%20photos/venice/venice-blue1.jpg', kiwi: 'product%20photos/venice/venice-kiwi-1.jpg', lime: 'product%20photos/venice/venice-lime-1.jpg', rose: 'product%20photos/venice/venice-pink-1.jpg' },
+      palladium: { volcano: 'product%20photos/praga/praga-volc-1.jpg', 'full black': 'product%20photos/praga/praga-black1.jpg', champagne: 'product%20photos/praga/praga-by-1.jpg', 'dark green': 'product%20photos/praga/praga-green-1.jpg', mostard: 'product%20photos/praga/praga-mostard1.jpg' },
+      titanium:  { 'full black': 'product%20photos/cape%20town/tit-black-1.jpg', panda: 'product%20photos/cape%20town/tit-panda-1.jpg', tiger: 'product%20photos/cape%20town/tit-tiger-1.jpg' },
+    };
+
+    function getImage(item) {
+      const slug = (item.model_slug || item.model || '').toLowerCase().trim();
+      const cw   = (item.colorway || '').toLowerCase().trim();
+      return (IMAGES[slug] && IMAGES[slug][cw]) || '';
+    }
+
+    /* ── HELPERS ── */
+    function fmtPrice(n) { return n % 1 === 0 ? n.toString() : n.toFixed(2); }
+
+    function subtotal(items) { return items.reduce((s, i) => s + i.price * i.quantity, 0); }
+    function discount(items) {
+      const qty   = items.reduce((s, i) => s + i.quantity, 0);
+      const pairs = Math.floor(qty / 2);
+      return pairs > 0 ? pairs * ITEM_PRICE * 0.5 : 0;
+    }
+    function shipping(items) {
+      const net = subtotal(items) - discount(items);
+      return net >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+    }
+    function total(items) { return subtotal(items) - discount(items) + shipping(items); }
+
+    /* ── RENDER ── */
+    function renderPage(data) {
+      const { orderRef, customerEmail, customerName, items, deliveryType, address } = data;
+      const sub  = subtotal(items);
+      const disc = discount(items);
+      const ship = shipping(items);
+      const tot  = total(items);
+      const firstName = (customerName || '').split(' ')[0] || '';
+
+      const itemsHTML = items.map(i => {
+        const img = getImage(i);
+        return `
+          <div class="confirm-item">
+            <div class="confirm-item-img">
+              ${img ? `<img src="${img}" alt="${i.model}" />` : ''}
+            </div>
+            <div class="confirm-item-info">
+              ${i.model}${i.quantity > 1 ? ` <span style="color:#6d7175;font-weight:400">×${i.quantity}</span>` : ''}<br>
+              <span class="confirm-item-color">${i.colorway}</span>
+            </div>
+            <div class="confirm-item-price">${fmtPrice(i.price * i.quantity)} RON</div>
+          </div>`;
+      }).join('');
+
+      const discRow = disc > 0 ? `
+        <div class="details-row">
+          <span class="lbl">Bundle 50% OFF</span>
+          <span class="val" style="color:#2a7d44">−${fmtPrice(disc)} RON</span>
+        </div>` : '';
+
+      const deliveryLabel = deliveryType === 'home' ? 'Acasă' : 'Livrare la Locker';
+
+      document.getElementById('page-root').innerHTML = `
+        <div class="check-wrap">
+          <svg class="check-icon" viewBox="0 0 24 24">
+            <polyline points="4 12 10 18 20 7"/>
+          </svg>
+        </div>
+
+        <h1 class="confirm-heading">Mulțumim!</h1>
+        <p class="confirm-sub">
+          ${firstName ? `${firstName}, comanda ta` : 'Comanda ta'} a fost înregistrată cu succes.
+          Vei primi un email de confirmare în câteva minute.
+        </p>
+
+        ${orderRef ? `
+        <div class="order-ref-wrap">
+          <span class="order-ref-label">Număr comandă</span>
+          <span class="order-ref-value">#${orderRef}</span>
+        </div>` : ''}
+
+        ${items.length > 0 ? `
+        <div class="details-card">
+          <div class="details-title">Detalii comandă</div>
+          ${itemsHTML}
+          <div class="details-divider"></div>
+          <div class="details-row">
+            <span class="lbl">Subtotal</span>
+            <span class="val">${fmtPrice(sub)} RON</span>
+          </div>
+          ${discRow}
+          <div class="details-row">
+            <span class="lbl">${deliveryLabel}</span>
+            <span class="val" ${ship===0?'style="color:#2a7d44"':''}>${ship===0?'Gratuit':fmtPrice(ship)+' RON'}</span>
+          </div>
+          ${address ? `
+          <div class="details-row" style="margin-top:4px">
+            <span class="lbl">Adresă</span>
+            <span class="val" style="max-width:260px;text-align:right">${address}</span>
+          </div>` : ''}
+          <div class="details-divider"></div>
+          <div class="details-total">
+            <span class="lbl">Total</span>
+            <span class="val">${fmtPrice(tot)} RON</span>
+          </div>
+        </div>` : ''}
+
+        <p class="email-note">
+          Un email de confirmare a fost trimis la <strong>${customerEmail || 'adresa ta'}</strong>.
+          Dacă nu îl găsești, verifică folderul Spam.
+        </p>
+
+        <div class="cta-wrap">
+          <a href="collection.html" class="btn-primary">Continuă cumpărăturile</a>
+          <a href="index.html" class="btn-secondary">Pagina principală</a>
+        </div>`;
+    }
+
+    function renderError(msg) {
+      document.getElementById('page-root').innerHTML = `
+        <div class="check-wrap" style="background:#e03e3e">
+          <svg style="width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24">
+            <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
+          </svg>
+        </div>
+        <h1 class="confirm-heading" style="font-size:32px">Eroare</h1>
+        <p class="confirm-sub">${msg}</p>
+        <div class="cta-wrap">
+          <a href="checkout.html" class="btn-primary">Înapoi la checkout</a>
+        </div>`;
+    }
+
+    /* ── STRIPE REDIRECT FLOW ── */
+    async function handleStripeReturn(clientSecret) {
+      if (!STRIPE_PK || !window.Stripe) {
+        renderError('Configurație Stripe lipsă.');
+        return;
+      }
+      const stripe = Stripe(STRIPE_PK);
+      const { paymentIntent, error } = await stripe.retrievePaymentIntent(clientSecret);
+
+      if (error || !paymentIntent || paymentIntent.status !== 'succeeded') {
+        renderError(error?.message || 'Plata nu a fost procesată cu succes.');
+        return;
+      }
+
+      // Pull form data + cart that checkout.html saved to sessionStorage before redirecting
+      let formData = {}, cartItems = [];
+      try {
+        formData  = JSON.parse(sessionStorage.getItem('m27_checkout_data') || '{}');
+        cartItems = JSON.parse(sessionStorage.getItem('m27_cart_snapshot') || '[]');
+      } catch(_) {}
+
+      // Create order server-side
+      let orderId = '';
+      try {
+        const orderRes = await fetch('/api/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...formData,
+            items:              cartItems,
+            stripe_payment_id:  paymentIntent.id,
+          }),
+        });
+        if (orderRes.ok) {
+          const order = await orderRes.json();
+          orderId = order.id || '';
+        }
+      } catch(_) {}
+
+      // Clear cart + session storage
+      localStorage.removeItem('m27_cart');
+      sessionStorage.removeItem('m27_checkout_data');
+      sessionStorage.removeItem('m27_cart_snapshot');
+
+      const orderRef = orderId ? orderId.slice(0, 8).toUpperCase() : paymentIntent.id.slice(-8).toUpperCase();
+      renderPage({
+        orderRef,
+        customerEmail: formData.customer_email || '',
+        customerName:  formData.customer_name  || '',
+        items:         cartItems,
+        deliveryType:  formData.delivery_type  || 'locker',
+        address:       formData.address        || '',
+      });
+    }
+
+    /* ── RAMBURS FLOW ── */
+    function handleRambursReturn(orderId) {
+      // order was already created server-side by checkout.html before redirecting
+      let formData = {}, cartItems = [];
+      try {
+        formData  = JSON.parse(sessionStorage.getItem('m27_checkout_data') || '{}');
+        cartItems = JSON.parse(sessionStorage.getItem('m27_cart_snapshot') || '[]');
+      } catch(_) {}
+
+      sessionStorage.removeItem('m27_checkout_data');
+      sessionStorage.removeItem('m27_cart_snapshot');
+
+      const orderRef = (orderId || '').slice(0, 8).toUpperCase();
+      renderPage({
+        orderRef,
+        customerEmail: formData.customer_email || '',
+        customerName:  formData.customer_name  || '',
+        items:         cartItems,
+        deliveryType:  formData.delivery_type  || 'locker',
+        address:       formData.address        || '',
+      });
+    }
+
+    /* ── ENTRY POINT ── */
+    (async function init() {
+      const params = new URLSearchParams(window.location.search);
+
+      // Stripe redirect: ?payment_intent_client_secret=pi_...
+      const clientSecret = params.get('payment_intent_client_secret');
+      if (clientSecret) {
+        await handleStripeReturn(clientSecret);
+        return;
+      }
+
+      // Ramburs redirect: ?order_id=uuid
+      const orderId = params.get('order_id');
+      if (orderId) {
+        handleRambursReturn(orderId);
+        return;
+      }
+
+      // Direct visit — no order in progress
+      renderPage({
+        orderRef:      '',
+        customerEmail: '',
+        customerName:  '',
+        items:         [],
+        deliveryType:  'locker',
+        address:       '',
+      });
+    })();
+
+    /* ── HEADER ── */
+    (function() {
+      const h = document.querySelector('.sticky-top');
+      if (h) document.body.style.paddingTop = h.offsetHeight + 'px';
+      window.addEventListener('resize', () => {
+        if (h) document.body.style.paddingTop = h.offsetHeight + 'px';
+      });
+
+      document.getElementById('hamburger-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const nav  = document.getElementById('mobile-nav');
+        const open = nav.classList.toggle('open');
+        this.setAttribute('aria-expanded', open);
+      });
+      document.addEventListener('click', function(e) {
+        const nav = document.getElementById('mobile-nav');
+        if (nav.classList.contains('open') && !nav.contains(e.target)) {
+          nav.classList.remove('open');
+          document.getElementById('hamburger-btn').setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+
+  })();
+  </script>
+</body>
+</html>

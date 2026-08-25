@@ -336,41 +336,26 @@
       }
       .product-grid .product-card.hidden { display: none; }
     }
+
+    /* OOS overlay */
+    .oos-card { opacity: 0.55; }
+    .oos-badge {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      background: rgba(26,26,26,0.72); color: #fff;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 2px; white-space: nowrap; z-index: 2; pointer-events: none;
+    }
   </style>
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5XVHKD724K"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
 
-    gtag('config', 'G-5XVHKD724K');
-  </script>
 
-  <!-- Meta Pixel Code -->
-  <script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '1647139999722921');
-  fbq('track', 'PageView');
-  </script>
-  <noscript><img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=1647139999722921&ev=PageView&noscript=1"
-  /></noscript>
-  <!-- End Meta Pixel Code -->
+  <script src="/cookie-consent.js"></script>
 </head>
 <body>
 
   <div class="sticky-top">
     <div class="announcement-bar">
-      <span>FREE SHIPPING OVER 200 RON</span>
+      <span>FREE SHIPPING OVER 300 RON</span>
     </div>
     <header>
       <div class="header-inner">
@@ -390,7 +375,7 @@
           </nav>
         </div>
         <div class="header-icons">
-          <a href="https://www.m27shop.ro/cos-de-cumparaturi" aria-label="Cart" style="position:relative">
+          <a href="cart.html" aria-label="Cart" style="position:relative">
             <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             <span class="cart-count"></span>
           </a>
@@ -418,7 +403,7 @@
 
     <!-- 1. Sulphur Skyblue -->
     <div class="product-card" data-category="men">
-      <a href="https://www.m27shop.ro/produse/sulphur.html" class="card-link-overlay" aria-label="View Sulphur"></a>
+      <a href="product.html?model=sulphur" class="card-link-overlay" aria-label="View Sulphur"></a>
       <button class="product-wishlist" aria-label="Wishlist">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
@@ -435,7 +420,7 @@
           </div>
           <div class="product-prices">
             <div class="product-price-original">200 RON</div>
-            <div class="product-price-disc">127 RON</div>
+            <div class="product-price-disc">175 RON</div>
           </div>
         </div>
         <div class="color-swatches">
@@ -449,7 +434,7 @@
 
     <!-- 2. Selenium Purple -->
     <div class="product-card" data-category="women">
-      <a href="https://www.m27shop.ro/produse/selenium.html" class="card-link-overlay" aria-label="View Selenium"></a>
+      <a href="product.html?model=selenium" class="card-link-overlay" aria-label="View Selenium"></a>
       <button class="product-wishlist" aria-label="Wishlist">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
@@ -466,7 +451,7 @@
           </div>
           <div class="product-prices">
             <div class="product-price-original">200 RON</div>
-            <div class="product-price-disc">127 RON</div>
+            <div class="product-price-disc">175 RON</div>
           </div>
         </div>
         <div class="color-swatches">
@@ -480,7 +465,7 @@
 
     <!-- 3. Zirconium Full Black -->
     <div class="product-card" data-category="men">
-      <a href="https://www.m27shop.ro/produse/zirconium.html" class="card-link-overlay" aria-label="View Zirconium"></a>
+      <a href="product.html?model=zirconium" class="card-link-overlay" aria-label="View Zirconium"></a>
       <button class="product-wishlist" aria-label="Wishlist">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
@@ -497,7 +482,7 @@
           </div>
           <div class="product-prices">
             <div class="product-price-original">200 RON</div>
-            <div class="product-price-disc">127 RON</div>
+            <div class="product-price-disc">175 RON</div>
           </div>
         </div>
         <div class="color-swatches">
@@ -513,7 +498,7 @@
 
     <!-- 4. Mercury Navy -->
     <div class="product-card" data-category="men">
-      <a href="https://www.m27shop.ro/produse/xenon.html" class="card-link-overlay" aria-label="View Mercury"></a>
+      <a href="product.html?model=mercury" class="card-link-overlay" aria-label="View Mercury"></a>
       <button class="product-wishlist" aria-label="Wishlist">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
@@ -530,7 +515,7 @@
           </div>
           <div class="product-prices">
             <div class="product-price-original">200 RON</div>
-            <div class="product-price-disc">127 RON</div>
+            <div class="product-price-disc">175 RON</div>
           </div>
         </div>
         <div class="color-swatches">
@@ -543,7 +528,7 @@
 
     <!-- 5. Chlorine Tangerine -->
     <div class="product-card" data-category="women">
-      <a href="https://www.m27shop.ro/produse/zinc.html" class="card-link-overlay" aria-label="View Chlorine"></a>
+      <a href="product.html?model=chlorine" class="card-link-overlay" aria-label="View Chlorine"></a>
       <button class="product-wishlist" aria-label="Wishlist">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
@@ -560,7 +545,7 @@
           </div>
           <div class="product-prices">
             <div class="product-price-original">200 RON</div>
-            <div class="product-price-disc">127 RON</div>
+            <div class="product-price-disc">175 RON</div>
           </div>
         </div>
         <div class="color-swatches">
@@ -575,7 +560,7 @@
 
     <!-- 6. Palladium Volcano -->
     <div class="product-card" data-category="men">
-      <a href="https://www.m27shop.ro/produse/palladium.html" class="card-link-overlay" aria-label="View Palladium"></a>
+      <a href="product.html?model=palladium" class="card-link-overlay" aria-label="View Palladium"></a>
       <button class="product-wishlist" aria-label="Wishlist">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
@@ -592,7 +577,7 @@
           </div>
           <div class="product-prices">
             <div class="product-price-original">200 RON</div>
-            <div class="product-price-disc">127 RON</div>
+            <div class="product-price-disc">175 RON</div>
           </div>
         </div>
         <div class="color-swatches">
@@ -607,7 +592,7 @@
 
     <!-- 7. Titanium Full Black -->
     <div class="product-card" data-category="women">
-      <a href="https://www.m27shop.ro/produse/titanium.html" class="card-link-overlay" aria-label="View Titanium"></a>
+      <a href="product.html?model=titanium" class="card-link-overlay" aria-label="View Titanium"></a>
       <button class="product-wishlist" aria-label="Wishlist">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
@@ -624,7 +609,7 @@
           </div>
           <div class="product-prices">
             <div class="product-price-original">200 RON</div>
-            <div class="product-price-disc">127 RON</div>
+            <div class="product-price-disc">175 RON</div>
           </div>
         </div>
         <div class="color-swatches">
@@ -637,19 +622,71 @@
 
   </div>
 
-  <div class="page-footer">
-    <div style="background:#fff; padding:28px 24px; display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap; margin-bottom:100px;">
-      <a href="https://www.m27shop.ro/faq" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">FAQ</a>
-      <a href="https://www.m27shop.ro/despre-noi" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">About</a>
-      <a href="https://www.m27shop.ro/info-transport" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Shipping</a>
-      <a href="https://www.m27shop.ro/politica-de-retur" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Returns</a>
-      <a href="https://www.m27shop.ro/termeni-si-conditii" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Terms of Service</a>
-      <a href="https://www.m27shop.ro/garantia-produselor" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Warranty</a>
-      <a href="https://www.m27shop.ro/metode-de-plata" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Payment Methods</a>
-      <a href="https://www.m27shop.ro/confidentialitate" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Confidentiality</a>
+<!-- FOOTER -->
+<div style="background:#fff; padding: 0 24px;">
+  <div style="max-width:1440px; margin:0 auto; padding:48px 0 0;">
+
+    <div class="newsletter-links-row" style="display:flex; align-items:center; justify-content:center; gap:28px; flex-wrap:wrap; margin-bottom:32px;">
+      <a href="terms.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Termeni</a>
+      <a href="privacy.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Confidențialitate</a>
+      <a href="returns.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Retur</a>
+      <a href="shipping.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Livrare</a>
+      <a href="payment-methods.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Metode de Plată</a>
+      <a href="faq.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">FAQ</a>
+      <a href="ajutor.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Ajutor</a>
     </div>
-    <p>© 2025 M27 Eyewear &nbsp;·&nbsp; Bucharest, Romania</p>
+
+    <div class="newsletter-email-outer" id="newsletter-outer" style="display:flex; align-items:center; justify-content:center; margin-bottom:48px; padding:0 16px;">
+      <div class="newsletter-email-wrap" id="newsletter-form-wrap" style="display:flex; align-items:center; border-bottom:1px solid #1a1a1a; width:560px; gap:8px; padding-bottom:6px;">
+        <input type="email" id="newsletter-input" placeholder="EMAIL ADDRESS" style="flex:1; background:none; border:none; outline:none; font-size:11px; font-weight:400; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; font-family:inherit;" />
+        <button id="newsletter-btn" style="background:none; border:none; cursor:pointer; padding:0; display:flex; align-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+      <div id="newsletter-success" style="display:none; font-size:13px; font-weight:600; letter-spacing:0.06em; color:#1a1a1a;">Thanks for the sub! &lt;3</div>
+    </div>
+
+    <div style="text-align:center; padding-bottom:48px;">
+      <span class="newsletter-wordmark" style="font-family:'Orbitron', sans-serif; font-weight:700; font-size:clamp(28px,4vw,56px); letter-spacing:0.12em; color:#1a1a1a; text-transform:uppercase;">M27 Eyewear</span>
+    </div>
+
+    <div style="border-top:1px solid #e8e8e8; padding:28px 0 24px; text-align:center;">
+      <div style="display:inline-flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 14px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <img src="https://unpkg.com/payment-icons/min/flat/visa.svg" height="18" alt="Visa" style="display:block;" />
+        </div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <img src="https://unpkg.com/payment-icons/min/flat/mastercard.svg" height="22" alt="Mastercard" style="display:block;" />
+        </div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <img src="https://unpkg.com/payment-icons/min/flat/maestro.svg" height="22" alt="Maestro" style="display:block;" />
+        </div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <img src="https://cdn.simpleicons.org/applepay/000000" height="28" alt="Apple Pay" style="display:block; width:auto;" />
+        </div>
+        <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff;">
+          <img src="https://cdn.simpleicons.org/googlepay/4285F4" height="28" alt="Google Pay" style="display:block; width:auto;" />
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:12px 0 40px; text-align:center;">
+      <p style="font-size:11px; letter-spacing:0.04em; color:#1a1a1a; text-transform:uppercase; margin-bottom:14px; opacity:0.45;">© 2026 FLANTERSHIPPING SRL &nbsp;·&nbsp; CUI 43538047</p>
+      <p style="margin-bottom:10px"><button onclick="window.m27OpenCookieSettings&&m27OpenCookieSettings()" style="background:none;border:none;color:#1a1a1a;font-family:inherit;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.35;cursor:pointer;padding:0;text-decoration:underline;">Setări cookies</button></p>
+      <div style="display:flex; align-items:center; justify-content:center; gap:14px; opacity:0.5;">
+        <a href="https://anpc.ro" target="_blank" rel="noopener" style="display:flex; align-items:center; border:1px solid #d0d0d0; border-radius:4px; padding:4px 8px; background:#fff;">
+          <img src="website%20items/anpc-sal1-1.png.avif" height="28" alt="ANPC" style="display:block;" />
+        </a>
+        <a href="https://consumer-redress.ec.europa.eu/site-relocation_en" target="_blank" rel="noopener" style="display:flex; align-items:center; border:1px solid #d0d0d0; border-radius:4px; padding:4px 8px; background:#fff;">
+          <img src="website%20items/SOL-Original-_4x-300x75.jpg.avif" height="28" alt="Soluționarea Online a Litigiilor" style="display:block;" />
+        </a>
+      </div>
+    </div>
+
   </div>
+</div>
+
+
 
   <script>
     // Fixed header offset
@@ -696,6 +733,42 @@
         imgWrap.classList.remove('img-hover');
       });
     });
+
+    // Stock availability: dim cards where all colorways are sold out
+    (async function() {
+      var SUPABASE_URL = 'https://mwmhdlgmifddesrpmaef.supabase.co';
+      var SUPABASE_KEY = 'sb_publishable_yChSFEz6_0PbUOYYpdNENQ_lyAnhxmw';
+      try {
+        var r = await fetch(SUPABASE_URL + '/rest/v1/products?active=eq.true&select=name,stock_quantity', {
+          headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY }
+        });
+        if (!r.ok) return;
+        var products = await r.json();
+        // Sum stock per model (first word of name, lowercased = slug)
+        var stockByModel = {};
+        products.forEach(function(p) {
+          var slug = p.name.split(' ')[0].toLowerCase();
+          stockByModel[slug] = (stockByModel[slug] || 0) + (p.stock_quantity || 0);
+        });
+        document.querySelectorAll('.product-card').forEach(function(card) {
+          var link = card.querySelector('.card-link-overlay');
+          if (!link) return;
+          var m = link.getAttribute('href').match(/[?&]model=([^&]+)/);
+          if (!m) return;
+          var slug = m[1].toLowerCase();
+          if (stockByModel.hasOwnProperty(slug) && stockByModel[slug] <= 0) {
+            card.classList.add('oos-card');
+            var imgWrap = card.querySelector('.product-img-wrap');
+            if (imgWrap) {
+              var badge = document.createElement('div');
+              badge.className = 'oos-badge';
+              badge.textContent = 'Stoc epuizat';
+              imgWrap.appendChild(badge);
+            }
+          }
+        });
+      } catch(_) {}
+    })();
 
     // Color swatch switching
     document.querySelectorAll('.swatch').forEach(function(btn) {
