@@ -583,7 +583,7 @@
     function discountAmt(c){ const p=Math.floor(totalQty(c)/2); return p>0?p*ITEM_PRICE*0.5:0; }
     function deliveryCost(c){ return (subtotalAmt(c)-discountAmt(c))>=SHIPPING_THRESHOLD?0:SHIPPING_COST; }
     function totalAmt(c)   { return subtotalAmt(c)-discountAmt(c)+deliveryCost(c); }
-    function fmt(n)        { return Number(n).toFixed(2); }
+    function fmt(n)        { return Number(n).toFixed(2).replace('.', ','); }
 
     /* ── PROMO ── */
     function promoDiscount(c){

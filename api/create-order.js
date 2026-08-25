@@ -27,6 +27,9 @@ module.exports = async function handler(req, res) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
+  // Diagnostic — remove once env var is confirmed in Vercel production scope
+  console.error('[create-order] SERVICE_KEY defined:', !!SERVICE_KEY, '| length:', (SERVICE_KEY || '').length, '| SUPABASE_URL defined:', !!SUPABASE_URL);
+
   const {
     customer_name,
     customer_email,

@@ -1,6 +1,10 @@
 const RESEND_KEY    = process.env.RESEND_API_KEY;
 const ADMIN_SECRET  = process.env.ADMIN_SECRET;
 
+function formatRON(v) {
+  return Number(v).toFixed(2).replace('.', ',');
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -43,20 +47,20 @@ module.exports = async function handler(req, res) {
         ${i.quantity > 1 ? `<span style="color:#6d7175"> ×${i.quantity}</span>` : ''}
       </td>
       <td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#1a1a1a;text-align:right;white-space:nowrap">
-        ${i.price * i.quantity} RON
+        ${formatRON(i.price * i.quantity)} RON
       </td>
     </tr>`).join('');
 
   const discountRow = discount > 0 ? `
     <tr>
       <td style="padding:6px 0;font-size:13px;color:#2a7d44">Bundle 50% OFF</td>
-      <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${discount} RON</td>
+      <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${formatRON(discount)} RON</td>
     </tr>` : '';
 
   const promoRow = (promo_discount || 0) > 0 ? `
     <tr>
       <td style="padding:6px 0;font-size:13px;color:#2a7d44">Cod promoțional</td>
-      <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${Number(promo_discount).toFixed(2)} RON</td>
+      <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${formatRON(promo_discount)} RON</td>
     </tr>` : '';
 
   const deliveryLabel = delivery_type === 'locker' ? 'Locker Sameday' : 'Livrare acasă';
@@ -85,17 +89,17 @@ module.exports = async function handler(req, res) {
       ${itemRows}
       <tr>
         <td style="padding:10px 0;font-size:13px;color:#6d7175">Subtotal</td>
-        <td style="padding:10px 0;font-size:13px;color:#6d7175;text-align:right">${subtotal} RON</td>
+        <td style="padding:10px 0;font-size:13px;color:#6d7175;text-align:right">${formatRON(subtotal)} RON</td>
       </tr>
       ${discountRow}
       ${promoRow}
       <tr>
         <td style="padding:6px 0;font-size:13px;color:#6d7175">${deliveryLabel}</td>
-        <td style="padding:6px 0;font-size:13px;color:#6d7175;text-align:right">${(delivery||0) > 0 ? delivery + ' RON' : 'Gratuit'}</td>
+        <td style="padding:6px 0;font-size:13px;color:#6d7175;text-align:right">${(delivery||0) > 0 ? formatRON(delivery) + ' RON' : 'Gratuit'}</td>
       </tr>
       <tr>
         <td style="padding:14px 0 0;font-size:15px;font-weight:700;color:#1a1a1a;border-top:1px solid #f0f0f0">Total</td>
-        <td style="padding:14px 0 0;font-size:20px;font-weight:700;color:#1a1a1a;text-align:right;border-top:1px solid #f0f0f0">${total} RON</td>
+        <td style="padding:14px 0 0;font-size:20px;font-weight:700;color:#1a1a1a;text-align:right;border-top:1px solid #f0f0f0">${formatRON(total)} RON</td>
       </tr>
     </table>
 

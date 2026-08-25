@@ -692,7 +692,7 @@
   function fmtAmt(n) {
     if (!n && n !== 0) return '—';
     const v = parseFloat(n);
-    return (v % 1 === 0 ? v.toString() : v.toFixed(2)) + ' RON';
+    return Number(v).toFixed(2).replace('.', ',') + ' RON';
   }
 
   function fmtDate(s) {
@@ -1024,7 +1024,7 @@
                 <span class="toggle-track"></span>
               </label>
             </td>
-            <td class="muted" style="font-size:11px">${p.price ? p.price + ' RON' : '—'}</td>
+            <td class="muted" style="font-size:11px">${p.price ? Number(p.price).toFixed(2).replace('.', ',') + ' RON' : '—'}</td>
           </tr>`;
       }).join('');
 

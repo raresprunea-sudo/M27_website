@@ -362,6 +362,7 @@
     }
 
     /* ── CART HELPERS ── */
+    function formatRON(n) { return Number(n).toFixed(2).replace('.', ','); }
     function getCart()   { try { return JSON.parse(localStorage.getItem('m27_cart')) || []; } catch(_) { return []; } }
     function saveCart(c) { localStorage.setItem('m27_cart', JSON.stringify(c)); }
     function totalQty(c) { return c.reduce(function(s, i) { return s + i.quantity; }, 0); }
@@ -445,22 +446,22 @@
       }).join('');
 
       var discRow = disc > 0
-        ? '<div class="summary-row"><span class="sum-discount-label">Ofertă al 2-lea 50% OFF</span><span class="sum-discount-val">−' + disc.toFixed(2) + ' RON</span></div>'
+        ? '<div class="summary-row"><span class="sum-discount-label">Ofertă al 2-lea 50% OFF</span><span class="sum-discount-val">−' + formatRON(disc) + ' RON</span></div>'
         : '';
 
       var shipRow = freeShip
         ? '<div class="summary-row"><span class="sum-label">Livrare</span><span class="sum-free">Gratuit</span></div>'
-        : '<div class="summary-row"><span class="sum-label">Livrare</span><span class="sum-val">' + SHIPPING_COST.toFixed(2) + ' RON</span></div>';
+        : '<div class="summary-row"><span class="sum-label">Livrare</span><span class="sum-val">' + formatRON(SHIPPING_COST) + ' RON</span></div>';
 
       root.innerHTML =
         '<div class="cart-root-wrap">' +
           '<div class="cart-items">' + itemsHTML + '</div>' +
           '<div class="cart-summary">' +
-            '<div class="summary-row"><span class="sum-label">Subtotal (' + qty + ' ' + (qty === 1 ? 'produs' : 'produse') + ')</span><span class="sum-val">' + sub.toFixed(2) + ' RON</span></div>' +
+            '<div class="summary-row"><span class="sum-label">Subtotal (' + qty + ' ' + (qty === 1 ? 'produs' : 'produse') + ')</span><span class="sum-val">' + formatRON(sub) + ' RON</span></div>' +
             discRow +
             shipRow +
             '<div class="summary-divider"></div>' +
-            '<div class="total-row"><span class="total-label">Total</span><span class="total-amount">' + total.toFixed(2) + ' RON</span></div>' +
+            '<div class="total-row"><span class="total-label">Total</span><span class="total-amount">' + formatRON(total) + ' RON</span></div>' +
             '<p class="legal-note">Continuând, ești de acord cu <a href="terms.html">Termenii și Condițiile</a> și <a href="privacy.html">Politica de Confidențialitate</a>.</p>' +
             '<a href="checkout.html" class="checkout-btn">Cumpără acum</a>' +
                 '<a href="collection.html" class="continue-btn">Continuă cumpărăturile</a>' +

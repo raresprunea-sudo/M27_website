@@ -17,6 +17,10 @@ function getRawBody(req) {
   });
 }
 
+function formatRON(v) {
+  return Number(v).toFixed(2).replace('.', ',');
+}
+
 async function findOrCreateOrder({ customer_name, customer_email, customer_phone, delivery_type, address, total_amount, stripe_payment_id, items }) {
   const authHeaders = {
     apikey:        SERVICE_KEY,
@@ -89,19 +93,19 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
         <strong>${model}</strong> — ${colorway}${qty > 1 ? ` <span style="color:#6d7175">×${qty}</span>` : ''}
       </td>
       <td style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:14px;color:#1a1a1a;text-align:right;white-space:nowrap">
-        ${price * qty} RON
+        ${formatRON(price * qty)} RON
       </td>
     </tr>`;
   }).join('');
 
   const discountRow = parseFloat(discount) > 0 ? `<tr>
     <td style="padding:6px 0;font-size:13px;color:#2a7d44">Bundle 50% OFF</td>
-    <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${discount} RON</td>
+    <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${formatRON(discount)} RON</td>
   </tr>` : '';
 
   const promoRow = parseFloat(promo_discount || 0) > 0 ? `<tr>
     <td style="padding:6px 0;font-size:13px;color:#2a7d44">Cod promoțional</td>
-    <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${Number(promo_discount).toFixed(2)} RON</td>
+    <td style="padding:6px 0;font-size:13px;color:#2a7d44;text-align:right">−${formatRON(promo_discount)} RON</td>
   </tr>` : '';
 
   const html = `<!DOCTYPE html>
@@ -122,17 +126,17 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
       ${itemRows}
       <tr>
         <td style="padding:10px 0;font-size:13px;color:#6d7175">Subtotal</td>
-        <td style="padding:10px 0;font-size:13px;color:#6d7175;text-align:right">${subtotal} RON</td>
+        <td style="padding:10px 0;font-size:13px;color:#6d7175;text-align:right">${formatRON(subtotal)} RON</td>
       </tr>
       ${discountRow}
       ${promoRow}
       <tr>
         <td style="padding:6px 0;font-size:13px;color:#6d7175">${deliveryLabel}</td>
-        <td style="padding:6px 0;font-size:13px;color:#6d7175;text-align:right">${parseFloat(delivery||0) > 0 ? delivery + ' RON' : 'Gratuit'}</td>
+        <td style="padding:6px 0;font-size:13px;color:#6d7175;text-align:right">${parseFloat(delivery||0) > 0 ? formatRON(delivery) + ' RON' : 'Gratuit'}</td>
       </tr>
       <tr>
         <td style="padding:14px 0 0;font-size:15px;font-weight:700;color:#1a1a1a;border-top:1px solid #f0f0f0">Total</td>
-        <td style="padding:14px 0 0;font-size:20px;font-weight:700;color:#1a1a1a;text-align:right;border-top:1px solid #f0f0f0">${total} RON</td>
+        <td style="padding:14px 0 0;font-size:20px;font-weight:700;color:#1a1a1a;text-align:right;border-top:1px solid #f0f0f0">${formatRON(total)} RON</td>
       </tr>
     </table>
     ${address ? `<p style="font-size:13px;color:#6d7175;margin:0 0 4px"><strong style="color:#1a1a1a">Adresă livrare:</strong> ${address}</p>` : ''}
@@ -180,6 +184,9 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: `Webhook error: ${err.message}` });
   }
 
+  // Diagnostic — remove once env var is confirmed in Vercel production scope
+  console.error('[stripe-webhook] SERVICE_KEY defined:', !!SERVICE_KEY, '| length:', (SERVICE_KEY || '').length, '| SUPABASE_URL defined:', !!SUPABASE_URL);
+
   // Only handle payment_intent.succeeded; acknowledge all others immediately
   if (event.type !== 'payment_intent.succeeded') {
     return res.status(200).json({ received: true });
@@ -209,7 +216,7 @@ module.exports = async function handler(req, res) {
       fetch(`${SUPABASE_URL}/rest/v1/rpc/decrement_stock`, {
         method:  'POST',
         headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ items: stockItems }),
+        body:    JSON.stringify(stockItems),
       }).catch(e => console.error('Stock decrement failed (non-fatal):', e.message));
     }
 
@@ -225,7 +232,7 @@ module.exports = async function handler(req, res) {
       discount:       meta.discount       || '0',
       promo_discount: meta.promo_discount || '0',
       delivery:       meta.delivery       || '0',
-      total:          meta.total_amount   || String(pi.amount / 100),
+      total:          pi.amount / 100,
     }).catch(e => console.error('Email send failed (non-fatal):', e.message));
 
     return res.status(200).json({ received: true });
