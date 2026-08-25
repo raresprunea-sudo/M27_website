@@ -61,7 +61,10 @@ async function findOrCreateOrder({ customer_name, customer_email, customer_phone
 
   const validItems = (items || []).filter(i => i.pid || i.product_id);
   if (validItems.length > 0) {
-    fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
+    // Awaited so failures surface before returning 200. Cannot throw here — Stripe retry
+    // would skip order_items re-insert (idempotency returns early) and not fix the problem.
+    // A [CRITICAL] log triggers a manual fix; the order record itself is safe.
+    const itemsRes = await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
       method: 'POST',
       headers: { ...headers, Prefer: '' },
       body: JSON.stringify(
@@ -72,7 +75,10 @@ async function findOrCreateOrder({ customer_name, customer_email, customer_phone
           price_at_purchase: i.p   || i.price,
         }))
       ),
-    }).catch(e => console.error('order_items insert error (non-fatal):', e.message));
+    });
+    if (!itemsRes.ok) {
+      console.error('[CRITICAL] stripe-webhook: order_items insert failed | order_id:', order.id, '| error:', await itemsRes.text(), '| items:', JSON.stringify(validItems), '— order exists, payment captured, manual line-item fix needed');
+    }
   }
 
   return order;
@@ -210,14 +216,20 @@ module.exports = async function handler(req, res) {
       items,
     });
 
-    // Decrement stock atomically — fire-and-forget (payment already captured)
+    // Decrement stock atomically. Fatal — throws so the outer catch returns 500 and Stripe retries.
+    // The findOrCreateOrder idempotency check means retries are safe (order won't be duplicated).
     const stockItems = items.filter(i => i.pid).map(i => ({ pid: i.pid, q: i.q || i.quantity || 1 }));
     if (stockItems.length > 0) {
-      fetch(`${SUPABASE_URL}/rest/v1/rpc/decrement_stock`, {
+      const stockRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/decrement_stock`, {
         method:  'POST',
         headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
-        body:    JSON.stringify(stockItems),
-      }).catch(e => console.error('Stock decrement failed (non-fatal):', e.message));
+        body:    JSON.stringify({ items: stockItems }),
+      });
+      if (!stockRes.ok) {
+        const detail = await stockRes.text();
+        console.error('[CRITICAL] stripe-webhook: stock decrement failed | order_id:', order.id, '| pi_id:', pi.id, '| items:', JSON.stringify(stockItems), '| response:', detail);
+        throw new Error(`Stock decrement failed for order ${order.id}: ${detail}`);
+      }
     }
 
     // Send email non-fatally — a failed email must not prevent the 200 response

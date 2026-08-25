@@ -75,7 +75,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // 1a. For COD orders: recompute total_amount from Supabase prices.
+  // 1a. For COD orders: recompute total_amount from Supabase prices and validate stock.
   //     The client-supplied total is ignored — never trust browser arithmetic.
   if (!stripe_payment_id) {
     const pids = (items || []).filter(i => i.product_id).map(i => i.product_id);
@@ -86,8 +86,9 @@ module.exports = async function handler(req, res) {
 
     let priceRes;
     try {
+      // Include stock_quantity so we can validate before hitting the decrement RPC
       priceRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/products?id=in.(${pids.join(',')})&select=id,price`,
+        `${SUPABASE_URL}/rest/v1/products?id=in.(${pids.join(',')})&select=id,name,price,stock_quantity`,
         { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
       );
     } catch (fetchErr) {
@@ -100,18 +101,23 @@ module.exports = async function handler(req, res) {
     }
 
     const priceData = await priceRes.json();
-    const priceMap  = {};
-    priceData.forEach(p => { priceMap[p.id] = p.price; });
+    const productMap = {};
+    priceData.forEach(p => { productMap[p.id] = p; });
 
     let sub = 0;
     let qty = 0;
     for (const item of (items || []).filter(i => i.product_id)) {
-      const unitPrice = priceMap[item.product_id];
-      if (unitPrice == null) {
+      const p = productMap[item.product_id];
+      const itemQty = Number(item.quantity) || 1;
+      console.error('[create-order] stock check | product_id:', item.product_id, '| qty requested:', itemQty, '| found:', !!p, '| stock_quantity:', p?.stock_quantity);
+      if (!p) {
         return res.status(409).json({ error: 'Produs negăsit. Te rugăm să actualizezi coșul.' });
       }
-      sub += unitPrice * item.quantity;
-      qty += item.quantity;
+      if (p.stock_quantity < itemQty) {
+        return res.status(409).json({ error: `${p.name || 'Un produs'} nu mai este disponibil în cantitatea dorită.` });
+      }
+      sub += p.price * itemQty;
+      qty += itemQty;
     }
 
     const bundleDiscount = Math.floor(qty / 2) * ITEM_PRICE * 0.5;
@@ -141,14 +147,16 @@ module.exports = async function handler(req, res) {
       .map(i => ({ pid: i.product_id, q: i.quantity }));
 
     if (stockItems.length > 0) {
+      // Body must be {"items": [...]} — PostgREST maps object keys to parameter names.
+      // Sending a bare array ([...]) causes PostgREST to fail finding the function signature.
       const stockRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/decrement_stock`, {
         method: 'POST',
-        headers,
-        body: JSON.stringify(stockItems),
+        headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: stockItems }),
       });
       if (!stockRes.ok) {
         const detail = await stockRes.text();
-        console.error('Stock decrement failed (COD):', detail);
+        console.error('[CRITICAL] create-order: stock decrement failed (COD) | customer:', customer_email, '| items:', JSON.stringify(stockItems), '| response:', detail);
         return res.status(409).json({ error: 'Unul sau mai multe produse nu mai sunt disponibile în stocul dorit.' });
       }
     }
@@ -196,8 +204,9 @@ module.exports = async function handler(req, res) {
     });
 
     if (!itemsRes.ok) {
-      console.error('Supabase order_items error:', await itemsRes.text());
-      // Non-fatal: order was created, items insertion failed — log but don't fail the request
+      // Cannot return 500 here — order and stock decrement already committed; a client retry
+      // would create a duplicate order. Log with full context so admin can fix manually.
+      console.error('[CRITICAL] create-order: order_items insert failed | order_id:', order.id, '| customer:', customer_email, '| error:', await itemsRes.text(), '| items:', JSON.stringify(validItems), '— order exists but has no line items, manual fix needed');
     }
   }
 
