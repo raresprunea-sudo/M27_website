@@ -92,12 +92,29 @@ module.exports = async function handler(req, res) {
   if (promo) {
     const discountedNet = net * (1 - promo.percent / 100);
     const effectiveShip = promo.freeShipping ? 0 : shipping;
-    finalAmount = Math.max(1, discountedNet) + effectiveShip;
+    finalAmount = discountedNet + effectiveShip;
+  }
+
+  const amountBani = Math.round(finalAmount * 100);
+
+  console.error(
+    '[stripe-payment] net:', net,
+    '| promo:', promo ? code : 'none',
+    '| finalAmount RON:', finalAmount.toFixed(4),
+    '| amountBani:', amountBani
+  );
+
+  // Stripe minimum for RON is 200 bani (2.00 RON). Surface a clear error
+  // instead of letting Stripe return a cryptic 500.
+  if (amountBani < 200) {
+    return res.status(400).json({
+      error: 'Suma totală este prea mică pentru a procesa plata. Te rugăm să adaugi mai multe produse în coș.'
+    });
   }
 
   try {
     const params = {
-      amount:   Math.round(finalAmount * 100), // RON → bani
+      amount:   amountBani, // RON → bani
       currency: 'ron',
       automatic_payment_methods: { enabled: true },
     };
