@@ -82,12 +82,27 @@
     /* Mobile info row: name + price */
     .mob-info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 14px 20px 16px; }
     .mob-model-name { font-size: 17px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: #1a1a1a; line-height: 1.1; }
-    .mob-cw-name { font-size: 13px; color: #3a3a3a; margin-top: 5px; letter-spacing: 0.02em; font-weight: 500; }
+    .mob-cw-name { font-size: 17px; font-style: italic; color: #3a3a3a; margin-top: 5px; letter-spacing: 0.02em; font-weight: 500; }
     .mob-price { font-size: 22px; font-weight: 800; color: #1a1a1a; letter-spacing: -0.02em; white-space: nowrap; padding-top: 2px; }
 
     /* Description block */
-    .product-desc-block { padding: 20px 20px 130px; background: #fff; margin-top: 8px; }
+    .product-desc-block { padding: 20px 20px 0; background: #fff; margin-top: 8px; }
     .desc-section-title { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #1a1a1a; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e0dcd7; }
+
+    /* Accordion */
+    .accord-header { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; border-top: 1px solid #e0dcd7; border-bottom: 1px solid #e0dcd7; padding: 14px 0; cursor: pointer; font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #1a1a1a; text-align: left; transition: color 0.15s; }
+    .accord-header:hover { color: #7A1F01; }
+    .accord-icon { font-size: 20px; font-weight: 300; line-height: 1; flex-shrink: 0; transition: transform 0.2s ease; }
+    .accord-header[aria-expanded="true"] .accord-icon { transform: rotate(45deg); }
+    .accord-body { padding: 20px 0 130px; }
+    .accord-body[hidden] { display: none; }
+
+    /* Price box */
+    .price-box { display: inline-flex; align-items: baseline; gap: 8px; background: rgba(122,31,1,0.06); border: 1px solid rgba(122,31,1,0.15); padding: 6px 14px; border-radius: 6px; }
+    .price-strike { font-size: 13px; color: #a0a4a8; text-decoration: line-through; letter-spacing: 0; }
+    .price-now { font-size: 22px; font-weight: 800; color: #1a1a1a; letter-spacing: -0.02em; line-height: 1; }
+    .price-box--mob { padding: 5px 12px; }
+    .price-box--mob .price-now { font-size: 20px; }
     .desc-copy { font-size: 13px; line-height: 1.75; color: #6d7175; margin-bottom: 22px; }
     .spec-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid #e0dcd7; gap: 16px; }
     .spec-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; flex-shrink: 0; }
@@ -167,9 +182,10 @@
     ═══════════════════════════════════════════ */
     @media (min-width: 1024px) {
       body { background: #fff; }
-      .product-layout { display: grid; grid-template-columns: 55fr 45fr; gap: 0; min-height: calc(100vh - 90px); }
+      .product-layout { display: grid; grid-template-columns: 55fr 45fr; gap: 0; min-height: calc(100vh - 90px); align-items: start; }
 
-      .image-col { background: #fff; display: flex; flex-direction: column; position: sticky; top: 90px; align-self: stretch; }
+      /* Sticky image column: stays in view while info panel scrolls, releases when page end reached */
+      .image-col { background: #fff; display: flex; flex-direction: column; position: sticky; top: 90px; height: calc(100vh - 90px); overflow: hidden; }
       .mob-gallery { display: none; }
       .desk-gallery { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
       .main-img-wrap { flex: 1; overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -181,7 +197,7 @@
       .thumb:hover:not(.active) { opacity: 0.8; }
       .thumb img { width: 100%; height: 100%; object-fit: contain; }
 
-      .info-col { background: #f5f4f2; padding: 48px 52px 150px; display: flex; flex-direction: column; margin-top: 0; }
+      .info-col { background: #f5f4f2; padding: 48px 52px 64px; display: flex; flex-direction: column; margin-top: 0; }
       .mob-top { display: none; }
       .mob-atc-wrap { display: none; }
 
@@ -189,6 +205,8 @@
       .product-desc-block { order: 2; padding: 0; background: transparent; margin-top: 0; flex: 1; }
       .product-desc-block .desc-section-title { margin-top: 28px; }
       .product-desc-block .spec-row { padding: 12px 0; }
+      .product-desc-block .accord-header { margin-top: 28px; }
+      .product-desc-block .accord-body { padding: 20px 0 32px; }
 
       .breadcrumb-row { display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #a0a4a8; margin-bottom: 36px; }
       .breadcrumb-row a { color: #a0a4a8; transition: color 0.15s; }
@@ -201,7 +219,7 @@
       .price-disc { font-size: 30px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; line-height: 1.1; }
       .color-label-row { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
       .swatches-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1a1a1a; }
-      .cw-label-text { font-size: 10px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: #6d7175; }
+      .cw-label-text { font-size: 13px; font-style: italic; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: #6d7175; }
       .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0; }
       .swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: none; padding: 0; transition: transform 0.15s ease; flex-shrink: 0; }
       .swatch.active { box-shadow: 0 0 0 2px #f5f4f2, 0 0 0 3.5px #1a1a1a; }
@@ -220,6 +238,12 @@
 
       /* Trust badges: row on desktop */
       .trust-badges-inner { flex-direction: row; justify-content: space-around; padding: 40px; }
+    }
+
+    /* ── MOBILE FOOTER SPACER ── */
+    /* Ensures the fixed ATC button never covers the ANPC/SOL badges */
+    @media (max-width: 1023px) {
+      .footer-legal { padding-bottom: 96px !important; }
     }
 
     /* ── MOBILE HEADER ── */
@@ -298,7 +322,7 @@
               <div class="product-color-label">Tangerine</div>
             </div>
             <div class="product-prices">
-              <div class="product-price-original">200 RON</div>
+              <div class="product-price-original">300 RON</div>
               <div class="product-price-disc">175 RON</div>
             </div>
           </div>
@@ -319,7 +343,7 @@
               <div class="product-color-label">Dark Green</div>
             </div>
             <div class="product-prices">
-              <div class="product-price-original">200 RON</div>
+              <div class="product-price-original">300 RON</div>
               <div class="product-price-disc">175 RON</div>
             </div>
           </div>
@@ -340,7 +364,7 @@
               <div class="product-color-label">Full Black</div>
             </div>
             <div class="product-prices">
-              <div class="product-price-original">200 RON</div>
+              <div class="product-price-original">300 RON</div>
               <div class="product-price-disc">175 RON</div>
             </div>
           </div>
@@ -361,7 +385,7 @@
               <div class="product-color-label">Champagne</div>
             </div>
             <div class="product-prices">
-              <div class="product-price-original">200 RON</div>
+              <div class="product-price-original">300 RON</div>
               <div class="product-price-disc">175 RON</div>
             </div>
           </div>
@@ -406,7 +430,7 @@
         <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff;"><img src="https://cdn.simpleicons.org/googlepay/4285F4" height="28" alt="Google Pay" style="display:block; width:auto;" /></div>
       </div>
     </div>
-    <div style="padding:12px 0 40px; text-align:center;">
+    <div class="footer-legal" style="padding:12px 0 40px; text-align:center;">
       <p style="font-size:11px; letter-spacing:0.04em; color:#1a1a1a; text-transform:uppercase; margin-bottom:14px; opacity:0.45;">© 2026 FLANTERSHIPPING SRL &nbsp;·&nbsp; CUI 43538047</p>
       <p style="margin-bottom:10px"><button onclick="window.m27OpenCookieSettings&&m27OpenCookieSettings()" style="background:none;border:none;color:#1a1a1a;font-family:inherit;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.35;cursor:pointer;padding:0;text-decoration:underline;">Setări cookies</button></p>
       <div style="display:flex; align-items:center; justify-content:center; gap:14px; opacity:0.5;">
@@ -422,7 +446,7 @@
     const SUPABASE_URL = 'https://mwmhdlgmifddesrpmaef.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_yChSFEz6_0PbUOYYpdNENQ_lyAnhxmw';
     const PRICE = 175;
-    const PRICE_ORIG = 200;
+    const PRICE_ORIG = 300;
 
     const CATALOG = {
       sulphur: {
@@ -512,7 +536,7 @@
       var hh = h.offsetHeight;
       document.body.style.paddingTop = hh + 'px';
       var imageCol = document.querySelector('.image-col');
-      if (imageCol) { imageCol.style.top = hh + 'px'; }
+      if (imageCol) { imageCol.style.top = hh + 'px'; imageCol.style.height = 'calc(100vh - ' + hh + 'px)'; }
       var layout = document.querySelector('.product-layout');
       if (layout) layout.style.minHeight = 'calc(100vh - ' + hh + 'px)';
     }
@@ -632,27 +656,32 @@
 
     function buildDescHTML() {
       return '<div class="product-desc-block">' +
-        '<p class="desc-intro">Fiecare pereche vine gata pentru viața de zi cu zi.</p>' +
-        '<div class="desc-features">' +
-          '<div class="desc-feature">' +
-            '<div class="desc-feature-title">Protecție UV400</div>' +
-            '<p class="desc-feature-body">Protecție completă împotriva razelor UV dăunătoare, ca să îi porți toată ziua, în fiecare zi.</p>' +
-          '</div>' +
-          '<div class="desc-feature">' +
-            '<div class="desc-feature-title">Lentile TAC polarizate</div>' +
-            '<p class="desc-feature-body">Tratament anti-zgârieturi și hidrofob pentru o claritate perfectă, oriunde te duce ziua.</p>' +
-          '</div>' +
-          '<div class="desc-feature">' +
-            '<div class="desc-feature-title">Construcție premium</div>' +
-            '<p class="desc-feature-body">Rame din TR90 și Cellulose Propionate: ușoare, rezistente și făcute să nu le simți când le porți.</p>' +
-          '</div>' +
-          '<div class="desc-feature">' +
-            '<div class="desc-feature-title">Fit</div>' +
-            '<p class="desc-feature-body">143mm lungime braț | 47mm lățime lentile</p>' +
-          '</div>' +
-          '<div class="desc-feature">' +
-            '<div class="desc-feature-title">În pachet primești:</div>' +
-            '<p class="desc-feature-body">✓ Ochelarii tăi<br>✓ Husă de protecție<br>✓ Cârpă din microfibră pentru curățare</p>' +
+        '<button class="accord-header" id="accord-btn" aria-expanded="false" aria-controls="accord-body">' +
+          '<span>Caracteristici</span>' +
+          '<span class="accord-icon">+</span>' +
+        '</button>' +
+        '<div class="accord-body" id="accord-body" hidden>' +
+          '<div class="desc-features">' +
+            '<div class="desc-feature">' +
+              '<div class="desc-feature-title">Protecţie UV400</div>' +
+              '<p class="desc-feature-body">Protecție completă împotriva razelor UV dăunătoare, ca să îi porți toată ziua, în fiecare zi.</p>' +
+            '</div>' +
+            '<div class="desc-feature">' +
+              '<div class="desc-feature-title">Lentile TAC polarizate</div>' +
+              '<p class="desc-feature-body">Tratament anti-zgârieturi și hidrofob pentru o claritate perfectă, oriunde te duce ziua.</p>' +
+            '</div>' +
+            '<div class="desc-feature">' +
+              '<div class="desc-feature-title">Construcție premium</div>' +
+              '<p class="desc-feature-body">Rame din TR90 și Cellulose Propionate: ușoare, rezistente și făcute să nu le simți când le porți.</p>' +
+            '</div>' +
+            '<div class="desc-feature">' +
+              '<div class="desc-feature-title">Fit</div>' +
+              '<p class="desc-feature-body">143mm lungime braț | 47mm lățime lentile</p>' +
+            '</div>' +
+            '<div class="desc-feature">' +
+              '<div class="desc-feature-title">În pachet primești:</div>' +
+              '<p class="desc-feature-body">✓ Ochelarii tăi<br>✓ Husă de protecție<br>✓ Cârpă din microfibră pentru curățare</p>' +
+            '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -697,7 +726,7 @@
           <div class="mob-model-name">' + mData.label + '</div>\
           <div class="mob-cw-name" id="mob-cw-name">' + activeCw.label + '</div>\
         </div>\
-        <div class="mob-price">' + PRICE + ' RON</div>\
+        <div class="price-box price-box--mob"><span class="price-strike">' + PRICE_ORIG + ' RON</span><span class="price-now">' + PRICE + ' RON</span></div>\
       </div>\
     </div>\
 ' + buildDescHTML() + '\
@@ -706,9 +735,9 @@
       <span class="newin-badge">New In</span>\
       <div class="name-price-row">\
         <h1 class="model-name">' + mData.label + '</h1>\
-        <div class="desk-price-wrap">\
-          <div class="price-original">' + PRICE_ORIG + ' RON</div>\
-          <div class="price-disc">' + PRICE + ' RON</div>\
+        <div class="price-box">\
+          <span class="price-strike">' + PRICE_ORIG + ' RON</span>\
+          <span class="price-now">' + PRICE + ' RON</span>\
         </div>\
       </div>\
       <div class="color-label-row">\
@@ -757,6 +786,16 @@
 
       var deskBtn = document.getElementById('atc-btn-desk');
       if (deskBtn) { deskBtn.addEventListener('click', function() { addToCart(); window.location.href = 'cart.html'; }); }
+
+      var accordBtn = document.getElementById('accord-btn');
+      var accordBody = document.getElementById('accord-body');
+      if (accordBtn && accordBody) {
+        accordBtn.addEventListener('click', function() {
+          var open = this.getAttribute('aria-expanded') === 'true';
+          this.setAttribute('aria-expanded', String(!open));
+          if (open) { accordBody.setAttribute('hidden', ''); } else { accordBody.removeAttribute('hidden'); }
+        });
+      }
     }
 
     render();

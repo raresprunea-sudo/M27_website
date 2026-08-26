@@ -339,7 +339,7 @@
 
     /* ── RENDER ── */
     function renderPage(data) {
-      const { orderRef, customerEmail, customerName, items, deliveryType, address, chargedTotal, promoDisc } = data;
+      const { orderRef, customerEmail, customerName, items, deliveryType, address, chargedTotal, promoDisc, paymentType } = data;
       const sub  = subtotal(items);
       const disc = discount(items);
       // When chargedTotal is known, derive shipping as the residual so it matches the actual charge.
@@ -388,8 +388,10 @@
 
         <h1 class="confirm-heading">Mulțumim!</h1>
         <p class="confirm-sub">
-          ${firstName ? `${firstName}, comanda ta` : 'Comanda ta'} a fost înregistrată cu succes.
-          Vei primi un email de confirmare în câteva minute.
+          ${paymentType === 'cod'
+            ? `${firstName ? `${firstName}, comanda ta` : 'Comanda ta'} a fost înregistrată. Vei plăti <strong>${formatRON(tot)} RON</strong> la primirea coletului.`
+            : `${firstName ? `${firstName}, comanda ta` : 'Comanda ta'} a fost înregistrată cu succes. Vei primi un email de confirmare în câteva minute.`
+          }
         </p>
 
         ${orderRef ? `
@@ -486,6 +488,7 @@
         address:       formData.address        || '',
         chargedTotal:  paymentIntent.amount / 100,
         promoDisc:     parseFloat(formData.promo_discount || 0),
+        paymentType:   'card',
       });
     }
 
@@ -511,6 +514,7 @@
         address:       formData.address        || '',
         chargedTotal:  parseFloat(formData.total_amount || 0) || null,
         promoDisc:     parseFloat(formData.promo_discount || 0),
+        paymentType:   'cod',
       });
     }
 
