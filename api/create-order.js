@@ -81,7 +81,16 @@ module.exports = async function handler(req, res) {
   // 1a. For COD orders: recompute total_amount from Supabase prices and validate stock.
   //     The client-supplied total is ignored — never trust browser arithmetic.
   if (!stripe_payment_id) {
-    const pids = (items || []).filter(i => i.product_id).map(i => i.product_id);
+    // Log the raw cart before any filtering so we can diagnose silent drops
+    console.error('[create-order] items received | count:', (items || []).length, '| items:', JSON.stringify(items));
+
+    const itemsMissingId = (items || []).filter(i => !i.product_id);
+    if (itemsMissingId.length > 0) {
+      console.error('[CRITICAL] create-order: items missing product_id | customer:', customer_email, '| bad items:', JSON.stringify(itemsMissingId), '— order rejected');
+      return res.status(400).json({ error: 'Eroare la validarea produselor. Te rugăm să reîncărci pagina și să încerci din nou.' });
+    }
+
+    const pids = (items || []).map(i => i.product_id);
 
     if (pids.length === 0) {
       return res.status(400).json({ error: 'Coșul este gol.' });
@@ -134,6 +143,17 @@ module.exports = async function handler(req, res) {
       total_amount = discountedNet + effectiveShip;
     } else {
       total_amount = net + ship;
+    }
+
+    // Divergence guard: log if what the client sent disagrees with what the server computed.
+    // The server value is always used — this is purely for detecting anomalies.
+    const clientTotal = parseFloat(req.body.total_amount) || 0;
+    const clientItemCount = (req.body.items || []).length;
+    if (Math.abs(clientTotal - total_amount) > 0.02) {
+      console.error('[CRITICAL] create-order: total divergence | customer:', customer_email, '| client total:', clientTotal, '| server total:', total_amount, '| item count:', clientItemCount);
+    }
+    if (clientItemCount !== pids.length) {
+      console.error('[CRITICAL] create-order: item count divergence | customer:', customer_email, '| client count:', clientItemCount, '| server count:', pids.length);
     }
   }
 
@@ -251,7 +271,7 @@ module.exports = async function handler(req, res) {
       console.error('[CRITICAL] create-order: customer email failed | order_id:', order.id, '| recipient:', customer_email, '| HTTP', emailRes.status, '|', body);
     }
 
-    // Admin notification — fire-and-forget, but check r.ok so failures appear in logs
+    // Admin notification — awaited so Vercel doesn't terminate before it completes
     const orderRef      = (order.id || '').slice(0, 8).toUpperCase();
     const deliveryLabel = delivery_type === 'locker' ? 'Easybox' : 'Acasă';
     const itemsSummary  = (items || []).map(i => {
@@ -261,12 +281,13 @@ module.exports = async function handler(req, res) {
       return `${qty}× ${nm}${cw ? ` (${cw})` : ''}`;
     }).join(', ') || '—';
 
-    fetch('https://api.resend.com/emails', {
+    console.error('[create-order] sending admin email | order_id:', order.id, '| to:', ADMIN_EMAIL, '| RESEND_KEY defined:', !!RESEND_KEY);
+    const adminEmailRes = await fetch('https://api.resend.com/emails', {
       method:  'POST',
       headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from:    'M27 Eyewear <comenzi@m27.ro>',
-        to:      ADMIN_EMAIL,
+        to:      [ADMIN_EMAIL],
         subject: `Comandă nouă #${orderRef} — ${Number(total_amount).toFixed(2).replace('.', ',')} RON`,
         html: `<p style="font-family:sans-serif;font-size:14px;line-height:1.7;color:#222;">
           <strong>#${orderRef}</strong><br>
@@ -276,9 +297,14 @@ module.exports = async function handler(req, res) {
           Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Ramburs
         </p>`,
       }),
-    }).then(r => {
-      if (!r.ok) r.text().then(b => console.error('create-order: admin email failed | HTTP', r.status, '|', b));
-    }).catch(e => console.error('create-order: admin email network error:', e.message));
+    }).catch(e => {
+      console.error('[CRITICAL] create-order: admin email network error | order_id:', order.id, '|', e.message);
+      return null;
+    });
+    if (adminEmailRes) {
+      const adminBody = await adminEmailRes.text().catch(() => '(unreadable)');
+      console.error('[create-order] admin email response | HTTP', adminEmailRes.status, '|', adminBody);
+    }
   }
 
   return res.status(200).json({ id: order.id, status: order.status });

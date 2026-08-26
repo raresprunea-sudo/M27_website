@@ -61,6 +61,10 @@ async function findOrCreateOrder({ customer_name, customer_email, customer_phone
   if (!orderRes.ok) throw new Error(`Supabase order error: ${await orderRes.text()}`);
   const [order] = await orderRes.json();
 
+  const droppedItems = (items || []).filter(i => !(i.pid || i.product_id));
+  if (droppedItems.length > 0) {
+    console.error('[CRITICAL] stripe-webhook: items missing pid | order_id:', order.id, '| stripe_payment_id:', stripe_payment_id, '| dropped:', JSON.stringify(droppedItems), '— payment captured but these items will not be in order_items, manual fix needed');
+  }
   const validItems = (items || []).filter(i => i.pid || i.product_id);
   if (validItems.length > 0) {
     // Awaited so failures surface before returning 200. Cannot throw here — Stripe retry
@@ -96,12 +100,13 @@ async function sendAdminNotificationEmail({ order_id, customer_name, customer_em
     return `${qty}× ${model}${colorway ? ` (${colorway})` : ''}`;
   }).join(', ') || '—';
 
+  console.error('[stripe-webhook] sending admin email | order_id:', order_id, '| to:', ADMIN_EMAIL, '| RESEND_KEY defined:', !!RESEND_KEY);
   const emailRes = await fetch('https://api.resend.com/emails', {
     method:  'POST',
     headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from:    'M27 Eyewear <comenzi@m27.ro>',
-      to:      ADMIN_EMAIL,
+      to:      [ADMIN_EMAIL],
       subject: `Comandă nouă #${orderRef} — ${formatRON(total)} RON`,
       html: `<p style="font-family:sans-serif;font-size:14px;line-height:1.7;color:#222;">
         <strong>#${orderRef}</strong><br>
@@ -112,7 +117,11 @@ async function sendAdminNotificationEmail({ order_id, customer_name, customer_em
       </p>`,
     }),
   });
-  if (!emailRes.ok) console.error('Admin email (Resend) error:', await emailRes.text());
+  const adminBody = await emailRes.text().catch(() => '(unreadable)');
+  console.error('[stripe-webhook] admin email response | HTTP', emailRes.status, '|', adminBody);
+  if (!emailRes.ok) {
+    console.error('[CRITICAL] stripe-webhook: admin email failed | order_id:', order_id, '| recipient:', ADMIN_EMAIL, '| HTTP', emailRes.status, '|', adminBody);
+  }
 }
 
 async function sendConfirmationEmail({ order_id, customer_name, customer_email, delivery_type, address, items, subtotal, discount, promo_discount, delivery, total }) {

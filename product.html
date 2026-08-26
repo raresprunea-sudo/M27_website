@@ -573,6 +573,7 @@
 
     var productIds = {};
     var stockMap   = {};
+    var productIdsLoaded = false;
     (async function() {
       try {
         var r = await fetch(
@@ -586,6 +587,18 @@
             productIds[k] = row.id;
             stockMap[k]   = row.stock_quantity;
           });
+          // Heal any cart items for this model that were stored with product_id: null
+          // (can happen if the user added to cart on a previous page load before this fetch resolved)
+          var savedCart = getCart();
+          var healed = false;
+          savedCart.forEach(function(item) {
+            if (item.model_slug === modelSlug && !item.product_id) {
+              var id = productIds[cwKey(item.colorway)];
+              if (id) { item.product_id = id; healed = true; }
+            }
+          });
+          if (healed) saveCart(savedCart);
+          productIdsLoaded = true;
           updateATCState();
         }
       } catch(_) {}
@@ -594,12 +607,13 @@
     function lookupId(cwLabel) { return productIds[cwLabel.toLowerCase().replace(/\s+/g, '')] || null; }
     function cwKey(lbl) { return (lbl || '').toLowerCase().replace(/\s+/g, ''); }
     function updateATCState() {
-      var k   = cwKey(activeCw.label);
-      var oos = stockMap.hasOwnProperty(k) && stockMap[k] <= 0;
+      var k       = cwKey(activeCw.label);
+      var oos     = stockMap.hasOwnProperty(k) && stockMap[k] <= 0;
+      var loading = !productIdsLoaded;
       var deskBtn = document.getElementById('atc-btn-desk');
       var mobBtn  = document.getElementById('atc-btn-mob');
-      if (deskBtn) { deskBtn.disabled = oos; deskBtn.textContent = oos ? 'Stoc epuizat' : 'Adaugă în coș'; }
-      if (mobBtn)  { mobBtn.disabled  = oos; mobBtn.textContent  = oos ? 'STOC EPUIZAT' : 'ADAUGĂ ÎN COȘ'; }
+      if (deskBtn) { deskBtn.disabled = oos || loading; deskBtn.textContent = loading ? 'Se încarcă...' : (oos ? 'Stoc epuizat' : 'Adaugă în coș'); }
+      if (mobBtn)  { mobBtn.disabled  = oos || loading; mobBtn.textContent  = loading ? 'SE ÎNCARCĂ...'  : (oos ? 'STOC EPUIZAT'  : 'ADAUGĂ ÎN COȘ'); }
       document.querySelectorAll('.swatch, .mob-swatch').forEach(function(btn) {
         var idx = parseInt(btn.dataset.idx, 10);
         var cw  = mData.colorways[idx];
@@ -619,6 +633,7 @@
       el.style.display = n > 0 ? 'flex' : 'none';
     }
     function addToCart() {
+      if (!productIdsLoaded) return;
       if (stockMap.hasOwnProperty(cwKey(activeCw.label)) && stockMap[cwKey(activeCw.label)] <= 0) return;
       var cart = getCart();
       var key  = modelSlug + '::' + activeCw.label;
@@ -760,6 +775,7 @@
       bindEvents();
       updateHeaderOffset();
       updateCartBadge();
+      updateATCState(); // disable buttons until productIds fetch resolves
     }
 
     function bindEvents() {
