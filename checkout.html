@@ -669,6 +669,13 @@
       const del=appliedPromo&&appliedPromo.freeShipping?0:deliveryCost(cart);
       const lbl=del===0?'Gratuit':fmt(del)+' RON';
       ['rp-home','rp-locker'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=lbl; });
+      // Keep wallet sheet in sync with page total
+      if(window._coPR) {
+        window._coPR.update({
+          total:{ label:'M27 Eyewear', amount:Math.round(effectiveTotal(cart)*100) },
+          shippingOptions:[{ id:'standard', label:del===0?'Livrare gratuită':'Livrare standard', detail:'1-2 zile lucrătoare', amount:Math.round(del*100) }],
+        });
+      }
     }
 
     /* ── STATE ── */
@@ -906,26 +913,30 @@
     /* ── EXPRESS CHECKOUT (Payment Request Button) ── */
     (async function initExpress() {
       if(!window.Stripe||!STRIPE_PK) return;
-      const cart=getCart();
-      if(!cart||cart.length===0) return;
+      const initCart=getCart();
+      if(!initCart||initCart.length===0) return;
 
-      const sub=subtotalAmt(cart), disc=discountAmt(cart);
-      const shipping=deliveryCost(cart), total=totalAmt(cart);
-
+      // Use effectiveTotal at init time for the initial PR amount
+      const initDel=deliveryCost(initCart);
       const stripeExp=Stripe(STRIPE_PK);
       const pr=stripeExp.paymentRequest({
         country:'RO', currency:'ron',
-        total:{ label:'M27 Eyewear', amount:Math.round(total*100) },
+        total:{ label:'M27 Eyewear', amount:Math.round(effectiveTotal(initCart)*100) },
         requestPayerName:true, requestPayerEmail:true, requestPayerPhone:true,
         requestShipping:true,
         shippingOptions:[{
-          id:'standard', label:'Livrare standard',
-          detail:'1-2 zile lucrătoare', amount:Math.round(SHIPPING_COST*100),
+          id:'standard',
+          label:initDel===0?'Livrare gratuită':'Livrare standard',
+          detail:'1-2 zile lucrătoare',
+          amount:Math.round(initDel*100),
         }],
       });
 
       const canPay=await pr.canMakePayment();
       if(!canPay) return;
+
+      // Expose so renderSummary() can keep the sheet in sync
+      window._coPR=pr;
 
       document.getElementById('express-block').style.display='';
       const prEl=stripeExp.elements().create('paymentRequestButton',{
@@ -935,15 +946,28 @@
       prEl.mount('#co-prb');
 
       pr.on('shippingaddresschange', ev=>{
+        // Recalculate delivery using current cart + promo state
+        const c=getCart();
+        const del=appliedPromo&&appliedPromo.freeShipping?0:deliveryCost(c);
         ev.updateWith({ status:'success', shippingOptions:[{
-          id:'standard', label:'Livrare standard',
-          detail:'1-2 zile lucrătoare', amount:Math.round(SHIPPING_COST*100),
+          id:'standard',
+          label:del===0?'Livrare gratuită':'Livrare standard',
+          detail:'1-2 zile lucrătoare',
+          amount:Math.round(del*100),
         }]});
       });
 
       pr.on('paymentmethod', async ev=>{
         const errEl=document.getElementById('express-err');
         errEl.style.display='none';
+
+        // Always read fresh cart and recompute — never use stale closure values
+        const cart=getCart();
+        const sub=subtotalAmt(cart);
+        const disc=discountAmt(cart);
+        const promoDisc=promoDiscount(cart);
+        const ship=appliedPromo&&appliedPromo.freeShipping?0:deliveryCost(cart);
+        const tot=effectiveTotal(cart);
 
         const addr=ev.shippingAddress||{};
         const addrStr=[
@@ -961,10 +985,11 @@
           customer_phone: ev.payerPhone||'',
           delivery_type:  'home',
           address:        addrStr,
-          total_amount:   String(total),
+          total_amount:   String(tot),
           subtotal:       String(sub),
           discount:       String(disc),
-          delivery:       String(shipping),
+          promo_discount: String(promoDisc),
+          delivery:       String(ship),
           items:          itemsMeta,
         };
 
@@ -972,7 +997,8 @@
         try {
           const r=await fetch('/api/stripe-payment',{
             method:'POST', headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({ amount:total, metadata }),
+            // Pass code so server applies the same promo discount it would on card path
+            body:JSON.stringify({ code:appliedPromo?.code||null, metadata }),
           });
           const d=await r.json();
           if(!r.ok||!d.client_secret){ ev.complete('fail'); return; }
@@ -996,14 +1022,10 @@
             errEl.style.display='block';
             return;
           }
-          ev.complete('success');
-          localStorage.removeItem('m27_cart');
-          window.location.href='confirmation.html?payment_intent_client_secret='+clientSecret;
-        } else {
-          ev.complete('success');
-          localStorage.removeItem('m27_cart');
-          window.location.href='confirmation.html?payment_intent_client_secret='+clientSecret;
         }
+        ev.complete('success');
+        localStorage.removeItem('m27_cart');
+        window.location.href='confirmation.html?payment_intent_client_secret='+clientSecret;
       });
     })();
 

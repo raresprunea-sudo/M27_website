@@ -591,19 +591,32 @@
         paymentRequest: _pr,
         style: { paymentRequestButton: { height: '46px', borderRadius: '6px' } },
       });
+      var _prbMounted = false;
 
       window._cartPRBMount = function() {
         var wrap = document.getElementById('cart-prb-wrap');
         var container = document.getElementById('cart-prb');
         if (!wrap || !container) return;
+        var c = cartGetCart();
+        if (c.length === 0) { wrap.style.display = 'none'; return; }
         wrap.style.display = '';
-        try { _prbEl.mount('#cart-prb'); } catch(_) {}
+        if (!_prbMounted) {
+          try { _prbEl.mount('#cart-prb'); _prbMounted = true; } catch(_e) {}
+        }
+        // Keep sheet total in sync with page total on every render
+        var tot = cartTotal(c);
+        var del = cartDelivery(c);
+        _pr.update({
+          total: { label: 'M27 Eyewear', amount: Math.round(tot * 100) },
+          shippingOptions: [{ id: 'standard', label: del === 0 ? 'Livrare gratuită' : 'Livrare standard', detail: '1-2 zile lucrătoare', amount: Math.round(del * 100) }],
+        });
       };
       window._cartPRBMount();
     });
 
     _pr.on('shippingaddresschange', function(ev) {
-      ev.updateWith({ status: 'success', shippingOptions: [{ id: 'standard', label: 'Livrare standard', detail: '1-2 zile lucrătoare', amount: Math.round(CART_SHIP_COST * 100) }] });
+      var del = cartDelivery(cartGetCart());
+      ev.updateWith({ status: 'success', shippingOptions: [{ id: 'standard', label: del === 0 ? 'Livrare gratuită' : 'Livrare standard', detail: '1-2 zile lucrătoare', amount: Math.round(del * 100) }] });
     });
 
     _pr.on('paymentmethod', async function(ev) {
