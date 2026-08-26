@@ -359,7 +359,7 @@
         <div class="express-label">Plată rapidă</div>
         <div id="co-prb"></div>
         <div class="express-err" id="express-err"></div>
-        <div class="express-or"><span>sau</span></div>
+        <div class="express-or"><span>SAU</span></div>
       </div>
 
       <!-- CONTACT -->
@@ -397,17 +397,6 @@
             <label class="field-label" for="apartment">Apartament (opțional)</label>
             <input class="field-input" type="text" id="apartment" autocomplete="address-line2" placeholder="Ap. 3, sc. A" />
           </div>
-          <div class="field-grid two-col">
-            <div class="field-group">
-              <label class="field-label" for="postal">Cod poștal (opțional)</label>
-              <input class="field-input" type="text" id="postal" autocomplete="postal-code" inputmode="numeric" maxlength="6" placeholder="010101" />
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="city">Oraș</label>
-              <input class="field-input" type="text" id="city" autocomplete="address-level2" placeholder="București" />
-              <span class="field-err" id="city-err"></span>
-            </div>
-          </div>
           <div class="field-group">
             <label class="field-label" for="county">Județ</label>
             <select class="field-select" id="county">
@@ -432,6 +421,18 @@
             </select>
             <span class="field-err" id="county-err"></span>
           </div>
+          <div class="field-grid two-col">
+            <div class="field-group">
+              <label class="field-label" for="city">Oraș</label>
+              <input class="field-input" type="text" id="city" autocomplete="address-level2" placeholder="București" />
+              <span class="field-err" id="city-err"></span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="postal">Cod poștal</label>
+              <input class="field-input" type="text" id="postal" autocomplete="postal-code" inputmode="numeric" maxlength="6" placeholder="010101" />
+              <span class="field-err" id="postal-err"></span>
+            </div>
+          </div>
           <div class="field-group">
             <label class="field-label" for="phone">Telefon</label>
             <input class="field-input" type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="07xx xxx xxx" />
@@ -455,9 +456,8 @@
           <div class="radio-card" id="rc-locker" data-value="locker">
             <div class="radio-dot"><div class="radio-dot-inner"></div></div>
             <div class="radio-body">
-              <div class="radio-title">Livrare la locker Sameday</div>
+              <div class="radio-title">Livrare la Easybox</div>
               <div class="radio-sub">1-2 zile lucrătoare</div>
-              <div class="radio-sub">Introdu adresa ta — noi alocăm cel mai apropiat locker și ți-l comunicăm prin email</div>
             </div>
             <div class="radio-price" id="rp-locker">19.99 RON</div>
           </div>
@@ -645,7 +645,7 @@
           <div class="sum-price">${fmt(i.price*i.quantity)} RON</div>
         </div>`;
       }).join('');
-      const discRow  = disc>0?`<div class="sum-row"><span class="sum-lbl">Bundle 50% OFF</span><span class="sum-disc">−${fmt(disc)} RON</span></div>`:'';
+      const discRow  = disc>0?`<div class="sum-row"><span class="sum-lbl">Reducere 50% OFF</span><span class="sum-disc">−${fmt(disc)} RON</span></div>`:'';
       const promoRow = promoDisc>0?`<div class="sum-row"><span class="sum-lbl">Cod promoțional (${appliedPromo.percent}% OFF)</span><span class="sum-disc">−${fmt(promoDisc)} RON</span></div>`:'';
       const delVal   = del===0?`<span class="sum-free">Gratuit</span>`:`<span class="sum-val">${fmt(del)} RON</span>`;
       return `${items}<div class="sum-divider"></div>
@@ -736,7 +736,7 @@
     /* ── VALIDATION ── */
     const REQUIRED=[
       {id:'email',type:'email'},{id:'first-name'},{id:'last-name'},
-      {id:'street'},{id:'city'},{id:'county'},{id:'phone'},
+      {id:'street'},{id:'county'},{id:'city'},{id:'postal'},{id:'phone'},
     ];
     function showErr(id, msg) {
       const inp=document.getElementById(id), err=document.getElementById(id+'-err');

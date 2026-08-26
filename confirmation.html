@@ -256,9 +256,9 @@
           </button>
           <a href="index.html" class="logo"><img src="brand_assets/logo-m27.png" alt="M27" /></a>
           <nav>
-            <a href="collection.html">Men</a>
-            <a href="collection.html">Women</a>
-            <a href="collection.html">Collections</a>
+            <a href="collection.html">Bărbați</a>
+            <a href="collection.html">Femei</a>
+            <a href="collection.html">Colecții</a>
           </nav>
         </div>
         <div class="header-icons">
@@ -268,10 +268,10 @@
         </div>
       </div>
       <div class="mobile-nav" id="mobile-nav">
-        <a href="index.html">Home</a>
-        <a href="collection.html">Men</a>
-        <a href="collection.html">Women</a>
-        <a href="collection.html">Collections</a>
+        <a href="index.html">Acasă</a>
+        <a href="collection.html">Bărbați</a>
+        <a href="collection.html">Femei</a>
+        <a href="collection.html">Colecții</a>
       </div>
     </header>
   </div>
@@ -367,7 +367,7 @@
 
       const discRow = disc > 0 ? `
         <div class="details-row">
-          <span class="lbl">Bundle 50% OFF</span>
+          <span class="lbl">Reducere 50% OFF</span>
           <span class="val" style="color:#2a7d44">−${formatRON(disc)} RON</span>
         </div>` : '';
 
@@ -377,7 +377,7 @@
           <span class="val" style="color:#2a7d44">−${formatRON(pd)} RON</span>
         </div>` : '';
 
-      const deliveryLabel = deliveryType === 'home' ? 'Acasă' : 'Livrare la Locker';
+      const deliveryLabel = 'Livrare';
 
       document.getElementById('page-root').innerHTML = `
         <div class="check-wrap">
@@ -415,11 +415,6 @@
             <span class="lbl">${deliveryLabel}</span>
             <span class="val" ${ship===0?'style="color:#2a7d44"':''}>${ship===0?'Gratuit':formatRON(ship)+' RON'}</span>
           </div>
-          ${address ? `
-          <div class="details-row" style="margin-top:4px">
-            <span class="lbl">Adresă</span>
-            <span class="val" style="max-width:260px;text-align:right">${address}</span>
-          </div>` : ''}
           <div class="details-divider"></div>
           <div class="details-total">
             <span class="lbl">Total</span>
