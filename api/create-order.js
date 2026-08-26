@@ -222,8 +222,8 @@ module.exports = async function handler(req, res) {
     const protocol = req.headers['x-forwarded-proto'] || 'https';
     const baseUrl  = `${protocol}://${req.headers.host}`;
 
-    // Customer confirmation
-    fetch(`${baseUrl}/api/send-email`, {
+    // Customer confirmation — awaited so failures surface immediately in Vercel logs
+    const emailRes = await fetch(`${baseUrl}/api/send-email`, {
       method: 'POST',
       headers: {
         'Content-Type':   'application/json',
@@ -242,9 +242,16 @@ module.exports = async function handler(req, res) {
         delivery:       delivery       ?? 0,
         total:          total_amount,
       }),
-    }).catch(e => console.error('COD customer email failed (non-fatal):', e.message));
+    }).catch(e => {
+      console.error('[CRITICAL] create-order: customer email network error | order_id:', order.id, '| recipient:', customer_email, '|', e.message);
+      return null;
+    });
+    if (emailRes && !emailRes.ok) {
+      const body = await emailRes.text().catch(() => '(unreadable)');
+      console.error('[CRITICAL] create-order: customer email failed | order_id:', order.id, '| recipient:', customer_email, '| HTTP', emailRes.status, '|', body);
+    }
 
-    // Admin notification
+    // Admin notification — fire-and-forget, but check r.ok so failures appear in logs
     const orderRef      = (order.id || '').slice(0, 8).toUpperCase();
     const deliveryLabel = delivery_type === 'locker' ? 'Easybox' : 'Acasă';
     const itemsSummary  = (items || []).map(i => {
@@ -269,7 +276,9 @@ module.exports = async function handler(req, res) {
           Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Ramburs
         </p>`,
       }),
-    }).catch(e => console.error('COD admin email failed (non-fatal):', e.message));
+    }).then(r => {
+      if (!r.ok) r.text().then(b => console.error('create-order: admin email failed | HTTP', r.status, '|', b));
+    }).catch(e => console.error('create-order: admin email network error:', e.message));
   }
 
   return res.status(200).json({ id: order.id, status: order.status });

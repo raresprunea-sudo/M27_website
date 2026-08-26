@@ -447,6 +447,35 @@
         </div>`;
     }
 
+    /* ── SHARED: fetch order from server by UUID ── */
+    async function fetchOrder(orderId) {
+      const r = await fetch(`/api/order-lookup?order_id=${encodeURIComponent(orderId)}`);
+      if (!r.ok) return null;
+      return r.json();
+    }
+
+    /* ── SHARED: reassemble chunked items metadata ── */
+    function reassembleMetaItems(meta) {
+      let combined = '';
+      for (let i = 0; ; i++) {
+        const chunk = meta['items_' + i];
+        if (chunk === undefined) break;
+        combined += chunk;
+      }
+      if (combined) {
+        try {
+          // metadata uses short keys: m=model, c=colorway, q=quantity, p=price
+          return JSON.parse(combined).map(x => ({
+            model:    x.m || x.model    || '',
+            colorway: x.c || x.colorway || '',
+            quantity: x.q || x.quantity || 1,
+            price:    x.p || x.price    || 0,
+          }));
+        } catch(_) {}
+      }
+      return [];
+    }
+
     /* ── STRIPE REDIRECT FLOW ── */
     async function handleStripeReturn(clientSecret) {
       if (!STRIPE_PK || !window.Stripe) {
@@ -461,54 +490,73 @@
         return;
       }
 
-      // Pull form data + cart that checkout.html saved to sessionStorage before redirecting
-      let formData = {}, cartItems = [];
-      try {
-        formData  = JSON.parse(sessionStorage.getItem('m27_checkout_data') || '{}');
-        cartItems = JSON.parse(sessionStorage.getItem('m27_cart_snapshot') || '[]');
-      } catch(_) {}
-
-      // Clear cart + session storage — order is created server-side by the Stripe webhook,
-      // so this page is read-only. No create-order call here.
+      // Clear cart — order is created server-side by the Stripe webhook, no create-order call here.
       localStorage.removeItem('m27_cart');
       sessionStorage.removeItem('m27_checkout_data');
       sessionStorage.removeItem('m27_cart_snapshot');
 
+      // Prefer server fetch so the page works cross-device / cross-tab.
+      // Fall back to pi.metadata if order isn't found yet (webhook may still be in flight).
+      const meta  = paymentIntent.metadata || {};
+      let order   = null;
+      if (meta.order_id) {
+        order = await fetchOrder(meta.order_id).catch(() => null);
+      }
+
+      let items, customerName, customerEmail, deliveryType, address, promoDisc;
+      if (order) {
+        items         = order.items;
+        customerName  = order.customer_name;
+        customerEmail = order.customer_email;
+        deliveryType  = order.delivery_type;
+        address       = order.address;
+        promoDisc     = parseFloat(meta.promo_discount || 0);
+      } else {
+        // Webhook hasn't fired yet — read everything from pi.metadata
+        items         = reassembleMetaItems(meta);
+        customerName  = meta.customer_name  || '';
+        customerEmail = meta.customer_email || '';
+        deliveryType  = meta.delivery_type  || 'locker';
+        address       = meta.address        || '';
+        promoDisc     = parseFloat(meta.promo_discount || 0);
+      }
+
       renderPage({
         orderRef:      paymentIntent.id.slice(-8).toUpperCase(),
-        customerEmail: formData.customer_email || '',
-        customerName:  formData.customer_name  || '',
-        items:         cartItems,
-        deliveryType:  formData.delivery_type  || 'locker',
-        address:       formData.address        || '',
+        customerEmail,
+        customerName,
+        items,
+        deliveryType,
+        address,
         chargedTotal:  paymentIntent.amount / 100,
-        promoDisc:     parseFloat(formData.promo_discount || 0),
+        promoDisc,
         paymentType:   'card',
       });
     }
 
     /* ── RAMBURS FLOW ── */
-    function handleRambursReturn(orderId) {
-      // order was already created server-side by checkout.html before redirecting
-      let formData = {}, cartItems = [];
-      try {
-        formData  = JSON.parse(sessionStorage.getItem('m27_checkout_data') || '{}');
-        cartItems = JSON.parse(sessionStorage.getItem('m27_cart_snapshot') || '[]');
-      } catch(_) {}
+    async function handleRambursReturn(orderId) {
+      // Order created synchronously by create-order.js before the redirect.
+      // Fetch directly from server — no sessionStorage dependency.
+      const order = await fetchOrder(orderId);
+      if (!order) {
+        renderError('Comanda nu a fost găsită. Te rugăm să ne contactezi.');
+        return;
+      }
 
       sessionStorage.removeItem('m27_checkout_data');
       sessionStorage.removeItem('m27_cart_snapshot');
+      localStorage.removeItem('m27_cart');
 
-      const orderRef = (orderId || '').slice(0, 8).toUpperCase();
       renderPage({
-        orderRef,
-        customerEmail: formData.customer_email || '',
-        customerName:  formData.customer_name  || '',
-        items:         cartItems,
-        deliveryType:  formData.delivery_type  || 'locker',
-        address:       formData.address        || '',
-        chargedTotal:  parseFloat(formData.total_amount || 0) || null,
-        promoDisc:     parseFloat(formData.promo_discount || 0),
+        orderRef:      orderId.slice(0, 8).toUpperCase(),
+        customerEmail: order.customer_email,
+        customerName:  order.customer_name,
+        items:         order.items,
+        deliveryType:  order.delivery_type,
+        address:       order.address,
+        chargedTotal:  order.total_amount,
+        promoDisc:     0,
         paymentType:   'cod',
       });
     }
@@ -527,7 +575,7 @@
       // Ramburs redirect: ?order_id=uuid
       const orderId = params.get('order_id');
       if (orderId) {
-        handleRambursReturn(orderId);
+        await handleRambursReturn(orderId);
         return;
       }
 

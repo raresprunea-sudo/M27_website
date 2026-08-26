@@ -245,7 +245,10 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
       html,
     }),
   });
-  if (!emailRes.ok) console.error('Resend error:', await emailRes.text());
+  if (!emailRes.ok) {
+    const detail = await emailRes.text().catch(() => '(unreadable)');
+    console.error('[CRITICAL] stripe-webhook: customer email failed | order_id:', order_id, '| recipient:', customer_email, '| HTTP', emailRes.status, '|', detail);
+  }
 }
 
 module.exports = async function handler(req, res) {
