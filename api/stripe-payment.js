@@ -22,11 +22,22 @@ module.exports = async function handler(req, res) {
   // `amount` from the client is intentionally ignored — the server computes it.
   const { metadata, code } = req.body || {};
 
-  // Parse cart items from metadata — the only source we accept for cart contents.
-  let cartItems = [];
-  if (metadata && metadata.items) {
-    try { cartItems = JSON.parse(metadata.items); } catch (_) {}
+  // Reassemble items JSON from chunked metadata keys (items_0, items_1, …).
+  // Stripe caps each metadata value at 500 chars, so large carts are split on the client.
+  // Legacy single-key "items" is tried as fallback for any in-flight orders.
+  function reassembleItems(meta) {
+    let combined = '';
+    for (let i = 0; ; i++) {
+      const chunk = meta['items_' + i];
+      if (chunk === undefined) break;
+      combined += chunk;
+    }
+    if (combined) { try { return JSON.parse(combined); } catch (_) {} }
+    if (meta.items) { try { return JSON.parse(meta.items); } catch (_) {} }
+    return [];
   }
+
+  const cartItems = reassembleItems(metadata || {});
 
   const pids = cartItems.filter(i => i.pid).map(i => i.pid);
   if (pids.length === 0) {

@@ -5,6 +5,8 @@ const SERVICE_KEY   = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const RESEND_KEY    = process.env.RESEND_API_KEY;
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
+const ADMIN_EMAIL = 'm27office1@gmail.com';
+
 // Vercel: disable body parsing so we can verify the raw signature
 module.exports.config = { api: { bodyParser: false } };
 
@@ -82,6 +84,35 @@ async function findOrCreateOrder({ customer_name, customer_email, customer_phone
   }
 
   return order;
+}
+
+async function sendAdminNotificationEmail({ order_id, customer_name, customer_email, delivery_type, items, total }) {
+  const orderRef     = (order_id || '').slice(0, 8).toUpperCase();
+  const deliveryLabel = delivery_type === 'locker' ? 'Easybox' : 'Acasă';
+  const itemsSummary  = (items || []).map(i => {
+    const qty      = i.q || i.quantity || 1;
+    const model    = i.model    || i.m || '?';
+    const colorway = i.colorway || i.c || '';
+    return `${qty}× ${model}${colorway ? ` (${colorway})` : ''}`;
+  }).join(', ') || '—';
+
+  const emailRes = await fetch('https://api.resend.com/emails', {
+    method:  'POST',
+    headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from:    'M27 Eyewear <comenzi@m27.ro>',
+      to:      ADMIN_EMAIL,
+      subject: `Comandă nouă #${orderRef} — ${formatRON(total)} RON`,
+      html: `<p style="font-family:sans-serif;font-size:14px;line-height:1.7;color:#222;">
+        <strong>#${orderRef}</strong><br>
+        Client: ${customer_name} &lt;${customer_email}&gt;<br>
+        Produse: ${itemsSummary}<br>
+        Total: <strong>${formatRON(total)} RON</strong><br>
+        Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Card
+      </p>`,
+    }),
+  });
+  if (!emailRes.ok) console.error('Admin email (Resend) error:', await emailRes.text());
 }
 
 async function sendConfirmationEmail({ order_id, customer_name, customer_email, delivery_type, address, items, subtotal, discount, promo_discount, delivery, total }) {
@@ -246,9 +277,20 @@ module.exports = async function handler(req, res) {
   const pi   = event.data.object;
   const meta = pi.metadata || {};
 
+  function reassembleItems(meta) {
+    let combined = '';
+    for (let i = 0; ; i++) {
+      const chunk = meta['items_' + i];
+      if (chunk === undefined) break;
+      combined += chunk;
+    }
+    if (combined) { try { return JSON.parse(combined); } catch (_) {} }
+    if (meta.items) { try { return JSON.parse(meta.items); } catch (_) {} }
+    return [];
+  }
+
   try {
-    let items = [];
-    try { items = JSON.parse(meta.items || '[]'); } catch (_) {}
+    const items = reassembleItems(meta);
 
     const order = await findOrCreateOrder({
       customer_name:     meta.customer_name    || '',
@@ -277,7 +319,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // Send email non-fatally — a failed email must not prevent the 200 response
+    // Send emails non-fatally — failures must not prevent the 200 response
     await sendConfirmationEmail({
       order_id:       order.id,
       customer_name:  meta.customer_name  || '',
@@ -290,7 +332,16 @@ module.exports = async function handler(req, res) {
       promo_discount: meta.promo_discount || '0',
       delivery:       meta.delivery       || '0',
       total:          pi.amount / 100,
-    }).catch(e => console.error('Email send failed (non-fatal):', e.message));
+    }).catch(e => console.error('Customer email failed (non-fatal):', e.message));
+
+    await sendAdminNotificationEmail({
+      order_id:       order.id,
+      customer_name:  meta.customer_name  || '',
+      customer_email: meta.customer_email || '',
+      delivery_type:  meta.delivery_type  || 'home',
+      items,
+      total:          pi.amount / 100,
+    }).catch(e => console.error('Admin email failed (non-fatal):', e.message));
 
     return res.status(200).json({ received: true });
   } catch (err) {

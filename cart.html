@@ -569,6 +569,12 @@
     function cartDiscount(c) { var p=Math.floor(cartTotalQty(c)/2); return p>0?p*CART_ITEM_PRICE*0.5:0; }
     function cartDelivery(c) { return (cartSubtotal(c)-cartDiscount(c))>=CART_SHIP_THRESHOLD?0:CART_SHIP_COST; }
     function cartTotal(c)    { return cartSubtotal(c)-cartDiscount(c)+cartDelivery(c); }
+    function chunkCartMeta(c){
+      var json=JSON.stringify(c.map(function(i){return{pid:i.product_id||'',m:i.model,c:i.colorway,q:i.quantity,p:i.price};}));
+      var out={}, SIZE=490;
+      for(var j=0;j*SIZE<json.length;j++) out['items_'+j]=json.slice(j*SIZE,(j+1)*SIZE);
+      return out;
+    }
 
     if (!window.Stripe || !CART_STRIPE_PK) return;
     var _cart = cartGetCart();
@@ -624,12 +630,12 @@
       var sub = cartSubtotal(c), disc = cartDiscount(c), ship = cartDelivery(c), tot = cartTotal(c);
       var addr = ev.shippingAddress || {};
       var addrStr = [addr.addressLine&&addr.addressLine[0], addr.city, addr.region, addr.postalCode].filter(Boolean).join(', ');
-      var metadata = {
+      var itemChunks = chunkCartMeta(c);
+      var metadata = Object.assign({
         customer_name: ev.payerName||'', customer_email: ev.payerEmail||'', customer_phone: ev.payerPhone||'',
         delivery_type: 'home', address: addrStr,
         total_amount: String(tot), subtotal: String(sub), discount: String(disc), delivery: String(ship), promo_discount: '0',
-        items: JSON.stringify(c.map(function(i){return{pid:i.product_id||'',m:i.model,c:i.colorway,q:i.quantity,p:i.price};})).slice(0,500),
-      };
+      }, itemChunks);
       try {
         var r = await fetch('/api/stripe-payment', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({amount:tot,metadata:metadata}) });
         var d = await r.json();

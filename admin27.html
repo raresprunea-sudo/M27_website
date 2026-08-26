@@ -394,6 +394,43 @@
       margin-bottom: 20px; line-height: 1.6;
     }
 
+    /* ── CONTACTS SECTION ── */
+    .contacts-subtabs { display: flex; gap: 2px; margin-bottom: 20px; }
+    .contacts-subtab {
+      padding: 8px 18px; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer; transition: all 0.12s; user-select: none;
+    }
+    .contacts-subtab:hover { color: var(--text); }
+    .contacts-subtab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .contacts-header-row {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+    }
+    .contacts-count { font-size: 11px; color: var(--muted); }
+    .contacts-count strong { color: var(--text); font-weight: 700; }
+    .export-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: 1px solid var(--border2); color: var(--muted);
+      font-family: inherit; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 7px 14px; transition: color 0.12s, border-color 0.12s;
+    }
+    .export-btn:hover { color: var(--text); border-color: var(--text); }
+    .contacts-table-wrap { overflow-x: auto; border: 1px solid var(--border); }
+    .contacts-table { width: 100%; border-collapse: collapse; min-width: 480px; }
+    .contacts-table thead tr { background: var(--surface); border-bottom: 1px solid var(--border); }
+    .contacts-table th {
+      padding: 10px 14px; text-align: left;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted); white-space: nowrap;
+    }
+    .contacts-table td {
+      padding: 10px 14px; font-size: 12px; color: var(--text);
+      border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap;
+    }
+    .contacts-table tr:last-child td { border-bottom: none; }
+    .contacts-table td.muted { color: var(--muted); }
+
     /* ── MOBILE TOP BAR ── */
     .mobile-topbar {
       display: none; align-items: center; gap: 14px;
@@ -486,6 +523,12 @@
           </svg>
           Stock
         </div>
+        <div class="nav-item" data-section="contacts">
+          <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2-5 5-5h1"/><path d="M11 10l2 2 2-2"/><path d="M13 12V8"/>
+          </svg>
+          Contacts
+        </div>
         <div class="nav-item" data-section="analytics">
           <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
             <polyline points="1,12 5,7 9,10 15,3"/><path d="M13 3h2v2"/>
@@ -545,6 +588,13 @@
           </div>
         </section>
 
+        <!-- ── CONTACTS SECTION ── -->
+        <section id="section-contacts" class="section">
+          <div id="contacts-root">
+            <div class="state-box"><div class="state-icon">⏳</div>Loading contacts…</div>
+          </div>
+        </section>
+
         <!-- ── ANALYTICS SECTION ── -->
         <section id="section-analytics" class="section">
           <a class="analytics-card" href="https://analytics.google.com" target="_blank" rel="noopener">
@@ -575,10 +625,12 @@
   const SECRET_KEY = 'm27_admin_secret';
 
   /* ── STATE ── */
-  let orders   = [];
-  let products = [];
-  let activeSection = 'overview';
-  let orderFilter   = 'all';
+  let orders      = [];
+  let products    = [];
+  let contacts    = null;
+  let activeSection  = 'overview';
+  let orderFilter    = 'all';
+  let contactsTab    = 'subscribers';
   let expandedOrderId = null;
 
   /* ── AUTH ── */
@@ -651,6 +703,7 @@
     overview:  'Overview',
     orders:    'Orders',
     stock:     'Stock Management',
+    contacts:  'Contacts',
     analytics: 'Analytics',
   };
 
@@ -731,12 +784,14 @@
   async function loadData() {
     refreshBtn.classList.add('spinning');
     try {
-      const [ordersRes, productsRes] = await Promise.all([
+      const [ordersRes, productsRes, contactsRes] = await Promise.all([
         adminFetch('/api/admin-orders'),
         adminFetch('/api/admin-products'),
+        adminFetch('/api/admin-subscribers'),
       ]);
       if (ordersRes.ok)   orders   = await ordersRes.json();
       if (productsRes.ok) products = await productsRes.json();
+      if (contactsRes.ok) contacts = await contactsRes.json();
 
       if (!ordersRes.ok) {
         const err = await ordersRes.json().catch(() => ({ error: 'Unknown error' }));
@@ -767,6 +822,7 @@
     renderKPIs();
     renderOrders();
     renderStock();
+    renderContacts();
   }
 
   /* ── KPIs ── */
@@ -1119,6 +1175,137 @@
         toggle.disabled = false;
       });
     });
+  }
+
+  /* ── CONTACTS ── */
+  function fmtDateFull(s) {
+    if (!s) return '—';
+    return new Date(s).toLocaleDateString('ro-RO', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function downloadCSV(rows, filename) {
+    const csv = rows.map(r =>
+      r.map(v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function renderContacts() {
+    const root = document.getElementById('contacts-root');
+    if (!root) return;
+
+    if (!contacts) {
+      root.innerHTML = `<div class="error-box">Failed to load contacts. Check /api/admin-subscribers.</div>`;
+      return;
+    }
+
+    const subscribers = contacts.subscribers || [];
+
+    // Derive unique customers from already-loaded orders
+    const customerMap = {};
+    orders.forEach(o => {
+      const key = (o.customer_email || '').toLowerCase().trim();
+      if (!key) return;
+      if (!customerMap[key]) {
+        customerMap[key] = { name: o.customer_name || '—', email: o.customer_email, last_order: o.created_at, total_spent: 0, order_count: 0 };
+      }
+      const c = customerMap[key];
+      if (o.created_at > c.last_order) { c.last_order = o.created_at; c.name = o.customer_name || c.name; }
+      c.total_spent  += parseFloat(o.total_amount) || 0;
+      c.order_count  += 1;
+    });
+    const customers = Object.values(customerMap).sort((a, b) => new Date(b.last_order) - new Date(a.last_order));
+
+    const isSubTab = contactsTab === 'subscribers';
+
+    const subtabsHTML = `
+      <div class="contacts-subtabs">
+        <button class="contacts-subtab ${isSubTab ? 'active' : ''}" data-ctab="subscribers">Abonați newsletter (${subscribers.length})</button>
+        <button class="contacts-subtab ${!isSubTab ? 'active' : ''}" data-ctab="customers">Clienți (${customers.length})</button>
+      </div>`;
+
+    let bodyHTML;
+    if (isSubTab) {
+      const rows = subscribers.length
+        ? subscribers.map(s => `<tr>
+            <td>${s.email || '—'}</td>
+            <td class="muted">${fmtDateFull(s.created_at)}</td>
+            <td class="muted">${s.source || '—'}</td>
+          </tr>`).join('')
+        : `<tr><td colspan="3" class="muted" style="text-align:center;padding:40px">No newsletter subscribers yet.</td></tr>`;
+      bodyHTML = `
+        <div class="contacts-header-row">
+          <div class="contacts-count"><strong>${subscribers.length}</strong> abonați newsletter</div>
+          <button class="export-btn" id="export-subs-btn">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 2v9m-4-4 4 4 4-4"/><path d="M2 14h12"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div class="contacts-table-wrap">
+          <table class="contacts-table">
+            <thead><tr><th>Email</th><th>Data abonării</th><th>Sursă</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    } else {
+      const rows = customers.length
+        ? customers.map(c => `<tr>
+            <td style="font-weight:600">${c.name}</td>
+            <td class="muted">${c.email}</td>
+            <td class="muted">${fmtDateFull(c.last_order)}</td>
+            <td style="font-weight:600;font-variant-numeric:tabular-nums">${fmtAmt(c.total_spent)}</td>
+            <td class="muted">${c.order_count} comandă${c.order_count !== 1 ? '' : ''}</td>
+          </tr>`).join('')
+        : `<tr><td colspan="5" class="muted" style="text-align:center;padding:40px">No customers yet.</td></tr>`;
+      bodyHTML = `
+        <div class="contacts-header-row">
+          <div class="contacts-count"><strong>${customers.length}</strong> clienți unici</div>
+          <button class="export-btn" id="export-customers-btn">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 2v9m-4-4 4 4 4-4"/><path d="M2 14h12"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div class="contacts-table-wrap">
+          <table class="contacts-table">
+            <thead><tr><th>Nume</th><th>Email</th><th>Ultima comandă</th><th>Total cheltuit</th><th>Comenzi</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    root.innerHTML = subtabsHTML + bodyHTML;
+
+    root.querySelectorAll('.contacts-subtab').forEach(tab => {
+      tab.addEventListener('click', () => { contactsTab = tab.dataset.ctab; renderContacts(); });
+    });
+
+    const exportSubsBtn = document.getElementById('export-subs-btn');
+    if (exportSubsBtn) {
+      exportSubsBtn.addEventListener('click', () => {
+        downloadCSV(
+          [['Email', 'Data abonarii', 'Sursa']].concat(
+            subscribers.map(s => [s.email, s.created_at || '', s.source || ''])
+          ),
+          'abonati-newsletter.csv'
+        );
+      });
+    }
+
+    const exportCusBtn = document.getElementById('export-customers-btn');
+    if (exportCusBtn) {
+      exportCusBtn.addEventListener('click', () => {
+        downloadCSV(
+          [['Nume', 'Email', 'Ultima comanda', 'Total cheltuit RON', 'Numar comenzi']].concat(
+            customers.map(c => [c.name, c.email, c.last_order || '', c.total_spent.toFixed(2), c.order_count])
+          ),
+          'clienti.csv'
+        );
+      });
+    }
   }
 
   /* ── INIT ── */

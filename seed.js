@@ -37,7 +37,6 @@ function makeProducts(model, colorways) {
     stock_quantity: 10,
     active: true,
     image_url: '',
-    gomag_url: '',
   }));
 }
 

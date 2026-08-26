@@ -594,6 +594,15 @@
       const ship=appliedPromo.freeShipping?0:deliveryCost(c);
       return Math.max(1,net*(1-appliedPromo.percent/100))+ship;
     }
+    // Splits items JSON into ≤490-char chunks stored as items_0, items_1, …
+    // Stripe caps each metadata value at 500 chars; a single "items" key silently
+    // truncates to invalid JSON for carts with 3+ items. The server reassembles.
+    function chunkItemsMeta(c){
+      const json=JSON.stringify(c.map(i=>({pid:i.product_id||'',m:i.model,c:i.colorway,q:i.quantity,p:i.price})));
+      const out={}, SIZE=490;
+      for(let i=0;i*SIZE<json.length;i++) out['items_'+i]=json.slice(i*SIZE,(i+1)*SIZE);
+      return out;
+    }
     function applyPromo(){
       const input=document.getElementById('coupon-input');
       const msg=document.getElementById('coupon-msg');
@@ -818,9 +827,6 @@
         throw new Error(subErr.message);
       }
       const fd=getFormData(), cart=getCart();
-      const itemsMeta=JSON.stringify(
-        cart.map(i=>({ pid:i.product_id||'', m:i.model, c:i.colorway, q:i.quantity, p:i.price }))
-      ).slice(0,500);
       const metadata={
         customer_name:  fd.customer_name,
         customer_email: fd.customer_email,
@@ -832,7 +838,7 @@
         discount:       String(fd.discount),
         promo_discount: String(fd.promo_discount||0),
         delivery:       String(fd.delivery),
-        items:          itemsMeta,
+        ...chunkItemsMeta(cart),
       };
       const r=await fetch('/api/stripe-payment',{
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -973,10 +979,6 @@
           addr.city, addr.region, addr.postalCode,
         ].filter(Boolean).join(', ');
 
-        const itemsMeta=JSON.stringify(
-          cart.map(i=>({ pid:i.product_id||'', m:i.model, c:i.colorway, q:i.quantity, p:i.price }))
-        ).slice(0,500);
-
         const metadata={
           customer_name:  ev.payerName||'',
           customer_email: ev.payerEmail||'',
@@ -988,7 +990,7 @@
           discount:       String(disc),
           promo_discount: String(promoDisc),
           delivery:       String(ship),
-          items:          itemsMeta,
+          ...chunkItemsMeta(cart),
         };
 
         let clientSecret;

@@ -1,6 +1,9 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
+const RESEND_KEY   = process.env.RESEND_API_KEY;
+
+const ADMIN_EMAIL  = 'm27office1@gmail.com';
 
 // Pricing constants — must match checkout.html exactly
 const SHIPPING_THRESHOLD = 300;
@@ -128,15 +131,18 @@ module.exports = async function handler(req, res) {
     if (promo) {
       const discountedNet = net * (1 - promo.percent / 100);
       const effectiveShip = promo.freeShipping ? 0 : ship;
-      total_amount = Math.max(1, discountedNet) + effectiveShip;
+      total_amount = discountedNet + effectiveShip;
     } else {
       total_amount = net + ship;
     }
   }
 
-  // Sanity check — total_amount must be positive after any recomputation.
+  // Sanity check — total_amount must be a usable amount after any recomputation.
   if (!total_amount || total_amount <= 0) {
     return res.status(400).json({ error: 'Invalid total amount' });
+  }
+  if (total_amount < 2) {
+    return res.status(400).json({ error: 'Suma totală este prea mică. Te rugăm să adaugi mai multe produse în coș.' });
   }
 
   // 1b. For COD orders: decrement stock atomically before creating the order.
@@ -210,11 +216,13 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // 4. For COD orders: send confirmation email server-side (never from the browser).
+  // 4. For COD orders: send customer confirmation + admin notification (never from the browser).
   //    Card orders are emailed by stripe-webhook.js after payment_intent.succeeded.
   if (!stripe_payment_id) {
     const protocol = req.headers['x-forwarded-proto'] || 'https';
     const baseUrl  = `${protocol}://${req.headers.host}`;
+
+    // Customer confirmation
     fetch(`${baseUrl}/api/send-email`, {
       method: 'POST',
       headers: {
@@ -234,7 +242,34 @@ module.exports = async function handler(req, res) {
         delivery:       delivery       ?? 0,
         total:          total_amount,
       }),
-    }).catch(e => console.error('COD email error (non-fatal):', e.message));
+    }).catch(e => console.error('COD customer email failed (non-fatal):', e.message));
+
+    // Admin notification
+    const orderRef      = (order.id || '').slice(0, 8).toUpperCase();
+    const deliveryLabel = delivery_type === 'locker' ? 'Easybox' : 'Acasă';
+    const itemsSummary  = (items || []).map(i => {
+      const qty = i.quantity || 1;
+      const nm  = i.model || i.name || '?';
+      const cw  = i.colorway || '';
+      return `${qty}× ${nm}${cw ? ` (${cw})` : ''}`;
+    }).join(', ') || '—';
+
+    fetch('https://api.resend.com/emails', {
+      method:  'POST',
+      headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from:    'M27 Eyewear <comenzi@m27.ro>',
+        to:      ADMIN_EMAIL,
+        subject: `Comandă nouă #${orderRef} — ${Number(total_amount).toFixed(2).replace('.', ',')} RON`,
+        html: `<p style="font-family:sans-serif;font-size:14px;line-height:1.7;color:#222;">
+          <strong>#${orderRef}</strong><br>
+          Client: ${customer_name} &lt;${customer_email}&gt;<br>
+          Produse: ${itemsSummary}<br>
+          Total: <strong>${Number(total_amount).toFixed(2).replace('.', ',')} RON</strong><br>
+          Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Ramburs
+        </p>`,
+      }),
+    }).catch(e => console.error('COD admin email failed (non-fatal):', e.message));
   }
 
   return res.status(200).json({ id: order.id, status: order.status });
