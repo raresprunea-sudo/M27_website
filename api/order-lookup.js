@@ -1,36 +1,14 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Strict UUID v4 pattern — reject anything else before it reaches Supabase
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PI_RE   = /^pi_[A-Za-z0-9_]+$/;
 
-module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+const SELECT = 'id,customer_name,customer_email,delivery_type,address,total_amount,status,created_at,' +
+               'order_items(quantity,price_at_purchase,products(model,colorway))';
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET')    return res.status(405).json({ error: 'Method not allowed' });
-
-  const orderId = (req.query.order_id || '').trim();
-  if (!UUID_RE.test(orderId)) {
-    return res.status(400).json({ error: 'Invalid order id' });
-  }
-
-  const r = await fetch(
-    `${SUPABASE_URL}/rest/v1/orders` +
-    `?id=eq.${orderId}` +
-    `&select=id,customer_name,customer_email,delivery_type,address,total_amount,status,created_at,` +
-    `order_items(quantity,price_at_purchase,products(model,colorway))`,
-    { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
-  );
-  if (!r.ok) return res.status(500).json({ error: 'Failed to fetch order' });
-
-  const rows = await r.json();
-  if (!rows.length) return res.status(404).json({ error: 'Order not found' });
-
-  const o = rows[0];
-  return res.status(200).json({
+function formatOrder(o) {
+  return {
     id:             o.id,
     customer_name:  o.customer_name  || '',
     customer_email: o.customer_email || '',
@@ -44,5 +22,38 @@ module.exports = async function handler(req, res) {
       quantity: i.quantity,
       price:    i.price_at_purchase,
     })),
-  });
+  };
+}
+
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET')    return res.status(405).json({ error: 'Method not allowed' });
+
+  const orderId = (req.query.order_id          || '').trim();
+  const piId    = (req.query.payment_intent_id || '').trim();
+
+  if (!orderId && !piId) {
+    return res.status(400).json({ error: 'Missing order_id or payment_intent_id' });
+  }
+
+  let url;
+  if (orderId) {
+    if (!UUID_RE.test(orderId)) return res.status(400).json({ error: 'Invalid order_id' });
+    url = `${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}&select=${SELECT}`;
+  } else {
+    if (!PI_RE.test(piId)) return res.status(400).json({ error: 'Invalid payment_intent_id' });
+    url = `${SUPABASE_URL}/rest/v1/orders?stripe_payment_id=eq.${encodeURIComponent(piId)}&select=${SELECT}`;
+  }
+
+  const r = await fetch(url, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
+  if (!r.ok) return res.status(500).json({ error: 'Failed to fetch order' });
+
+  const rows = await r.json();
+  if (!rows.length) return res.status(404).json({ error: 'Order not found' });
+
+  return res.status(200).json(formatOrder(rows[0]));
 };
