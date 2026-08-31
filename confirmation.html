@@ -311,18 +311,18 @@
 
     /* ── IMAGES MAP ── */
     const IMAGES = {
-      sulphur:   { 'sky blue': 'product%20photos/miami/sulphur-blue-1.jpg', 'full black': 'product%20photos/miami/miami-black1.jpg', 'dark green': 'product%20photos/miami/miami-green1.jpg', lime: 'product%20photos/miami/sulphur-lime-1.jpg' },
-      selenium:  { purple: 'product%20photos/tenerife/tenerife-mov-1.jpg', 'full black': 'product%20photos/tenerife/tenerife-black-1.jpg', fig: 'product%20photos/tenerife/tenerife-fig1.jpg', tiger: 'product%20photos/tenerife/tenerife-tiger-1.jpg' },
-      zirconium: { 'full black': 'product%20photos/roma/roma-black-1.jpg', 'sky blue': 'product%20photos/roma/roma-blue-1.jpg', caramel: 'product%20photos/roma/roma-cacao-1.jpg', tangerine: 'product%20photos/roma/roma-orange-1.jpg', rose: 'product%20photos/roma/roma-pink-1.jpg', tiger: 'product%20photos/roma/roma-tiger-1.jpg' },
-      mercury:   { navy: 'product%20photos/tokyo/tokyo-blue-1.jpg', 'dark purple': 'product%20photos/tokyo/tokyo-grey-1.jpg', champagne: 'product%20photos/tokyo/tokyo-yellow-1.jpg' },
-      chlorine:  { tangerine: 'product%20photos/venice/venice-orange-1.jpg', 'sky blue': 'product%20photos/venice/venice-blue1.jpg', kiwi: 'product%20photos/venice/venice-kiwi-1.jpg', lime: 'product%20photos/venice/venice-lime-1.jpg', rose: 'product%20photos/venice/venice-pink-1.jpg' },
-      palladium: { volcano: 'product%20photos/praga/praga-volc-1.jpg', 'full black': 'product%20photos/praga/praga-black1.jpg', champagne: 'product%20photos/praga/praga-by-1.jpg', 'dark green': 'product%20photos/praga/praga-green-1.jpg', mostard: 'product%20photos/praga/praga-mostard1.jpg' },
-      titanium:  { 'full black': 'product%20photos/cape%20town/tit-black-1.jpg', panda: 'product%20photos/cape%20town/tit-panda-1.jpg', tiger: 'product%20photos/cape%20town/tit-tiger-1.jpg' },
+      sulphur:   { skyblue: 'product%20photos/miami/sulphur-blue-1.jpg', fullblack: 'product%20photos/miami/miami-black1.jpg', darkgreen: 'product%20photos/miami/miami-green1.jpg', lime: 'product%20photos/miami/sulphur-lime-1.jpg' },
+      selenium:  { purple: 'product%20photos/tenerife/tenerife-mov-1.jpg', fullblack: 'product%20photos/tenerife/tenerife-black-1.jpg', fig: 'product%20photos/tenerife/tenerife-fig1.jpg', tiger: 'product%20photos/tenerife/tenerife-tiger-1.jpg' },
+      zirconium: { fullblack: 'product%20photos/roma/roma-black-1.jpg', skyblue: 'product%20photos/roma/roma-blue-1.jpg', caramel: 'product%20photos/roma/roma-cacao-1.jpg', tangerine: 'product%20photos/roma/roma-orange-1.jpg', rose: 'product%20photos/roma/roma-pink-1.jpg', tiger: 'product%20photos/roma/roma-tiger-1.jpg' },
+      mercury:   { navy: 'product%20photos/tokyo/tokyo-blue-1.jpg', darkpurple: 'product%20photos/tokyo/tokyo-grey-1.jpg', champagne: 'product%20photos/tokyo/tokyo-yellow-1.jpg' },
+      chlorine:  { tangerine: 'product%20photos/venice/venice-orange-1.jpg', skyblue: 'product%20photos/venice/venice-blue1.jpg', kiwi: 'product%20photos/venice/venice-kiwi-1.jpg', lime: 'product%20photos/venice/venice-lime-1.jpg', rose: 'product%20photos/venice/venice-pink-1.jpg' },
+      palladium: { volcano: 'product%20photos/praga/praga-volc-1.jpg', fullblack: 'product%20photos/praga/praga-black1.jpg', champagne: 'product%20photos/praga/praga-by-1.jpg', darkgreen: 'product%20photos/praga/praga-green-1.jpg', mustard: 'product%20photos/praga/praga-mostard1.jpg' },
+      titanium:  { fullblack: 'product%20photos/cape%20town/tit-black-1.jpg', panda: 'product%20photos/cape%20town/tit-panda-1.jpg', tiger: 'product%20photos/cape%20town/tit-tiger-1.jpg' },
     };
 
     function getImage(item) {
-      const slug = (item.model_slug || item.model || '').toLowerCase().trim();
-      const cw   = (item.colorway || '').toLowerCase().trim();
+      const slug = (item.model_slug || item.model || '').toLowerCase().replace(/\s+/g, '');
+      const cw   = (item.colorway || '').toLowerCase().replace(/\s+/g, '');
       return (IMAGES[slug] && IMAGES[slug][cw]) || '';
     }
 
