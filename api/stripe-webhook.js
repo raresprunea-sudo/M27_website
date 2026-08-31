@@ -124,7 +124,7 @@ async function sendAdminNotificationEmail({ order_id, customer_name, customer_em
   }
 }
 
-async function sendConfirmationEmail({ order_id, customer_name, customer_email, delivery_type, address, items, subtotal, discount, promo_discount, delivery, total }) {
+async function sendConfirmationEmail({ order_id, customer_name, customer_email, delivery_type, address, items, subtotal, discount, delivery, total }) {
   const orderRef  = (order_id || '').slice(0, 8).toUpperCase();
   const firstName = (customer_name || '').split(' ')[0];
 
@@ -147,11 +147,6 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
   const discountRow = parseFloat(discount) > 0 ? `<tr>
     <td style="font-size:13px;color:#2a7d44;padding-bottom:10px;">Reducere 50% OFF</td>
     <td style="font-size:13px;color:#2a7d44;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">−${formatRON(discount)} RON</td>
-  </tr>` : '';
-
-  const promoRow = parseFloat(promo_discount || 0) > 0 ? `<tr>
-    <td style="font-size:13px;color:#2a7d44;padding-bottom:10px;">Cod promoțional</td>
-    <td style="font-size:13px;color:#2a7d44;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">−${formatRON(promo_discount)} RON</td>
   </tr>` : '';
 
   const deliveryVal = parseFloat(delivery || 0) > 0
@@ -215,7 +210,6 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
                 <td style="font-size:13px;color:#6d7175;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">${formatRON(subtotal)} RON</td>
               </tr>
               ${discountRow}
-              ${promoRow}
               <tr>
                 <td style="font-size:13px;color:#6d7175;padding-bottom:20px;">Livrare</td>
                 <td style="text-align:right;padding-bottom:20px;white-space:nowrap;">${deliveryVal}</td>
@@ -341,7 +335,6 @@ module.exports = async function handler(req, res) {
       items,
       subtotal:       meta.subtotal       || '0',
       discount:       meta.discount       || '0',
-      promo_discount: meta.promo_discount || '0',
       delivery:       meta.delivery       || '0',
       total:          pi.amount / 100,
     }).catch(e => console.error('Customer email failed (non-fatal):', e.message));

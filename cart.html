@@ -634,7 +634,7 @@
       var metadata = Object.assign({
         customer_name: ev.payerName||'', customer_email: ev.payerEmail||'', customer_phone: ev.payerPhone||'',
         delivery_type: 'home', address: addrStr,
-        total_amount: String(tot), subtotal: String(sub), discount: String(disc), delivery: String(ship), promo_discount: '0',
+        total_amount: String(tot), subtotal: String(sub), discount: String(disc), delivery: String(ship),
       }, itemChunks);
       try {
         var r = await fetch('/api/stripe-payment', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({amount:tot,metadata:metadata}) });

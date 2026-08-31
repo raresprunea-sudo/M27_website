@@ -28,7 +28,6 @@ module.exports = async function handler(req, res) {
     items,
     subtotal,
     discount,
-    promo_discount,
     delivery,
     total,
   } = req.body || {};
@@ -56,11 +55,6 @@ module.exports = async function handler(req, res) {
   const discountRow = discount > 0 ? `<tr>
     <td style="font-size:13px;color:#2a7d44;padding-bottom:10px;">Reducere 50% OFF</td>
     <td style="font-size:13px;color:#2a7d44;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">−${formatRON(discount)} RON</td>
-  </tr>` : '';
-
-  const promoRow = (promo_discount || 0) > 0 ? `<tr>
-    <td style="font-size:13px;color:#2a7d44;padding-bottom:10px;">Cod promoțional</td>
-    <td style="font-size:13px;color:#2a7d44;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">−${formatRON(promo_discount)} RON</td>
   </tr>` : '';
 
   const deliveryVal = (delivery || 0) > 0
@@ -122,7 +116,6 @@ module.exports = async function handler(req, res) {
                 <td style="font-size:13px;color:#6d7175;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">${formatRON(subtotal)} RON</td>
               </tr>
               ${discountRow}
-              ${promoRow}
               <tr>
                 <td style="font-size:13px;color:#6d7175;padding-bottom:20px;">Livrare</td>
                 <td style="text-align:right;padding-bottom:20px;white-space:nowrap;">${deliveryVal}</td>

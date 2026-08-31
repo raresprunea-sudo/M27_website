@@ -342,13 +342,12 @@
 
     /* ── RENDER ── */
     function renderPage(data) {
-      const { orderRef, customerEmail, customerName, items, deliveryType, address, chargedTotal, promoDisc, paymentType } = data;
+      const { orderRef, customerEmail, customerName, items, deliveryType, address, chargedTotal, paymentType } = data;
       const sub  = subtotal(items);
       const disc = discount(items);
       // When chargedTotal is known, derive shipping as the residual so it matches the actual charge.
-      const pd   = parseFloat(promoDisc || 0);
       const ship = chargedTotal != null
-        ? Math.round(Math.max(0, chargedTotal - (sub - disc - pd)) * 100) / 100
+        ? Math.round(Math.max(0, chargedTotal - (sub - disc)) * 100) / 100
         : shipping(items);
       const tot  = chargedTotal != null ? chargedTotal : (sub - disc + ship);
       const firstName = (customerName || '').split(' ')[0] || '';
@@ -372,12 +371,6 @@
         <div class="details-row">
           <span class="lbl">Reducere 50% OFF</span>
           <span class="val" style="color:#2a7d44">−${formatRON(disc)} RON</span>
-        </div>` : '';
-
-      const promoRow = pd > 0 ? `
-        <div class="details-row">
-          <span class="lbl">Cod promoțional</span>
-          <span class="val" style="color:#2a7d44">−${formatRON(pd)} RON</span>
         </div>` : '';
 
       const deliveryLabel = 'Livrare';
@@ -413,7 +406,6 @@
             <span class="val">${formatRON(sub)} RON</span>
           </div>
           ${discRow}
-          ${promoRow}
           <div class="details-row">
             <span class="lbl">${deliveryLabel}</span>
             <span class="val" ${ship===0?'style="color:#2a7d44"':''}>${ship===0?'Gratuit':formatRON(ship)+' RON'}</span>
@@ -544,14 +536,13 @@
         }
       }
 
-      let items, customerName, customerEmail, deliveryType, address, promoDisc;
+      let items, customerName, customerEmail, deliveryType, address;
       if (order) {
         items         = order.items;
         customerName  = order.customer_name;
         customerEmail = order.customer_email;
         deliveryType  = order.delivery_type;
         address       = order.address;
-        promoDisc     = parseFloat(meta.promo_discount || 0);
       } else {
         // Webhook still hasn't fired after retries — fall back to PaymentIntent metadata.
         // This is a last resort: the order exists in Stripe but not yet in our database.
@@ -561,7 +552,6 @@
         customerEmail = meta.customer_email || '';
         deliveryType  = meta.delivery_type  || 'home';
         address       = meta.address        || '';
-        promoDisc     = parseFloat(meta.promo_discount || 0);
       }
 
       renderPage({
@@ -572,7 +562,6 @@
         deliveryType,
         address,
         chargedTotal: paymentIntent.amount / 100,
-        promoDisc,
         paymentType:  'card',
       });
     }
@@ -599,7 +588,6 @@
         deliveryType:  order.delivery_type,
         address:       order.address,
         chargedTotal:  order.total_amount,
-        promoDisc:     0,
         paymentType:   'cod',
       });
     }

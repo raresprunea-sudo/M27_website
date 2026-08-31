@@ -8,9 +8,6 @@ const SHIPPING_THRESHOLD = 300;
 const SHIPPING_COST      = 19.99;
 const ITEM_PRICE         = 175; // used for bundle-discount calculation
 
-// Promo codes are defined server-side only. The client never decides the discount.
-const PROMO_CODES = { CODE: { percent: 99, freeShipping: true } };
-
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -20,7 +17,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   // `amount` from the client is intentionally ignored — the server computes it.
-  const { metadata, code } = req.body || {};
+  const { metadata } = req.body || {};
 
   // Reassemble items JSON from chunked metadata keys (items_0, items_1, …).
   // Stripe caps each metadata value at 500 chars, so large carts are split on the client.
@@ -95,22 +92,11 @@ module.exports = async function handler(req, res) {
   const net            = subtotal - bundleDiscount;
   const shipping       = net >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
 
-  let finalAmount = net + shipping;
-
-  // Apply promo code server-side — the validated code determines the discount,
-  // not anything the caller claimed about the price.
-  const promo = code ? PROMO_CODES[(code || '').trim().toUpperCase()] : null;
-  if (promo) {
-    const discountedNet = net * (1 - promo.percent / 100);
-    const effectiveShip = promo.freeShipping ? 0 : shipping;
-    finalAmount = discountedNet + effectiveShip;
-  }
-
-  const amountBani = Math.round(finalAmount * 100);
+  const finalAmount = net + shipping;
+  const amountBani  = Math.round(finalAmount * 100);
 
   console.error(
     '[stripe-payment] net:', net,
-    '| promo:', promo ? code : 'none',
     '| finalAmount RON:', finalAmount.toFixed(4),
     '| amountBani:', amountBani
   );

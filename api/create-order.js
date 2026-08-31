@@ -9,7 +9,6 @@ const ADMIN_EMAIL  = 'm27office1@gmail.com';
 const SHIPPING_THRESHOLD = 300;
 const SHIPPING_COST      = 19.99;
 const ITEM_PRICE         = 175;
-const PROMO_CODES        = { CODE: { percent: 99, freeShipping: true } };
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -44,9 +43,7 @@ module.exports = async function handler(req, res) {
     items,           // [{ product_id, quantity, price }]
     subtotal,        // for confirmation email
     discount,        // for confirmation email
-    promo_discount,  // for confirmation email (promo code discount)
     delivery,        // for confirmation email
-    code,            // promo code — validated server-side
   } = req.body || {};
 
   // total_amount: for card orders this comes from the webhook (Stripe's actual charge);
@@ -135,15 +132,7 @@ module.exports = async function handler(req, res) {
     const bundleDiscount = Math.floor(qty / 2) * ITEM_PRICE * 0.5;
     const net            = sub - bundleDiscount;
     const ship           = net >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-    const promo          = code ? PROMO_CODES[(code || '').trim().toUpperCase()] : null;
-
-    if (promo) {
-      const discountedNet = net * (1 - promo.percent / 100);
-      const effectiveShip = promo.freeShipping ? 0 : ship;
-      total_amount = discountedNet + effectiveShip;
-    } else {
-      total_amount = net + ship;
-    }
+    total_amount         = net + ship;
 
     // Divergence guard: log if what the client sent disagrees with what the server computed.
     // The server value is always used — this is purely for detecting anomalies.
@@ -258,7 +247,6 @@ module.exports = async function handler(req, res) {
         items:          items   || [],
         subtotal:       subtotal       ?? total_amount,
         discount:       discount       ?? 0,
-        promo_discount: promo_discount ?? 0,
         delivery:       delivery       ?? 0,
         total:          total_amount,
       }),
