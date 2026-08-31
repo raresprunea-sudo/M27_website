@@ -1076,7 +1076,7 @@
             </td>
             <td>
               <label class="toggle-wrap">
-                <input class="toggle-input" type="checkbox" data-product-id="${p.id}" data-active="${p.is_active}" ${p.is_active ? 'checked' : ''} />
+                <input class="toggle-input" type="checkbox" data-product-id="${p.id}" data-active="${p.active}" ${p.active ? 'checked' : ''} />
                 <span class="toggle-track"></span>
               </label>
             </td>
@@ -1167,7 +1167,7 @@
           });
           if (r.ok) {
             const p = products.find(x => x.id === id);
-            if (p) p.is_active = isActive;
+            if (p) p.active = isActive;
           } else {
             toggle.checked = !isActive;
           }
