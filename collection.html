@@ -369,9 +369,9 @@
           </button>
           <a href="index.html" class="logo"><img src="brand_assets/logo-m27.png" alt="M27" /></a>
           <nav>
-            <a href="collection.html">Bărbați</a>
-            <a href="collection.html">Femei</a>
-            <a href="collection.html">Colecții</a>
+            <a href="collection.html?section=men">Bărbați</a>
+            <a href="collection.html?section=women">Femei</a>
+            <a href="collection.html?section=collections">Colecții</a>
           </nav>
         </div>
         <div class="header-icons">
@@ -383,9 +383,9 @@
       </div>
       <div class="mobile-nav" id="mobile-nav">
         <a href="index.html">Acasă</a>
-        <a href="collection.html">Bărbați</a>
-        <a href="collection.html">Femei</a>
-        <a href="collection.html">Produse</a>
+        <a href="collection.html?section=men">Bărbați</a>
+        <a href="collection.html?section=women">Femei</a>
+        <a href="collection.html?section=collections">Colecții</a>
       </div>
     </header>
   </div>
@@ -768,6 +768,48 @@
           }
         });
       } catch(_) {}
+    })();
+
+    // Section filtering (Bărbați / Femei / Colecții)
+    (function() {
+      var params  = new URLSearchParams(window.location.search);
+      var section = params.get('section') || 'collections';
+
+      var SECTIONS = {
+        men:         { eyebrow: 'Full Men Catalogue',   desc: '6 Styles · 26 Frames', hidden: ['selenium'] },
+        women:       { eyebrow: 'Full Women Catalogue', desc: '5 Styles · 23 Frames', hidden: ['sulphur', 'titanium'] },
+        collections: { eyebrow: 'Full Catalogue',       desc: '7 Styles · 30 Frames', hidden: [] },
+      };
+
+      var cfg = SECTIONS[section] || SECTIONS.collections;
+
+      // Update hero text
+      var eyebrow = document.querySelector('.collection-eyebrow');
+      var desc    = document.querySelector('.collection-desc');
+      if (eyebrow) eyebrow.textContent = cfg.eyebrow;
+      if (desc)    desc.textContent    = cfg.desc;
+
+      // Hide cards not in this section
+      if (cfg.hidden.length > 0) {
+        document.querySelectorAll('.product-card').forEach(function(card) {
+          var link = card.querySelector('.card-link-overlay');
+          if (!link) return;
+          var m = link.getAttribute('href').match(/[?&]model=([^&]+)/);
+          if (!m) return;
+          if (cfg.hidden.indexOf(m[1].toLowerCase()) !== -1) {
+            card.style.display = 'none';
+          }
+        });
+      }
+
+      // Mark active nav link
+      document.querySelectorAll('nav a, .mobile-nav a').forEach(function(a) {
+        var href = a.getAttribute('href') || '';
+        if (href.indexOf('collection.html') === -1) return;
+        var ap = new URLSearchParams((href.split('?')[1] || ''));
+        var s  = ap.get('section') || 'collections';
+        if (s === section) a.style.borderBottomColor = '#1a1a1a';
+      });
     })();
 
     // Color swatch switching
