@@ -608,12 +608,22 @@
     function cwKey(lbl) { return (lbl || '').toLowerCase().replace(/\s+/g, ''); }
     function updateATCState() {
       var k       = cwKey(activeCw.label);
-      var oos     = stockMap.hasOwnProperty(k) && stockMap[k] <= 0;
+      var stock   = stockMap.hasOwnProperty(k) ? stockMap[k] : null;
+      var oos     = stock !== null && stock <= 0;
       var loading = !productIdsLoaded;
+      // Check how many of this colorway are already in cart
+      var cart    = getCart();
+      var inCart  = 0;
+      var key     = modelSlug + '::' + activeCw.label;
+      cart.forEach(function(i) { if (i._key === key) inCart = i.quantity; });
+      var atLimit = stock !== null && stock > 0 && inCart >= stock;
       var deskBtn = document.getElementById('atc-btn-desk');
       var mobBtn  = document.getElementById('atc-btn-mob');
-      if (deskBtn) { deskBtn.disabled = oos || loading; deskBtn.textContent = loading ? 'Se încarcă...' : (oos ? 'Stoc epuizat' : 'Adaugă în coș'); }
-      if (mobBtn)  { mobBtn.disabled  = oos || loading; mobBtn.textContent  = loading ? 'SE ÎNCARCĂ...'  : (oos ? 'STOC EPUIZAT'  : 'ADAUGĂ ÎN COȘ'); }
+      var disabled = oos || loading || atLimit;
+      var deskLabel = loading ? 'Se încarcă...' : oos ? 'Stoc epuizat' : atLimit ? 'Maxim ' + stock + ' în coș' : 'Adaugă în coș';
+      var mobLabel  = loading ? 'SE ÎNCARCĂ...' : oos ? 'STOC EPUIZAT'  : atLimit ? 'MAXIM ' + stock + ' ÎN COȘ'  : 'ADAUGĂ ÎN COȘ';
+      if (deskBtn) { deskBtn.disabled = disabled; deskBtn.textContent = deskLabel; }
+      if (mobBtn)  { mobBtn.disabled  = disabled; mobBtn.textContent  = mobLabel; }
       document.querySelectorAll('.swatch, .mob-swatch').forEach(function(btn) {
         var idx = parseInt(btn.dataset.idx, 10);
         var cw  = mData.colorways[idx];
@@ -634,14 +644,19 @@
     }
     function addToCart() {
       if (!productIdsLoaded) return;
-      if (stockMap.hasOwnProperty(cwKey(activeCw.label)) && stockMap[cwKey(activeCw.label)] <= 0) return;
-      var cart = getCart();
-      var key  = modelSlug + '::' + activeCw.label;
-      var idx  = cart.findIndex(function(i) { return i._key === key; });
+      var k     = cwKey(activeCw.label);
+      var stock = stockMap.hasOwnProperty(k) ? stockMap[k] : null;
+      if (stock !== null && stock <= 0) return;
+      var cart  = getCart();
+      var key   = modelSlug + '::' + activeCw.label;
+      var idx   = cart.findIndex(function(i) { return i._key === key; });
+      var inCart = idx >= 0 ? cart[idx].quantity : 0;
+      if (stock !== null && inCart >= stock) return; // already at stock cap
       if (idx >= 0) { cart[idx].quantity += 1; }
       else { cart.push({ _key: key, product_id: lookupId(activeCw.label), model: mData.label, model_slug: modelSlug, colorway: activeCw.label, price: PRICE, quantity: 1 }); }
       saveCart(cart);
       updateCartBadge();
+      updateATCState(); // refresh button state after adding
     }
 
     function setMainImage(img, thumbActiveIdx) {

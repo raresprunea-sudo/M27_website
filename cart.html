@@ -112,6 +112,8 @@
     .unit-price-reg { font-size: 13px; font-weight: 700; color: #1a1a1a; white-space: nowrap; }
     .unit-price-old { font-size: 11px; font-weight: 400; color: #b0b0b0; text-decoration: line-through; white-space: nowrap; }
     .unit-price-new { font-size: 13px; font-weight: 700; color: #2a7d44; white-space: nowrap; }
+    .qty-cap-note { font-size: 10px; color: #a04000; font-weight: 600; letter-spacing: 0.02em; }
+    .stock-reduced-notice { margin: 10px 20px 0; padding: 10px 14px; background: #fff8f0; border-left: 3px solid #e67e22; font-size: 11px; color: #7a4a00; line-height: 1.6; }
 
     /* Empty state */
     .empty-cart { padding: 80px 24px; text-align: center; }
@@ -387,6 +389,9 @@
       el.style.display = n > 0 ? 'flex' : 'none';
     }
 
+    var stockMap = {};
+    var stockLoaded = false;
+
     /* ── RENDER ── */
     function render() {
       var cart  = getCart();
@@ -410,26 +415,30 @@
         return;
       }
 
-      // Expand cart items into individual unit rows; every 2nd unit (global) is discounted
-      var units = [];
-      cart.forEach(function(item, itemIdx) {
-        for (var u = 0; u < item.quantity; u++) {
-          units.push({ item: item, itemIdx: itemIdx });
-        }
-      });
-
-      var itemsHTML = units.map(function(u, globalIdx) {
-        var isDisc = globalIdx % 2 === 1;
-        var item = u.item;
+      // Per-item rows with qty stepper; every 2nd unit (globally across all items) is discounted
+      var globalUnit = 0;
+      var itemsHTML = cart.map(function(item, itemIdx) {
         var imgSrc = getImage(item);
         var imgTag = imgSrc
           ? '<img src="' + imgSrc + '" alt="' + item.model + ' ' + item.colorway + '" />'
           : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#bbb;">—</div>';
         var slug = (item.model_slug || item.model || '').toLowerCase();
-        var priceHTML = isDisc
-          ? '<div class="unit-price"><span class="unit-price-old">175 RON</span><span class="unit-price-new">87,50 RON</span></div>'
-          : '<div class="unit-price"><span class="unit-price-reg">175 RON</span></div>';
-        return '<div class="cart-item" data-idx="' + u.itemIdx + '">' +
+        // compute item total with bundle discount applied per-unit
+        var itemTotal = 0;
+        for (var u = 0; u < item.quantity; u++) {
+          itemTotal += (globalUnit % 2 === 0) ? PRICE : PRICE * 0.5;
+          globalUnit++;
+        }
+        var hasDisc = item.quantity >= 2 || (globalUnit - item.quantity) % 2 !== 0;
+        var priceHTML = '<div class="unit-price"><span class="unit-price-reg">' + formatRON(itemTotal) + ' RON</span></div>';
+        // Stock cap
+        var stock = (stockLoaded && item.product_id && stockMap.hasOwnProperty(item.product_id))
+          ? stockMap[item.product_id] : null;
+        var atCap = stock !== null && item.quantity >= stock;
+        var capNote = atCap
+          ? '<span class="qty-cap-note">Maxim ' + stock + ' disponibil' + (stock === 1 ? '' : 'e') + '</span>'
+          : '';
+        return '<div class="cart-item" data-idx="' + itemIdx + '">' +
           '<a href="product.html?model=' + slug + '" class="item-thumb">' + imgTag + '</a>' +
           '<div class="item-content">' +
             '<div class="item-row-top">' +
@@ -440,7 +449,15 @@
               priceHTML +
             '</div>' +
             '<div class="item-row-bot">' +
-              '<button class="item-remove" data-idx="' + u.itemIdx + '" aria-label="Șterge" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#a0a4a8;background:none;border:none;cursor:pointer;padding:0;transition:color 0.15s;">Elimină</button>' +
+              '<div style="display:flex;align-items:center;gap:10px;">' +
+                '<div class="qty-wrap">' +
+                  '<button class="qty-btn qty-dec" data-idx="' + itemIdx + '" aria-label="Scade cantitatea">−</button>' +
+                  '<span class="qty-num">' + item.quantity + '</span>' +
+                  '<button class="qty-btn qty-inc" data-idx="' + itemIdx + '"' + (atCap ? ' disabled' : '') + ' aria-label="Mărește cantitatea">+</button>' +
+                '</div>' +
+                capNote +
+              '</div>' +
+              '<button class="item-remove" data-idx="' + itemIdx + '" aria-label="Elimină produsul" style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#a0a4a8;background:none;border:none;cursor:pointer;padding:0;transition:color 0.15s;">Elimină</button>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -481,7 +498,36 @@
         var cart = getCart();
 
         var rem = e.target.closest('.item-remove');
-        if (rem) { var i = parseInt(rem.dataset.idx, 10); if (cart[i].quantity > 1) { cart[i].quantity -= 1; } else { cart.splice(i, 1); } saveCart(cart); render(); return; }
+        if (rem) {
+          var i = parseInt(rem.dataset.idx, 10);
+          cart.splice(i, 1);
+          saveCart(cart);
+          render();
+          return;
+        }
+
+        var dec = e.target.closest('.qty-dec');
+        if (dec) {
+          var i = parseInt(dec.dataset.idx, 10);
+          if (cart[i].quantity > 1) { cart[i].quantity -= 1; } else { cart.splice(i, 1); }
+          saveCart(cart);
+          render();
+          return;
+        }
+
+        var inc = e.target.closest('.qty-inc');
+        if (inc) {
+          var i = parseInt(inc.dataset.idx, 10);
+          var item = cart[i];
+          var stock = (stockLoaded && item.product_id && stockMap.hasOwnProperty(item.product_id))
+            ? stockMap[item.product_id] : null;
+          if (stock === null || item.quantity < stock) {
+            cart[i].quantity += 1;
+            saveCart(cart);
+            render();
+          }
+          return;
+        }
       });
     }
 
@@ -511,8 +557,8 @@
       bindEvents(); // bind once — never inside render()
       render();
 
-      // Validate stock for items that have a product_id
-      (async function validateStock() {
+      // Fetch stock, auto-reduce cart if needed, re-render with caps
+      (async function loadStock() {
         var cart = getCart();
         if (cart.length === 0) return;
         var pids = cart.filter(function(i) { return i.product_id; }).map(function(i) { return i.product_id; });
@@ -525,29 +571,38 @@
           });
           if (!r.ok) return;
           var stocks = await r.json();
-          var stockMap = {};
           stocks.forEach(function(s) { stockMap[s.id] = s.stock_quantity; });
-          var hasOOS = false;
-          cart.forEach(function(item, idx) {
+          stockLoaded = true;
+
+          // Auto-reduce any items that exceed current stock
+          var cart2 = getCart();
+          var reduced = [];
+          cart2.forEach(function(item) {
             if (!item.product_id) return;
             var avail = stockMap.hasOwnProperty(item.product_id) ? stockMap[item.product_id] : null;
-            if (avail !== null && avail < item.quantity) {
-              hasOOS = true;
-              document.querySelectorAll('.cart-item[data-idx="' + idx + '"]').forEach(function(el) {
-                if (el.querySelector('.stock-warn')) return;
-                var warn = document.createElement('div');
-                warn.className = 'stock-warn';
-                warn.style.cssText = 'font-size:11px;color:#c0392b;font-weight:600;margin-top:6px;letter-spacing:0.02em;';
-                warn.textContent = avail <= 0 ? 'Stoc epuizat — elimină din coș' : 'Stoc disponibil: ' + avail + (avail === 1 ? ' bucată' : ' bucăți');
-                el.querySelector('.item-content').appendChild(warn);
-              });
+            if (avail !== null && item.quantity > avail) {
+              if (avail > 0) {
+                reduced.push(item.model + ' ' + item.colorway + ' (ajustat la ' + avail + ')');
+                item.quantity = avail;
+              } else {
+                reduced.push(item.model + ' ' + item.colorway + ' (stoc epuizat — eliminat)');
+                item.quantity = 0;
+              }
             }
           });
-          if (hasOOS) {
-            var chk = document.querySelector('.checkout-btn');
-            if (chk) {
-              chk.style.cssText += ';opacity:0.45;pointer-events:none;cursor:default;';
-              chk.textContent = 'Actualizează coșul';
+          var updated = cart2.filter(function(i) { return i.quantity > 0; });
+          if (reduced.length > 0) saveCart(updated);
+
+          render(); // re-render with stockMap applied (shows caps, disables + buttons)
+
+          if (reduced.length > 0) {
+            var root = document.getElementById('cart-root');
+            var wrap = root && root.querySelector('.cart-root-wrap');
+            if (wrap) {
+              var notice = document.createElement('div');
+              notice.className = 'stock-reduced-notice';
+              notice.textContent = 'Stocul s-a modificat: ' + reduced.join('; ') + '. Am ajustat coșul automat.';
+              wrap.insertBefore(notice, wrap.firstChild);
             }
           }
         } catch(_) {}
