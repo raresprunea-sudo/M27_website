@@ -191,7 +191,7 @@
 <body>
 
   <div class="sticky-top">
-    <div class="announcement-bar">TRANSPORT GRATUIT PESTE 300 RON</div>
+    <div class="announcement-bar">TRANSPORT GRATUIT PESTE 200 RON</div>
     <header>
       <div class="header-inner">
         <div class="header-left">
@@ -246,7 +246,7 @@
           <span class="product-newin">New In</span>
           <div class="product-meta-row">
             <div><div class="product-name-label">Chlorine</div><div class="product-color-label">Tangerine</div></div>
-            <div class="product-prices"><div class="product-price-original">300 RON</div><div class="product-price-disc">175 RON</div></div>
+            <div class="product-prices"><div class="product-price-original">199 RON</div><div class="product-price-disc">127 RON</div></div>
           </div>
         </div>
       </div>
@@ -261,7 +261,7 @@
           <span class="product-newin">New In</span>
           <div class="product-meta-row">
             <div><div class="product-name-label">Sulphur</div><div class="product-color-label">Dark Green</div></div>
-            <div class="product-prices"><div class="product-price-original">300 RON</div><div class="product-price-disc">175 RON</div></div>
+            <div class="product-prices"><div class="product-price-original">199 RON</div><div class="product-price-disc">127 RON</div></div>
           </div>
         </div>
       </div>
@@ -276,7 +276,7 @@
           <span class="product-newin">New In</span>
           <div class="product-meta-row">
             <div><div class="product-name-label">Zirconium</div><div class="product-color-label">Full Black</div></div>
-            <div class="product-prices"><div class="product-price-original">300 RON</div><div class="product-price-disc">175 RON</div></div>
+            <div class="product-prices"><div class="product-price-original">199 RON</div><div class="product-price-disc">127 RON</div></div>
           </div>
         </div>
       </div>
@@ -291,7 +291,7 @@
           <span class="product-newin">New In</span>
           <div class="product-meta-row">
             <div><div class="product-name-label">Mercury</div><div class="product-color-label">Champagne</div></div>
-            <div class="product-prices"><div class="product-price-original">300 RON</div><div class="product-price-disc">175 RON</div></div>
+            <div class="product-prices"><div class="product-price-original">199 RON</div><div class="product-price-disc">127 RON</div></div>
           </div>
         </div>
       </div>
@@ -371,8 +371,8 @@
     function totalQty(c) { return c.reduce(function(s, i) { return s + i.quantity; }, 0); }
     function subtotal(c) { return c.reduce(function(s, i) { return s + i.price * i.quantity; }, 0); }
 
-    var PRICE = 175;
-    var SHIPPING_THRESHOLD = 300;
+    var PRICE = 127;
+    var SHIPPING_THRESHOLD = 200;
     var SHIPPING_COST = 19.99;
 
     function bundleDiscount(cart) {
@@ -614,8 +614,8 @@
   (function () {
     /* ── CART EXPRESS CHECKOUT (Stripe Payment Request Button) ── */
     var CART_STRIPE_PK = 'pk_live_51TI3hXIlryxhPZhoGddeAVJthYgG0WUipl5xFcfG4EaQyOWZ2zCA6E2IXpOEdyR3c87phEakmkHV6i73jXNFAdZT00gKMmSU8d';
-    var CART_ITEM_PRICE = 175;
-    var CART_SHIP_THRESHOLD = 300;
+    var CART_ITEM_PRICE = 127;
+    var CART_SHIP_THRESHOLD = 200;
     var CART_SHIP_COST = 19.99;
 
     function cartGetCart() { try { return JSON.parse(localStorage.getItem('m27_cart'))||[]; } catch(_){return[];} }
