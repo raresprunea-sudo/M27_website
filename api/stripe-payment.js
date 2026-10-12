@@ -4,9 +4,9 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Pricing constants — must match checkout.html exactly
-const SHIPPING_THRESHOLD = 300;
+const SHIPPING_THRESHOLD = 200;
 const SHIPPING_COST      = 19.99;
-const ITEM_PRICE         = 175; // used for bundle-discount calculation
+const ITEM_PRICE         = 127; // used for bundle-discount calculation
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

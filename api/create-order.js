@@ -6,9 +6,9 @@ const RESEND_KEY   = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL  = 'm27office1@gmail.com';
 
 // Pricing constants — must match checkout.html exactly
-const SHIPPING_THRESHOLD = 300;
+const SHIPPING_THRESHOLD = 200;
 const SHIPPING_COST      = 19.99;
-const ITEM_PRICE         = 175;
+const ITEM_PRICE         = 127;
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
