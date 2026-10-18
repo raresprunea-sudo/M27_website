@@ -114,6 +114,7 @@
     .unit-price-new { font-size: 13px; font-weight: 700; color: #2a7d44; white-space: nowrap; }
     .qty-cap-note { font-size: 10px; color: #a04000; font-weight: 600; letter-spacing: 0.02em; }
     .stock-reduced-notice { margin: 10px 20px 0; padding: 10px 14px; background: #fff8f0; border-left: 3px solid #e67e22; font-size: 11px; color: #7a4a00; line-height: 1.6; }
+    .price-changed-notice { margin: 10px 20px 0; padding: 10px 14px; background: #f0f4ff; border-left: 3px solid #3b6ed4; font-size: 11px; color: #1a2d6b; line-height: 1.6; }
 
     /* Empty state */
     .empty-cart { padding: 80px 24px; text-align: center; }
@@ -557,7 +558,7 @@
       bindEvents(); // bind once — never inside render()
       render();
 
-      // Fetch stock, auto-reduce cart if needed, re-render with caps
+      // Fetch stock + prices, auto-reduce/refresh cart, re-render with caps
       (async function loadStock() {
         var cart = getCart();
         if (cart.length === 0) return;
@@ -566,19 +567,28 @@
         var SB_URL = 'https://mwmhdlgmifddesrpmaef.supabase.co';
         var SB_KEY = 'sb_publishable_yChSFEz6_0PbUOYYpdNENQ_lyAnhxmw';
         try {
-          var r = await fetch(SB_URL + '/rest/v1/products?id=in.(' + pids.join(',') + ')&select=id,stock_quantity', {
+          var r = await fetch(SB_URL + '/rest/v1/products?id=in.(' + pids.join(',') + ')&select=id,price,stock_quantity', {
             headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
           });
           if (!r.ok) return;
-          var stocks = await r.json();
-          stocks.forEach(function(s) { stockMap[s.id] = s.stock_quantity; });
+          var rows = await r.json();
+          var priceMap = {};
+          rows.forEach(function(s) {
+            stockMap[s.id]  = s.stock_quantity;
+            priceMap[s.id]  = s.price;
+          });
           stockLoaded = true;
 
-          // Auto-reduce any items that exceed current stock
-          var cart2 = getCart();
-          var reduced = [];
+          // Walk the cart once: fix stock AND refresh prices
+          var cart2    = getCart();
+          var reduced  = [];
+          var priceUp  = [];
+          var anyChanged = false;
+
           cart2.forEach(function(item) {
             if (!item.product_id) return;
+
+            // Stock check — reduce qty if needed
             var avail = stockMap.hasOwnProperty(item.product_id) ? stockMap[item.product_id] : null;
             if (avail !== null && item.quantity > avail) {
               if (avail > 0) {
@@ -588,21 +598,41 @@
                 reduced.push(item.model + ' ' + item.colorway + ' (stoc epuizat — eliminat)');
                 item.quantity = 0;
               }
+              anyChanged = true;
+            }
+
+            // Price check — update silently; surface a notice only for increases
+            var newPrice = priceMap.hasOwnProperty(item.product_id) ? priceMap[item.product_id] : null;
+            if (newPrice !== null && Math.abs(newPrice - item.price) > 0.001) {
+              if (newPrice > item.price) {
+                priceUp.push(item.model + ' ' + item.colorway);
+              }
+              item.price   = newPrice;
+              anyChanged   = true;
             }
           });
+
           var updated = cart2.filter(function(i) { return i.quantity > 0; });
-          if (reduced.length > 0) saveCart(updated);
+          if (anyChanged) saveCart(updated);
 
-          render(); // re-render with stockMap applied (shows caps, disables + buttons)
+          render(); // re-render with updated prices + stock caps
 
-          if (reduced.length > 0) {
-            var root = document.getElementById('cart-root');
-            var wrap = root && root.querySelector('.cart-root-wrap');
-            if (wrap) {
-              var notice = document.createElement('div');
-              notice.className = 'stock-reduced-notice';
-              notice.textContent = 'Stocul s-a modificat: ' + reduced.join('; ') + '. Am ajustat coșul automat.';
-              wrap.insertBefore(notice, wrap.firstChild);
+          var root = document.getElementById('cart-root');
+          var wrap = root && root.querySelector('.cart-root-wrap');
+          if (wrap) {
+            // Stock notice (inserted last = appears first)
+            if (reduced.length > 0) {
+              var sNotice = document.createElement('div');
+              sNotice.className = 'stock-reduced-notice';
+              sNotice.textContent = 'Stocul s-a modificat: ' + reduced.join('; ') + '. Am ajustat coșul automat.';
+              wrap.insertBefore(sNotice, wrap.firstChild);
+            }
+            // Price-increase notice
+            if (priceUp.length > 0) {
+              var pNotice = document.createElement('div');
+              pNotice.className = 'price-changed-notice';
+              pNotice.textContent = 'Prețul s-a modificat pentru: ' + priceUp.join(', ') + '. Totalul a fost actualizat.';
+              wrap.insertBefore(pNotice, wrap.firstChild);
             }
           }
         } catch(_) {}

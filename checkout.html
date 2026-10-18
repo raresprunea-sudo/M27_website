@@ -536,6 +536,7 @@
 
     /* ── CART HELPERS ── */
     function getCart()     { try { return JSON.parse(localStorage.getItem('m27_cart'))||[]; } catch(_){return[];} }
+    function saveCart(c)   { localStorage.setItem('m27_cart', JSON.stringify(c)); }
     function totalQty(c)   { return c.reduce((s,i)=>s+i.quantity,0); }
     function subtotalAmt(c){ return c.reduce((s,i)=>s+i.price*i.quantity,0); }
     function discountAmt(c){ const p=Math.floor(totalQty(c)/2); return p>0?p*ITEM_PRICE*0.5:0; }
@@ -944,6 +945,53 @@
     setPayment('card');
     setDelivery('home');
     initStripe(); // preload Stripe on page load
+
+    // Refresh prices from Supabase — fixes stale prices in localStorage
+    (async function refreshPrices() {
+      var cart = getCart();
+      if (cart.length === 0) return;
+      var pids = cart.filter(function(i) { return i.product_id; }).map(function(i) { return i.product_id; });
+      if (pids.length === 0) return;
+      var SB_URL = 'https://mwmhdlgmifddesrpmaef.supabase.co';
+      var SB_KEY = 'sb_publishable_yChSFEz6_0PbUOYYpdNENQ_lyAnhxmw';
+      try {
+        var r = await fetch(SB_URL + '/rest/v1/products?id=in.(' + pids.join(',') + ')&select=id,price', {
+          headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
+        });
+        if (!r.ok) return;
+        var rows = await r.json();
+        var priceMap = {};
+        rows.forEach(function(s) { priceMap[s.id] = s.price; });
+
+        var cart2     = getCart();
+        var priceUp   = [];
+        var anyChanged = false;
+        cart2.forEach(function(item) {
+          if (!item.product_id) return;
+          var newPrice = priceMap.hasOwnProperty(item.product_id) ? priceMap[item.product_id] : null;
+          if (newPrice !== null && Math.abs(newPrice - item.price) > 0.001) {
+            if (newPrice > item.price) priceUp.push(item.model + ' ' + item.colorway);
+            item.price = newPrice;
+            anyChanged = true;
+          }
+        });
+        if (anyChanged) {
+          saveCart(cart2);
+          renderSummary();
+        }
+        if (priceUp.length > 0) {
+          // Show a notice above each summary container
+          ['mob-sum-content', 'desk-sum-content'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var n = document.createElement('div');
+            n.style.cssText = 'margin-bottom:12px;padding:9px 12px;background:#f0f4ff;border-left:3px solid #3b6ed4;font-size:11px;color:#1a2d6b;line-height:1.6;';
+            n.textContent = 'Prețul s-a modificat pentru: ' + priceUp.join(', ') + '. Totalul a fost actualizat.';
+            el.insertBefore(n, el.firstChild);
+          });
+        }
+      } catch(_) {}
+    })();
 
   })();
   </script>
