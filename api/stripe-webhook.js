@@ -90,7 +90,7 @@ async function findOrCreateOrder({ customer_name, customer_email, customer_phone
   return order;
 }
 
-async function sendAdminNotificationEmail({ order_id, customer_name, customer_email, delivery_type, items, total }) {
+async function sendAdminNotificationEmail({ order_id, customer_name, customer_email, customer_phone, delivery_type, address, items, total }) {
   const orderRef     = (order_id || '').slice(0, 8).toUpperCase();
   const deliveryLabel = delivery_type === 'locker' ? 'Easybox' : 'Acasă';
   const itemsSummary  = (items || []).map(i => {
@@ -111,9 +111,11 @@ async function sendAdminNotificationEmail({ order_id, customer_name, customer_em
       html: `<p style="font-family:sans-serif;font-size:14px;line-height:1.7;color:#222;">
         <strong>#${orderRef}</strong><br>
         Client: ${customer_name} &lt;${customer_email}&gt;<br>
+        Telefon: <strong>${customer_phone || '—'}</strong><br>
         Produse: ${itemsSummary}<br>
         Total: <strong>${formatRON(total)} RON</strong><br>
-        Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Card
+        Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Card<br>
+        Adresă: <strong>${address || '—'}</strong>
       </p>`,
     }),
   });
@@ -341,9 +343,11 @@ module.exports = async function handler(req, res) {
 
     await sendAdminNotificationEmail({
       order_id:       order.id,
-      customer_name:  meta.customer_name  || '',
-      customer_email: meta.customer_email || '',
-      delivery_type:  meta.delivery_type  || 'home',
+      customer_name:  meta.customer_name   || '',
+      customer_email: meta.customer_email  || '',
+      customer_phone: meta.customer_phone  || '',
+      delivery_type:  meta.delivery_type   || 'home',
+      address:        meta.address         || '',
       items,
       total:          pi.amount / 100,
     }).catch(e => console.error('Admin email failed (non-fatal):', e.message));

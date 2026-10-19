@@ -280,9 +280,11 @@ module.exports = async function handler(req, res) {
         html: `<p style="font-family:sans-serif;font-size:14px;line-height:1.7;color:#222;">
           <strong>#${orderRef}</strong><br>
           Client: ${customer_name} &lt;${customer_email}&gt;<br>
+          Telefon: <strong>${customer_phone || '—'}</strong><br>
           Produse: ${itemsSummary}<br>
           Total: <strong>${Number(total_amount).toFixed(2).replace('.', ',')} RON</strong><br>
-          Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Ramburs
+          Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Ramburs<br>
+          Adresă: <strong>${address || '—'}</strong>
         </p>`,
       }),
     }).catch(e => {

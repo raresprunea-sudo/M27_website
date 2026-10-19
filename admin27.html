@@ -945,7 +945,7 @@
           <td class="truncate muted">${o.customer_email || '—'}</td>
           <td class="muted">${o.customer_phone || '—'}</td>
           <td><span class="badge ${delivClass}">${delivLabel}</span></td>
-          <td class="truncate muted" title="${addr}">${addr}</td>
+          <td class="muted" style="white-space:normal;min-width:180px;max-width:280px;word-break:break-word;">${addr}</td>
           <td class="right" style="font-weight:600">${fmtAmt(o.total_amount)}</td>
           <td><span class="badge ${paymentClass}">${paymentLabel}</span></td>
           <td onclick="event.stopPropagation()">
@@ -958,7 +958,16 @@
         <tr class="order-detail-row" id="detail-${o.id}">
           <td colspan="10">
             <div class="order-detail-inner">
-              <div class="detail-label">Order items — #${ref}</div>
+              <div class="detail-label">Livrare &amp; Contact — #${ref}</div>
+              <div style="margin-bottom:12px;font-size:12px;line-height:1.7;color:var(--text);">
+                <span style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Adresă</span><br>
+                <span style="user-select:all;">${addr || '—'}</span>
+              </div>
+              <div style="margin-bottom:14px;font-size:12px;line-height:1.7;color:var(--text);">
+                <span style="color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Telefon</span><br>
+                <span style="user-select:all;">${o.customer_phone || '—'}</span>
+              </div>
+              <div class="detail-label" style="margin-top:4px;">Order items — #${ref}</div>
               ${itemsHTML}
             </div>
           </td>
