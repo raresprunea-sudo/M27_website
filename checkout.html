@@ -251,36 +251,39 @@
     .sum-total-cur { font-size: 12px; color: #6d7175; }
     .sum-total-val { font-size: 22px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; }
 
-    /* ── PROMO CODE ── */
-    .promo-box { display: flex; gap: 8px; margin: 14px 0 4px; }
+    /* ── PROMO CODE (own block in the main column, above submit) ── */
+    .promo-section { margin-bottom: 24px; }
+    .promo-box { display: flex; gap: 8px; }
     .promo-input {
-      flex: 1; min-width: 0; height: 42px; padding: 0 12px;
+      flex: 1; min-width: 0; height: 48px; padding: 0 14px;
       border: 1px solid #c8ccd0; border-radius: 8px; background: #fff;
-      font-family: inherit; font-size: 13px; color: #1a1a1a; letter-spacing: 0.04em;
+      font-family: inherit; font-size: 14px; color: #1a1a1a; letter-spacing: 0.04em;
       text-transform: uppercase; outline: none; transition: border-color 0.15s;
     }
     .promo-input::placeholder { color: #b4b8bc; letter-spacing: normal; text-transform: none; }
     .promo-input:focus { border-color: #1a1a1a; }
     .promo-apply-btn {
-      flex-shrink: 0; height: 42px; padding: 0 18px;
+      flex-shrink: 0; height: 48px; padding: 0 22px;
       border: 1px solid #1a1a1a; border-radius: 8px; background: #fff;
-      font-family: inherit; font-size: 13px; font-weight: 600; color: #1a1a1a;
+      font-family: inherit; font-size: 14px; font-weight: 600; color: #1a1a1a;
       cursor: pointer; transition: background 0.15s, color 0.15s;
     }
     .promo-apply-btn:hover { background: #1a1a1a; color: #fff; }
     .promo-apply-btn:active { transform: translateY(1px); }
-    .promo-err { font-size: 12px; color: #dc2626; margin: 4px 2px 6px; }
+    .promo-apply-btn:focus-visible { outline: 2px solid #1a1a1a; outline-offset: 2px; }
+    .promo-err { font-size: 12px; color: #dc2626; margin: 6px 2px 0; }
     .promo-applied {
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      margin: 14px 0 4px; padding: 10px 14px;
+      padding: 13px 16px;
       background: rgba(42,125,68,0.07); border: 1px solid rgba(42,125,68,0.3); border-radius: 8px;
     }
-    .promo-applied-label { font-size: 13px; color: #2a7d44; font-weight: 600; }
+    .promo-applied-label { font-size: 14px; color: #2a7d44; font-weight: 600; }
     .promo-remove-btn {
       flex-shrink: 0; background: none; border: none; cursor: pointer;
-      font-family: inherit; font-size: 12px; color: #6d7175; text-decoration: underline; padding: 0;
+      font-family: inherit; font-size: 13px; color: #6d7175; text-decoration: underline; padding: 0;
     }
     .promo-remove-btn:hover { color: #1a1a1a; }
+    .promo-remove-btn:focus-visible { outline: 2px solid #1a1a1a; outline-offset: 2px; border-radius: 2px; }
 
     /* ── DESKTOP SUMMARY COLUMN ── */
     .co-summary { display: none; }
@@ -506,6 +509,12 @@
         <div class="pay-error" id="pay-error"></div>
       </div>
 
+      <!-- PROMO CODE -->
+      <div class="promo-section">
+        <div class="field-label" style="margin-bottom:6px">Cod promoțional</div>
+        <div id="promo-mount"></div>
+      </div>
+
       <!-- SUBMIT -->
       <div>
         <button class="submit-btn" id="submit-btn">Plasează comanda</button>
@@ -620,15 +629,11 @@
       const promoPct = Math.round(promoRate(promoApplied)*100);
       const promoRow = (promoApplied&&promo>0)?`<div class="sum-row"><span class="sum-disc">Cod ${promoApplied} (−${promoPct}%)</span><span class="sum-disc">−${fmt(promo)} RON</span></div>`:'';
       const delVal   = del===0?`<span class="sum-free">Gratuit</span>`:`<span class="sum-val">${fmt(del)} RON</span>`;
-      const promoBox = promoApplied
-        ? `<div class="promo-applied"><span class="promo-applied-label">✓ Cod ${promoApplied} aplicat</span><button type="button" class="promo-remove-btn">Elimină</button></div>`
-        : `<div class="promo-box"><input class="promo-input" type="text" placeholder="Cod promoțional" value="${escapeHtml(promoDraft)}" autocomplete="off" spellcheck="false" /><button type="button" class="promo-apply-btn">Aplică</button></div>${promoError?`<div class="promo-err">${escapeHtml(promoError)}</div>`:''}`;
       return `${items}<div class="sum-divider"></div>
         <div class="sum-row"><span class="sum-lbl">Subtotal</span><span class="sum-val">${fmt(sub)} RON</span></div>
         ${discRow}
         ${promoRow}
         <div class="sum-row"><span class="sum-lbl">Livrare</span>${delVal}</div>
-        ${promoBox}
         <div class="sum-total">
           <span class="sum-total-lbl">Total</span>
           <div class="sum-total-rhs"><span class="sum-total-cur">RON</span><span class="sum-total-val">${fmt(tot)}</span></div>
@@ -655,6 +660,18 @@
     }
 
     /* ── PROMO CODE ── */
+    // The input / applied-chip now lives in its own block in the main column
+    // (#promo-mount), not inside the collapsible summary. Only the discount LINE
+    // stays in the summary (promoRow). Logic below is unchanged.
+    function buildPromoHTML() {
+      return promoApplied
+        ? `<div class="promo-applied"><span class="promo-applied-label">✓ Cod ${promoApplied} aplicat</span><button type="button" class="promo-remove-btn">Elimină</button></div>`
+        : `<div class="promo-box"><input class="promo-input" id="promo-input" type="text" placeholder="Introdu codul" value="${escapeHtml(promoDraft)}" autocomplete="off" spellcheck="false" aria-label="Cod promoțional" /><button type="button" class="promo-apply-btn">Aplică</button></div>${promoError?`<div class="promo-err">${escapeHtml(promoError)}</div>`:''}`;
+    }
+    function renderPromo() {
+      const mount=document.getElementById('promo-mount');
+      if(mount) mount.innerHTML=buildPromoHTML();
+    }
     function applyPromo(raw) {
       const code=(raw||'').trim().toUpperCase();
       promoDraft=(raw||'').trim();
@@ -680,6 +697,7 @@
     }
     function refreshTotals() {
       renderSummary();
+      renderPromo();
       updateSubmitLabel();
       updateStripeAmount();
     }
@@ -1042,6 +1060,7 @@
 
     /* ── INIT ── */
     renderSummary();
+    renderPromo();
     updateBadge();
     setPayment('card');
     setDelivery('home');

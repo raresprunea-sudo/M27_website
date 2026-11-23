@@ -830,6 +830,7 @@
 
 
   <script src="/cookie-consent.js"></script>
+  <script src="/newsletter.js"></script>
 </head>
 <body>
 
@@ -1276,38 +1277,7 @@
       window.addEventListener('resize', updateHeaderOffset);
     })();
 
-    (function () {
-      const input   = document.getElementById('newsletter-input');
-      const btn     = document.getElementById('newsletter-btn');
-      const formWrap = document.getElementById('newsletter-form-wrap');
-      const success = document.getElementById('newsletter-success');
-      const errEl   = document.getElementById('newsletter-error');
-
-      async function subscribe() {
-        const email = input.value.trim();
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
-        btn.disabled = true;
-        errEl.style.display = 'none';
-        try {
-          const r = await fetch('/api/subscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
-          });
-          if (!r.ok) throw new Error('server');
-          formWrap.style.display = 'none';
-          success.style.display = 'block';
-        } catch(e) {
-          errEl.style.display = 'block';
-          btn.disabled = false;
-        }
-      }
-
-      btn.addEventListener('click', subscribe);
-      input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') subscribe();
-      });
-    })();
+    /* newsletter handler → shared /newsletter.js */
 
     (function () {
       const btn = document.getElementById('hamburger-btn');

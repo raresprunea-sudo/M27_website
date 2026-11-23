@@ -496,6 +496,7 @@
 
 
   <script src="/cookie-consent.js"></script>
+  <script src="/newsletter.js"></script>
 </head>
 <body>
 
@@ -793,7 +794,8 @@
           <span class="nl-btn-label">Abonează-te</span>
         </button>
       </div>
-      <div id="newsletter-success" style="display:none; font-size:13px; font-weight:600; letter-spacing:0.06em; color:#1a1a1a;">Thanks for the sub! &lt;3</div>
+      <div id="newsletter-success" style="display:none; font-size:13px; font-weight:600; letter-spacing:0.06em; color:#1a1a1a;">Te-ai abonat ✓</div>
+      <div id="newsletter-error" style="display:none; font-size:12px; font-weight:500; letter-spacing:0.04em; color:#c0392b;">A apărut o eroare. Încearcă din nou.</div>
     </div>
 
     <!-- Social row (mobile) -->
@@ -987,6 +989,8 @@
         btn.classList.add('active');
       });
     });
+
+    /* newsletter handler → shared /newsletter.js */
 
   </script>
 
