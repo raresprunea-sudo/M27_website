@@ -308,6 +308,8 @@
     const ITEM_PRICE         = 127;
     const SHIPPING_THRESHOLD = 200;
     const SHIPPING_COST      = 19.99;
+    // Promo codes — kept in sync with the checkout + API, so the summary shows the right %.
+    const PROMO_CODES        = { CODENAME: 0.20, WELCOME5: 0.05 };
 
     /* ── IMAGES MAP ── */
     const IMAGES = {
@@ -342,14 +344,22 @@
 
     /* ── RENDER ── */
     function renderPage(data) {
-      const { orderRef, customerEmail, customerName, items, deliveryType, address, chargedTotal, paymentType } = data;
+      const { orderRef, customerEmail, customerName, items, deliveryType, address, chargedTotal, paymentType, promoCode } = data;
       const sub  = subtotal(items);
       const disc = discount(items);
-      // When chargedTotal is known, derive shipping as the residual so it matches the actual charge.
-      const ship = chargedTotal != null
-        ? Math.round(Math.max(0, chargedTotal - (sub - disc)) * 100) / 100
-        : shipping(items);
-      const tot  = chargedTotal != null ? chargedTotal : (sub - disc + ship);
+      const net  = sub - disc;
+      let ship, promoDisc = 0;
+      if (chargedTotal == null) {
+        ship = net >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+      } else if (chargedTotal >= net) {
+        // Charge covers the merchandise in full → the remainder is shipping (also absorbs any price change).
+        ship = Math.round((chargedTotal - net) * 100) / 100;
+      } else {
+        // Charge is below merchandise → a promo code reduced it. Shipping is deterministic; the rest is the promo.
+        ship = net >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+        promoDisc = Math.max(0, Math.round((net + ship - chargedTotal) * 100) / 100);
+      }
+      const tot  = chargedTotal != null ? chargedTotal : (net + ship);
       const firstName = (customerName || '').split(' ')[0] || '';
 
       const itemsHTML = items.map(i => {
@@ -371,6 +381,16 @@
         <div class="details-row">
           <span class="lbl">Reducere 50% OFF</span>
           <span class="val" style="color:#2a7d44">−${formatRON(disc)} RON</span>
+        </div>` : '';
+
+      // Prefer the exact % from the known code; fall back to deriving it from the charged amount (COD has no code name).
+      const codeRate = PROMO_CODES[(promoCode || '').toUpperCase()] || 0;
+      const promoPct = codeRate ? Math.round(codeRate * 100) : (net > 0 ? Math.round(promoDisc / net * 100) : 0);
+      const promoLabel = promoCode ? `Cod ${promoCode}` : 'Cod promoțional';
+      const promoRow = promoDisc > 0.5 ? `
+        <div class="details-row">
+          <span class="lbl">${promoLabel}${promoPct ? ` (−${promoPct}%)` : ''}</span>
+          <span class="val" style="color:#2a7d44">−${formatRON(promoDisc)} RON</span>
         </div>` : '';
 
       const deliveryLabel = 'Livrare';
@@ -406,6 +426,7 @@
             <span class="val">${formatRON(sub)} RON</span>
           </div>
           ${discRow}
+          ${promoRow}
           <div class="details-row">
             <span class="lbl">${deliveryLabel}</span>
             <span class="val" ${ship===0?'style="color:#2a7d44"':''}>${ship===0?'Gratuit':formatRON(ship)+' RON'}</span>
@@ -563,6 +584,7 @@
         address,
         chargedTotal: paymentIntent.amount / 100,
         paymentType:  'card',
+        promoCode:    meta.promo_code || '',
       });
     }
 

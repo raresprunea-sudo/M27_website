@@ -5,6 +5,10 @@ function formatRON(v) {
   return Number(v).toFixed(2).replace('.', ',');
 }
 
+// Promo codes — kept in sync with api/stripe-payment.js / api/create-order.js.
+const PROMO_CODES = { CODENAME: 0.20, WELCOME5: 0.05 };
+function promoRate(code) { return PROMO_CODES[String(code || '').trim().toUpperCase()] || 0; }
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -29,6 +33,8 @@ module.exports = async function handler(req, res) {
     subtotal,
     discount,
     delivery,
+    promo_code,
+    promo_discount,
     total,
   } = req.body || {};
 
@@ -55,6 +61,12 @@ module.exports = async function handler(req, res) {
   const discountRow = discount > 0 ? `<tr>
     <td style="font-size:13px;color:#2a7d44;padding-bottom:10px;">Reducere 50% OFF</td>
     <td style="font-size:13px;color:#2a7d44;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">−${formatRON(discount)} RON</td>
+  </tr>` : '';
+
+  const promoPct = Math.round(promoRate(promo_code) * 100);
+  const promoRow = Number(promo_discount) > 0 ? `<tr>
+    <td style="font-size:13px;color:#2a7d44;padding-bottom:10px;">Cod ${promo_code || 'promoțional'}${promoPct ? ` (−${promoPct}%)` : ''}</td>
+    <td style="font-size:13px;color:#2a7d44;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">−${formatRON(promo_discount)} RON</td>
   </tr>` : '';
 
   const deliveryVal = (delivery || 0) > 0
@@ -116,6 +128,7 @@ module.exports = async function handler(req, res) {
                 <td style="font-size:13px;color:#6d7175;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">${formatRON(subtotal)} RON</td>
               </tr>
               ${discountRow}
+              ${promoRow}
               <tr>
                 <td style="font-size:13px;color:#6d7175;padding-bottom:20px;">Livrare</td>
                 <td style="text-align:right;padding-bottom:20px;white-space:nowrap;">${deliveryVal}</td>

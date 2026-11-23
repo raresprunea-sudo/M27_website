@@ -251,6 +251,37 @@
     .sum-total-cur { font-size: 12px; color: #6d7175; }
     .sum-total-val { font-size: 22px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; }
 
+    /* ── PROMO CODE ── */
+    .promo-box { display: flex; gap: 8px; margin: 14px 0 4px; }
+    .promo-input {
+      flex: 1; min-width: 0; height: 42px; padding: 0 12px;
+      border: 1px solid #c8ccd0; border-radius: 8px; background: #fff;
+      font-family: inherit; font-size: 13px; color: #1a1a1a; letter-spacing: 0.04em;
+      text-transform: uppercase; outline: none; transition: border-color 0.15s;
+    }
+    .promo-input::placeholder { color: #b4b8bc; letter-spacing: normal; text-transform: none; }
+    .promo-input:focus { border-color: #1a1a1a; }
+    .promo-apply-btn {
+      flex-shrink: 0; height: 42px; padding: 0 18px;
+      border: 1px solid #1a1a1a; border-radius: 8px; background: #fff;
+      font-family: inherit; font-size: 13px; font-weight: 600; color: #1a1a1a;
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .promo-apply-btn:hover { background: #1a1a1a; color: #fff; }
+    .promo-apply-btn:active { transform: translateY(1px); }
+    .promo-err { font-size: 12px; color: #dc2626; margin: 4px 2px 6px; }
+    .promo-applied {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin: 14px 0 4px; padding: 10px 14px;
+      background: rgba(42,125,68,0.07); border: 1px solid rgba(42,125,68,0.3); border-radius: 8px;
+    }
+    .promo-applied-label { font-size: 13px; color: #2a7d44; font-weight: 600; }
+    .promo-remove-btn {
+      flex-shrink: 0; background: none; border: none; cursor: pointer;
+      font-family: inherit; font-size: 12px; color: #6d7175; text-decoration: underline; padding: 0;
+    }
+    .promo-remove-btn:hover { color: #1a1a1a; }
+
     /* ── DESKTOP SUMMARY COLUMN ── */
     .co-summary { display: none; }
     .co-summary-inner {
@@ -517,6 +548,14 @@
     const SHIPPING_THRESHOLD = 200;
     const SHIPPING_COST      = 19.99;
     const ITEM_PRICE         = 127;
+    // Promo codes — single source of truth on the client. Add / change / remove here.
+    // The server re-validates independently in api/stripe-payment.js and api/create-order.js.
+    const PROMO_CODES        = { CODENAME: 0.20, WELCOME5: 0.05 };
+    function promoRate(code) { return PROMO_CODES[String(code||'').trim().toUpperCase()] || 0; }
+    let   promoApplied       = '';  // the applied code ('' = none); session-only, never persisted
+    try { localStorage.removeItem('m27_promo'); } catch(_){}  // purge any code stored by an earlier build
+    let   promoDraft         = '';
+    let   promoError         = '';
 
     /* ── IMAGES ── */
     const IMAGES = {
@@ -540,9 +579,11 @@
     function totalQty(c)   { return c.reduce((s,i)=>s+i.quantity,0); }
     function subtotalAmt(c){ return c.reduce((s,i)=>s+i.price*i.quantity,0); }
     function discountAmt(c){ const p=Math.floor(totalQty(c)/2); return p>0?p*ITEM_PRICE*0.5:0; }
+    function promoAmt(c)   { return promoApplied ? (subtotalAmt(c)-discountAmt(c))*promoRate(promoApplied) : 0; }
     function deliveryCost(c){ return (subtotalAmt(c)-discountAmt(c))>=SHIPPING_THRESHOLD?0:SHIPPING_COST; }
-    function totalAmt(c)   { return subtotalAmt(c)-discountAmt(c)+deliveryCost(c); }
+    function totalAmt(c)   { return subtotalAmt(c)-discountAmt(c)-promoAmt(c)+deliveryCost(c); }
     function fmt(n)        { return Number(n).toFixed(2).replace('.', ','); }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g,function(ch){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];}); }
 
     // Splits items JSON into ≤490-char chunks stored as items_0, items_1, …
     // Stripe caps each metadata value at 500 chars; a single "items" key silently
@@ -574,12 +615,20 @@
           <div class="sum-price">${fmt(i.price*i.quantity)} RON</div>
         </div>`;
       }).join('');
+      const promo    = promoAmt(cart);
       const discRow  = disc>0?`<div class="sum-row"><span class="sum-disc">Reducere 50% OFF</span><span class="sum-disc">−${fmt(disc)} RON</span></div>`:'';
+      const promoPct = Math.round(promoRate(promoApplied)*100);
+      const promoRow = (promoApplied&&promo>0)?`<div class="sum-row"><span class="sum-disc">Cod ${promoApplied} (−${promoPct}%)</span><span class="sum-disc">−${fmt(promo)} RON</span></div>`:'';
       const delVal   = del===0?`<span class="sum-free">Gratuit</span>`:`<span class="sum-val">${fmt(del)} RON</span>`;
+      const promoBox = promoApplied
+        ? `<div class="promo-applied"><span class="promo-applied-label">✓ Cod ${promoApplied} aplicat</span><button type="button" class="promo-remove-btn">Elimină</button></div>`
+        : `<div class="promo-box"><input class="promo-input" type="text" placeholder="Cod promoțional" value="${escapeHtml(promoDraft)}" autocomplete="off" spellcheck="false" /><button type="button" class="promo-apply-btn">Aplică</button></div>${promoError?`<div class="promo-err">${escapeHtml(promoError)}</div>`:''}`;
       return `${items}<div class="sum-divider"></div>
         <div class="sum-row"><span class="sum-lbl">Subtotal</span><span class="sum-val">${fmt(sub)} RON</span></div>
         ${discRow}
+        ${promoRow}
         <div class="sum-row"><span class="sum-lbl">Livrare</span>${delVal}</div>
+        ${promoBox}
         <div class="sum-total">
           <span class="sum-total-lbl">Total</span>
           <div class="sum-total-rhs"><span class="sum-total-cur">RON</span><span class="sum-total-val">${fmt(tot)}</span></div>
@@ -603,6 +652,36 @@
           shippingOptions:[{ id:'standard', label:del===0?'Livrare gratuită':'Livrare standard', detail:'1-2 zile lucrătoare', amount:Math.round(del*100) }],
         });
       }
+    }
+
+    /* ── PROMO CODE ── */
+    function applyPromo(raw) {
+      const code=(raw||'').trim().toUpperCase();
+      promoDraft=(raw||'').trim();
+      // A valid code replaces whatever was applied before — only one code per order.
+      if(promoRate(code)>0) {
+        promoApplied=code; promoError=''; promoDraft='';
+        refreshTotals();
+      } else {
+        promoApplied=''; promoError=code?'Cod promoțional invalid':'';
+        refreshTotals();
+      }
+    }
+    function removePromo() {
+      promoApplied=''; promoError=''; promoDraft='';
+      refreshTotals();
+    }
+    function updateSubmitLabel() {
+      const btn=document.getElementById('submit-btn'); if(!btn) return;
+      btn.textContent = paymentMethod==='card' ? `Plătește ${fmt(totalAmt(getCart()))} RON` : 'Plasează comanda';
+    }
+    function updateStripeAmount() {
+      try { if(elements&&stripeReady) elements.update({ amount:Math.round(totalAmt(getCart())*100) }); } catch(_){}
+    }
+    function refreshTotals() {
+      renderSummary();
+      updateSubmitLabel();
+      updateStripeAmount();
     }
 
     /* ── STATE ── */
@@ -711,6 +790,8 @@
         subtotal:        subtotalAmt(cart),
         discount:        discountAmt(cart),
         delivery:        deliveryCost(cart),
+        promo_code:      promoApplied || '',
+        promo_discount:  promoAmt(cart),
       };
     }
 
@@ -753,6 +834,8 @@
         subtotal:       String(fd.subtotal),
         discount:       String(fd.discount),
         delivery:       String(fd.delivery),
+        promo_code:     fd.promo_code||'',
+        promo_discount: String(fd.promo_discount||0),
         ...chunkItemsMeta(cart),
       };
       const r=await fetch('/api/stripe-payment',{
@@ -812,6 +895,22 @@
     /* ── PAYMENT RADIO EVENTS ── */
     document.getElementById('rc-card').addEventListener('click',    ()=>setPayment('card'));
     document.getElementById('rc-ramburs').addEventListener('click', ()=>setPayment('ramburs'));
+
+    /* ── PROMO CODE EVENTS (delegated — summary re-renders) ── */
+    document.addEventListener('click', function(e){
+      if(e.target.closest('.promo-apply-btn')){
+        const box=e.target.closest('.promo-box'); const inp=box&&box.querySelector('.promo-input');
+        applyPromo(inp?inp.value:'');
+      } else if(e.target.closest('.promo-remove-btn')){
+        removePromo();
+      }
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Enter' && e.target.classList && e.target.classList.contains('promo-input')){
+        e.preventDefault();
+        applyPromo(e.target.value);
+      }
+    });
 
     /* ── CLEAR ERRORS ON INPUT ── */
     REQUIRED.forEach(f=>{
@@ -901,6 +1000,8 @@
           subtotal:       String(sub),
           discount:       String(disc),
           delivery:       String(ship),
+          promo_code:     promoApplied || '',
+          promo_discount: String(promoAmt(cart)),
           ...chunkItemsMeta(cart),
         };
 

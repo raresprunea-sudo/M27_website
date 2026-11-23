@@ -9,6 +9,9 @@ const ADMIN_EMAIL  = 'm27office1@gmail.com';
 const SHIPPING_THRESHOLD = 200;
 const SHIPPING_COST      = 19.99;
 const ITEM_PRICE         = 127;
+// Promo codes — server-authoritative source of truth. Add / change / remove here.
+const PROMO_CODES = { CODENAME: 0.20, WELCOME5: 0.05 };
+function promoRate(code) { return PROMO_CODES[String(code || '').trim().toUpperCase()] || 0; }
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -44,11 +47,16 @@ module.exports = async function handler(req, res) {
     subtotal,        // for confirmation email
     discount,        // for confirmation email
     delivery,        // for confirmation email
+    promo_code,      // optional promo code string
   } = req.body || {};
 
   // total_amount: for card orders this comes from the webhook (Stripe's actual charge);
   // for COD orders we recompute it below from Supabase prices — never trust the client.
   let total_amount = req.body?.total_amount;
+
+  // Promo code (server-authoritative) — recomputed from Supabase prices for COD below.
+  let promoCodeApplied = '';
+  let promoDiscount    = 0;
 
   if (!customer_name || !customer_email || !delivery_type) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -132,7 +140,13 @@ module.exports = async function handler(req, res) {
     const bundleDiscount = Math.floor(qty / 2) * ITEM_PRICE * 0.5;
     const net            = sub - bundleDiscount;
     const ship           = net >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-    total_amount         = net + ship;
+
+    // Promo code: validate server-side, apply % to the pre-promo net.
+    const promoCode = String(promo_code || '').trim().toUpperCase();
+    promoDiscount    = net * promoRate(promoCode);
+    promoCodeApplied = promoDiscount > 0 ? promoCode : '';
+
+    total_amount = net - promoDiscount + ship;
 
     // Divergence guard: log if what the client sent disagrees with what the server computed.
     // The server value is always used — this is purely for detecting anomalies.
@@ -248,6 +262,8 @@ module.exports = async function handler(req, res) {
         subtotal:       subtotal       ?? total_amount,
         discount:       discount       ?? 0,
         delivery:       delivery       ?? 0,
+        promo_code:     promoCodeApplied,
+        promo_discount: promoDiscount,
         total:          total_amount,
       }),
     }).catch(e => {
@@ -282,6 +298,7 @@ module.exports = async function handler(req, res) {
           Client: ${customer_name} &lt;${customer_email}&gt;<br>
           Telefon: <strong>${customer_phone || '—'}</strong><br>
           Produse: ${itemsSummary}<br>
+          ${promoCodeApplied ? `Cod promo: <strong>${promoCodeApplied}</strong> (−${Number(promoDiscount).toFixed(2).replace('.', ',')} RON)<br>` : ''}
           Total: <strong>${Number(total_amount).toFixed(2).replace('.', ',')} RON</strong><br>
           Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Ramburs<br>
           Adresă: <strong>${address || '—'}</strong>

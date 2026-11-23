@@ -7,6 +7,10 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 const ADMIN_EMAIL = 'm27office1@gmail.com';
 
+// Promo codes — kept in sync with api/stripe-payment.js / api/create-order.js.
+const PROMO_CODES = { CODENAME: 0.20, WELCOME5: 0.05 };
+function promoRate(code) { return PROMO_CODES[String(code || '').trim().toUpperCase()] || 0; }
+
 // Vercel: disable body parsing so we can verify the raw signature
 module.exports.config = { api: { bodyParser: false } };
 
@@ -90,7 +94,7 @@ async function findOrCreateOrder({ customer_name, customer_email, customer_phone
   return order;
 }
 
-async function sendAdminNotificationEmail({ order_id, customer_name, customer_email, customer_phone, delivery_type, address, items, total }) {
+async function sendAdminNotificationEmail({ order_id, customer_name, customer_email, customer_phone, delivery_type, address, items, promo_code, promo_discount, total }) {
   const orderRef     = (order_id || '').slice(0, 8).toUpperCase();
   const deliveryLabel = delivery_type === 'locker' ? 'Easybox' : 'Acasă';
   const itemsSummary  = (items || []).map(i => {
@@ -113,6 +117,7 @@ async function sendAdminNotificationEmail({ order_id, customer_name, customer_em
         Client: ${customer_name} &lt;${customer_email}&gt;<br>
         Telefon: <strong>${customer_phone || '—'}</strong><br>
         Produse: ${itemsSummary}<br>
+        ${parseFloat(promo_discount) > 0 ? `Cod promo: <strong>${promo_code || 'promoțional'}</strong> (−${formatRON(promo_discount)} RON)<br>` : ''}
         Total: <strong>${formatRON(total)} RON</strong><br>
         Livrare: ${deliveryLabel} &nbsp;|&nbsp; Plată: Card<br>
         Adresă: <strong>${address || '—'}</strong>
@@ -126,7 +131,7 @@ async function sendAdminNotificationEmail({ order_id, customer_name, customer_em
   }
 }
 
-async function sendConfirmationEmail({ order_id, customer_name, customer_email, delivery_type, address, items, subtotal, discount, delivery, total }) {
+async function sendConfirmationEmail({ order_id, customer_name, customer_email, delivery_type, address, items, subtotal, discount, delivery, promo_code, promo_discount, total }) {
   const orderRef  = (order_id || '').slice(0, 8).toUpperCase();
   const firstName = (customer_name || '').split(' ')[0];
 
@@ -149,6 +154,12 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
   const discountRow = parseFloat(discount) > 0 ? `<tr>
     <td style="font-size:13px;color:#2a7d44;padding-bottom:10px;">Reducere 50% OFF</td>
     <td style="font-size:13px;color:#2a7d44;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">−${formatRON(discount)} RON</td>
+  </tr>` : '';
+
+  const promoPct = Math.round(promoRate(promo_code) * 100);
+  const promoRow = parseFloat(promo_discount) > 0 ? `<tr>
+    <td style="font-size:13px;color:#2a7d44;padding-bottom:10px;">Cod ${promo_code || 'promoțional'}${promoPct ? ` (−${promoPct}%)` : ''}</td>
+    <td style="font-size:13px;color:#2a7d44;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">−${formatRON(promo_discount)} RON</td>
   </tr>` : '';
 
   const deliveryVal = parseFloat(delivery || 0) > 0
@@ -212,6 +223,7 @@ async function sendConfirmationEmail({ order_id, customer_name, customer_email, 
                 <td style="font-size:13px;color:#6d7175;text-align:right;padding-bottom:10px;white-space:nowrap;font-variant-numeric:tabular-nums;">${formatRON(subtotal)} RON</td>
               </tr>
               ${discountRow}
+              ${promoRow}
               <tr>
                 <td style="font-size:13px;color:#6d7175;padding-bottom:20px;">Livrare</td>
                 <td style="text-align:right;padding-bottom:20px;white-space:nowrap;">${deliveryVal}</td>
@@ -338,6 +350,8 @@ module.exports = async function handler(req, res) {
       subtotal:       meta.subtotal       || '0',
       discount:       meta.discount       || '0',
       delivery:       meta.delivery       || '0',
+      promo_code:     meta.promo_code     || '',
+      promo_discount: meta.promo_discount || '0',
       total:          pi.amount / 100,
     }).catch(e => console.error('Customer email failed (non-fatal):', e.message));
 
@@ -349,6 +363,8 @@ module.exports = async function handler(req, res) {
       delivery_type:  meta.delivery_type   || 'home',
       address:        meta.address         || '',
       items,
+      promo_code:     meta.promo_code      || '',
+      promo_discount: meta.promo_discount  || '0',
       total:          pi.amount / 100,
     }).catch(e => console.error('Admin email failed (non-fatal):', e.message));
 

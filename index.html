@@ -558,6 +558,11 @@
       font-size: 8px; font-weight: 700; color: #6d7175;
     }
 
+    /* ── MOBILE FOOTER ADDITIONS (hidden on desktop) ── */
+    .nl-heading { display: none; }
+    .nl-btn-label { display: none; }
+    .footer-social-row { display: none; }
+
     /* ── MOBILE (≤ 600px) ── */
     .sulphur-banner-img { object-position: center; }
 
@@ -668,19 +673,139 @@
       .brand-wordmark { font-size: 42px; }
       .brand-stats { flex-direction: row; flex-wrap: wrap; gap: 20px; }
 
-      /* Newsletter */
+      /* Footer links → two-column arrow list */
       .newsletter-links-row {
-        gap: 24px !important;
-        padding: 0 !important;
-        justify-content: center !important;
-        margin-bottom: 52px !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px 16px !important;
+        justify-content: stretch !important;
+        margin-bottom: 44px !important;
+        padding: 0 6px !important;
       }
-      .newsletter-email-outer { padding: 0 !important; }
+      .newsletter-links-row a {
+        position: relative;
+        padding-left: 18px;
+        text-align: left;
+      }
+      .newsletter-links-row a::before {
+        content: "\2192";
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: #1a1a1a;
+        font-weight: 400;
+      }
+
+      /* Newsletter → heading + boxed input + full-width button */
+      .nl-heading {
+        display: block;
+        text-align: center;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 27px;
+        font-weight: 300;
+        letter-spacing: 0.01em;
+        text-transform: none;
+        color: #1a1a1a;
+        line-height: 1.3;
+        margin-bottom: 18px;
+        padding: 0 14px;
+      }
+      .nl-accent { color: #FF5F15; font-style: italic; }
+      .newsletter-email-outer {
+        padding: 0 !important;
+        margin-bottom: 40px !important;
+      }
       .newsletter-email-wrap {
+        flex-direction: column;
+        align-items: stretch !important;
+        border-bottom: none !important;
         width: 100% !important;
         max-width: 100% !important;
         min-width: 0 !important;
+        gap: 10px !important;
+        padding-bottom: 0 !important;
       }
+      #newsletter-input {
+        border: 1px solid #d0d0d0 !important;
+        padding: 14px 16px !important;
+        font-size: 12px !important;
+      }
+      #newsletter-btn {
+        background: #1a1a1a !important;
+        padding: 15px !important;
+        width: 100%;
+        justify-content: center !important;
+        transition: background 0.15s;
+      }
+      #newsletter-btn:hover { background: #333 !important; }
+      #newsletter-btn svg { display: none; }
+      .nl-btn-label {
+        display: inline;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      /* Social row (Instagram) with flanking rules */
+      .footer-social-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+      .fsr-rule { flex: 1; height: 1px; background: #dcdcdc; max-width: 96px; }
+      .fsr-icon {
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        background: #1a1a1a;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff;
+        flex-shrink: 0;
+        transition: opacity 0.15s, transform 0.15s;
+      }
+      .fsr-icon:hover { opacity: 0.85; transform: translateY(-1px); }
+      .fsr-icon:active { transform: translateY(0); }
+      .fsr-icon svg { width: 21px; height: 21px; display: block; }
+
+      /* Footer links: drop Ajutor on mobile → 3 per column */
+      .newsletter-links-row a[href="ajutor.html"] { display: none; }
+
+      /* Payment row → 4 vivid icons (Apple, Google, Visa, Mastercard), no boxes, larger */
+      .pay-row { gap: 20px !important; }
+      .pay-row .pay-maestro { display: none !important; }
+      .pay-row .pay-apple  { order: 1; }
+      .pay-row .pay-google { order: 2; }
+      .pay-row .pay-visa   { order: 3; }
+      .pay-row .pay-mc     { order: 4; }
+      .pay-row .pay-item {
+        border: none !important;
+        background: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        filter: none !important;
+      }
+      .pay-row .pay-visa img   { height: 26px !important; }
+      .pay-row .pay-mc img     { height: 34px !important; }
+      .pay-row .pay-apple img  { height: 34px !important; }
+      .pay-row .pay-google img { height: 34px !important; }
+
+      /* Legal strip → vivid ANPC/SOL badges above copyright, no boxes */
+      .legal-strip { display: flex; flex-direction: column; align-items: center; }
+      .legal-strip .badge-row { order: 1; opacity: 1 !important; margin-bottom: 18px; gap: 16px !important; }
+      .legal-strip .badge-row a {
+        border: none !important;
+        background: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+      }
+      .legal-strip .badge-row img { height: 42px !important; }
+      .legal-strip .legal-copy { order: 2; }
+      .legal-strip .legal-cookie { order: 3; margin-top: 2px; }
+
       .newsletter-wordmark {
         font-size: 22px !important;
         letter-spacing: 0.04em !important;
@@ -1070,16 +1195,29 @@
       <a href="ajutor.html" style="font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; text-decoration:none;">Ajutor</a>
       </div>
 
+      <!-- Newsletter heading (mobile) -->
+      <div class="nl-heading">Abonează-te pentru <span class="nl-accent">5%</span> discount!</div>
+
       <!-- Email input — starts from ~ABOUT position -->
       <div class="newsletter-email-outer" id="newsletter-outer" style="display:flex; align-items:center; justify-content:center; margin-bottom:48px; padding:0 16px;">
         <div class="newsletter-email-wrap" id="newsletter-form-wrap" style="display:flex; align-items:center; border-bottom:1px solid #1a1a1a; width:560px; gap:8px; padding-bottom:6px;">
           <input type="email" id="newsletter-input" placeholder="EMAIL ADDRESS" style="flex:1; background:none; border:none; outline:none; font-size:11px; font-weight:400; letter-spacing:0.1em; text-transform:uppercase; color:#1a1a1a; font-family:inherit;" />
           <button id="newsletter-btn" style="background:none; border:none; cursor:pointer; padding:0; display:flex; align-items:center;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <span class="nl-btn-label">Abonează-te</span>
           </button>
         </div>
         <div id="newsletter-success" style="display:none; font-size:13px; font-weight:600; letter-spacing:0.06em; color:#1a1a1a;">Te-ai abonat ✓</div>
         <div id="newsletter-error" style="display:none; font-size:12px; font-weight:500; letter-spacing:0.04em; color:#c0392b;">A apărut o eroare. Încearcă din nou.</div>
+      </div>
+
+      <!-- Social row (mobile) -->
+      <div class="footer-social-row">
+        <span class="fsr-rule"></span>
+        <a href="https://www.instagram.com/m27_world/" target="_blank" rel="noopener" class="fsr-icon" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <span class="fsr-rule"></span>
       </div>
 
       <!-- M27 EYEWEAR wordmark — Orbitron text, centered -->
@@ -1089,30 +1227,30 @@
 
       <!-- PAYMENT METHODS -->
       <div style="border-top:1px solid #e8e8e8; padding:28px 0 24px; text-align:center;">
-        <div style="display:inline-flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
-          <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 14px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+        <div class="pay-row" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;">
+          <div class="pay-item pay-visa" style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 14px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
             <img src="https://unpkg.com/payment-icons/min/flat/visa.svg" height="18" alt="Visa" style="display:block;" />
           </div>
-          <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
-            <img src="https://unpkg.com/payment-icons/min/flat/mastercard.svg" height="22" alt="Mastercard" style="display:block;" />
+          <div class="pay-item pay-mc" style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+            <img src="website%20items/mastercard.svg" height="22" alt="Mastercard" style="display:block;" />
           </div>
-          <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
-            <img src="https://unpkg.com/payment-icons/min/flat/maestro.svg" height="22" alt="Maestro" style="display:block;" />
+          <div class="pay-item pay-maestro" style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+            <img src="website%20items/maestro.svg" height="22" alt="Maestro" style="display:block;" />
           </div>
-          <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <div class="pay-item pay-apple" style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
             <img src="https://cdn.simpleicons.org/applepay/000000" height="28" alt="Apple Pay" style="display:block; width:auto;" />
           </div>
-          <div style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
+          <div class="pay-item pay-google" style="border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; height:36px; display:flex; align-items:center; background:#fff; filter:saturate(0.7) opacity(0.8);">
             <img src="https://cdn.simpleicons.org/googlepay/4285F4" height="28" alt="Google Pay" style="display:block; width:auto;" />
           </div>
         </div>
       </div>
 
       <!-- LEGAL STRIP -->
-      <div style="padding:12px 0 40px; text-align:center;">
-        <p style="font-size:11px; letter-spacing:0.04em; color:#1a1a1a; text-transform:uppercase; margin-bottom:14px; opacity:0.45;">© 2026 FLANTERSHIPPING SRL &nbsp;·&nbsp; CUI 43538047</p>
-      <p style="margin-bottom:10px"><button onclick="window.m27OpenCookieSettings&&m27OpenCookieSettings()" style="background:none;border:none;color:#1a1a1a;font-family:inherit;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.35;cursor:pointer;padding:0;text-decoration:underline;">Setări cookies</button></p>
-        <div style="display:flex; align-items:center; justify-content:center; gap:14px; opacity:0.5;">
+      <div class="legal-strip" style="padding:12px 0 40px; text-align:center;">
+        <p class="legal-copy" style="font-size:11px; letter-spacing:0.04em; color:#1a1a1a; text-transform:uppercase; margin-bottom:14px; opacity:0.45;">© 2026 FLANTERSHIPPING SRL &nbsp;·&nbsp; CUI 43538047</p>
+      <p class="legal-cookie" style="margin-bottom:10px"><button onclick="window.m27OpenCookieSettings&&m27OpenCookieSettings()" style="background:none;border:none;color:#1a1a1a;font-family:inherit;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.35;cursor:pointer;padding:0;text-decoration:underline;">Setări cookies</button></p>
+        <div class="badge-row" style="display:flex; align-items:center; justify-content:center; gap:14px; opacity:0.5;">
           <a href="https://anpc.ro" target="_blank" rel="noopener" style="display:flex; align-items:center; border:1px solid #d0d0d0; border-radius:4px; padding:4px 8px; background:#fff;">
             <img src="website%20items/anpc-sal1-1.png.avif" height="28" alt="ANPC" style="display:block;" />
           </a>

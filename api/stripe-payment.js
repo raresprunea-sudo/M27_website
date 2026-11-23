@@ -7,6 +7,9 @@ const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SHIPPING_THRESHOLD = 200;
 const SHIPPING_COST      = 19.99;
 const ITEM_PRICE         = 127; // used for bundle-discount calculation
+// Promo codes — server-authoritative source of truth. Add / change / remove here.
+const PROMO_CODES = { CODENAME: 0.20, WELCOME5: 0.05 };
+function promoRate(code) { return PROMO_CODES[String(code || '').trim().toUpperCase()] || 0; }
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -92,8 +95,21 @@ module.exports = async function handler(req, res) {
   const net            = subtotal - bundleDiscount;
   const shipping       = net >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
 
-  const finalAmount = net + shipping;
+  // ── Promo code (server-authoritative) ───────────────────────────────────────
+  // The code is validated here, not trusted from the client. Free-shipping
+  // threshold is evaluated on the pre-promo net, matching checkout.html.
+  const promoCode     = String((metadata && metadata.promo_code) || '').trim().toUpperCase();
+  const promoDiscount = net * promoRate(promoCode);
+
+  const finalAmount = net - promoDiscount + shipping;
   const amountBani  = Math.round(finalAmount * 100);
+
+  // Normalize promo metadata to the server-computed values so the webhook/emails
+  // display what was actually charged, never a forged client value.
+  if (metadata && typeof metadata === 'object') {
+    metadata.promo_code     = promoDiscount > 0 ? promoCode : '';
+    metadata.promo_discount = String(promoDiscount);
+  }
 
   console.error(
     '[stripe-payment] net:', net,
