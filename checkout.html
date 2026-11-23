@@ -285,6 +285,17 @@
     .promo-remove-btn:hover { color: #1a1a1a; }
     .promo-remove-btn:focus-visible { outline: 2px solid #1a1a1a; outline-offset: 2px; border-radius: 2px; }
 
+    /* ── COMPACT COST BREAKDOWN (above submit; mirrors the summary, quieter) ── */
+    .cost-mini { margin-bottom: 22px; }
+    .cost-mini-row { display: flex; justify-content: space-between; font-size: 12px; line-height: 1.5; margin-bottom: 4px; }
+    .cost-mini .cm-lbl  { color: #6d7175; }
+    .cost-mini .cm-val  { color: #1a1a1a; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .cost-mini .cm-disc { color: #2a7d44; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .cost-mini .cm-free { color: #2a7d44; font-weight: 600; }
+    .cost-mini-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; padding-top: 10px; border-top: 1px solid #e8e8e8; }
+    .cost-mini-total .cm-total-lbl { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+    .cost-mini-total .cm-total-val { font-size: 15px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+
     /* ── DESKTOP SUMMARY COLUMN ── */
     .co-summary { display: none; }
     .co-summary-inner {
@@ -515,6 +526,9 @@
         <div id="promo-mount"></div>
       </div>
 
+      <!-- COST BREAKDOWN (compact confirmation, above submit — mirrors the summary) -->
+      <div class="cost-mini" id="cost-mini" aria-live="polite"></div>
+
       <!-- SUBMIT -->
       <div>
         <button class="submit-btn" id="submit-btn">Plasează comanda</button>
@@ -659,6 +673,24 @@
       }
     }
 
+    /* ── COMPACT COST BREAKDOWN — same figures/formatting as the summary (one source of truth) ── */
+    function buildCostMiniHTML(cart) {
+      const sub=subtotalAmt(cart), disc=discountAmt(cart), promo=promoAmt(cart), del=deliveryCost(cart), tot=totalAmt(cart);
+      const discRow  = disc>0?`<div class="cost-mini-row"><span class="cm-disc">Reducere 50% OFF</span><span class="cm-disc">−${fmt(disc)} RON</span></div>`:'';
+      const promoPct = Math.round(promoRate(promoApplied)*100);
+      const promoRow = (promoApplied&&promo>0)?`<div class="cost-mini-row"><span class="cm-disc">Cod ${promoApplied} (−${promoPct}%)</span><span class="cm-disc">−${fmt(promo)} RON</span></div>`:'';
+      const delVal   = del===0?`<span class="cm-free">Gratuit</span>`:`<span class="cm-val">${fmt(del)} RON</span>`;
+      return `<div class="cost-mini-row"><span class="cm-lbl">Subtotal</span><span class="cm-val">${fmt(sub)} RON</span></div>
+        ${discRow}
+        ${promoRow}
+        <div class="cost-mini-row"><span class="cm-lbl">Livrare</span>${delVal}</div>
+        <div class="cost-mini-total"><span class="cm-total-lbl">Total</span><span class="cm-total-val">${fmt(tot)} RON</span></div>`;
+    }
+    function renderCostMini() {
+      const el=document.getElementById('cost-mini');
+      if(el) el.innerHTML=buildCostMiniHTML(getCart());
+    }
+
     /* ── PROMO CODE ── */
     // The input / applied-chip now lives in its own block in the main column
     // (#promo-mount), not inside the collapsible summary. Only the discount LINE
@@ -698,6 +730,7 @@
     function refreshTotals() {
       renderSummary();
       renderPromo();
+      renderCostMini();
       updateSubmitLabel();
       updateStripeAmount();
     }
@@ -1061,6 +1094,7 @@
     /* ── INIT ── */
     renderSummary();
     renderPromo();
+    renderCostMini();
     updateBadge();
     setPayment('card');
     setDelivery('home');
@@ -1098,6 +1132,7 @@
         if (anyChanged) {
           saveCart(cart2);
           renderSummary();
+          renderCostMini();
         }
         if (priceUp.length > 0) {
           // Show a notice above each summary container
